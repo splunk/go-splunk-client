@@ -58,16 +58,14 @@ func TestClient_urlForPath(t *testing.T) {
 
 func TestClient_requestForLogin(t *testing.T) {
 	tests := []struct {
-		input        *Client
-		wantURL      string
-		wantUsername string
-		wantPassword string
+		input    *Client
+		wantURL  string
+		wantBody string
 	}{
 		{
 			&Client{URL: "https://localhost:8089", Username: "testuser", Password: "testpassword"},
 			"https://localhost:8089/services/auth/login",
-			"testuser",
-			"testpassword",
+			"password=testpassword&username=testuser",
 		},
 	}
 
@@ -82,9 +80,13 @@ func TestClient_requestForLogin(t *testing.T) {
 			t.Errorf("URL = %s, want %s", gotURL, test.wantURL)
 		}
 
-		gotUsername, gotPassword, _ := r.BasicAuth()
-		if gotUsername != test.wantUsername || gotPassword != test.wantPassword {
-			t.Errorf("BasicAuth = (%q, %q), want (%q, %q)", gotUsername, gotPassword, test.wantUsername, test.wantPassword)
+		gotBody, err := io.ReadAll(r.Body)
+		if err != nil {
+			t.Fatalf("unexpected error reading Body: %s", err)
+		}
+
+		if string(gotBody) != test.wantBody {
+			t.Errorf("Body = %q, want %q", gotBody, test.wantBody)
 		}
 	}
 }
