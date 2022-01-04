@@ -17,10 +17,12 @@ package client
 import (
 	"encoding/xml"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
 
+	"github.com/google/go-querystring/query"
 	"github.com/splunk/go-sdk/pkg/models"
 )
 
@@ -51,13 +53,20 @@ func (c *Client) requestForLogin() (*http.Request, error) {
 		return nil, err
 	}
 
+	loginValues, err := query.Values(models.Login{
+		Username: c.Username,
+		Password: c.Password,
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	r := &http.Request{
 		URL:    url,
 		Method: http.MethodPost,
+		Body:   io.NopCloser(strings.NewReader(loginValues.Encode())),
 		Header: http.Header{},
 	}
-
-	r.SetBasicAuth(c.Username, c.Password)
 
 	return r, nil
 }
