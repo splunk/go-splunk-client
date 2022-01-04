@@ -14,6 +14,12 @@
 
 package models
 
+// Login represents the fields used to authenticate to Splunk.
+type Login struct {
+	Username string `url:"username"`
+	Password string `url:"password"`
+}
+
 // LoginResponseElement represents the <response> element for an authentication request's reseponse.
 type LoginResponseElement struct {
 	Messages   MessagesElement `xml:"messages"`
