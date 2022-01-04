@@ -15,6 +15,8 @@
 package client
 
 import (
+	"encoding/xml"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
@@ -23,9 +25,11 @@ import (
 )
 
 type Client struct {
-	URL      string
-	Username string
-	Password string
+	URL        string
+	Username   string
+	Password   string
+	sessionKey string
+	// httpClient *http.Client
 }
 
 // urlForPath returns a full url.URL for the given path and namespace.
@@ -56,4 +60,25 @@ func (c *Client) requestForLogin() (*http.Request, error) {
 	r.SetBasicAuth(c.Username, c.Password)
 
 	return r, nil
+}
+
+// handleResponseForLogin handles the http.Response from a login attempt.
+func (c *Client) handleResponseForLogin(r *http.Response) error {
+	loginResponse := models.LoginResponseElement{}
+	d := xml.NewDecoder(r.Body)
+	if err := d.Decode(&loginResponse); err != nil {
+		return err
+	}
+
+	if r.StatusCode != http.StatusOK {
+		if len(loginResponse.Messages.MessageElements) != 1 {
+			return fmt.Errorf("expected exactly one returned message during login, got:\n%#v", loginResponse)
+		}
+
+		return fmt.Errorf("unexpected status code during login: %d, %s", r.StatusCode, loginResponse.Messages.MessageElements[0].Message)
+	}
+
+	c.sessionKey = loginResponse.SessionKey
+
+	return nil
 }
