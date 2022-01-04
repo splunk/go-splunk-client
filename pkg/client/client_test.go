@@ -15,6 +15,10 @@
 package client
 
 import (
+	"io"
+	"net/http"
+	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/splunk/go-sdk/pkg/models"
@@ -81,6 +85,58 @@ func TestClient_requestForLogin(t *testing.T) {
 		gotUsername, gotPassword, _ := r.BasicAuth()
 		if gotUsername != test.wantUsername || gotPassword != test.wantPassword {
 			t.Errorf("BasicAuth = (%q, %q), want (%q, %q)", gotUsername, gotPassword, test.wantUsername, test.wantPassword)
+		}
+	}
+}
+
+func TestClient_handleResponseForLogin(t *testing.T) {
+	tests := []struct {
+		inputClient   *Client
+		inputResponse *http.Response
+		wantClient    *Client
+		wantError     bool
+	}{
+		{
+			&Client{},
+			&http.Response{
+				StatusCode: http.StatusOK,
+				Body: io.NopCloser(strings.NewReader(`
+				<response>
+					<sessionKey>FakeSessionKey</sessionKey>
+					<messages>
+		  				<msg code=""></msg>
+					</messages>
+	  			</response>
+				`)),
+			},
+			&Client{sessionKey: "FakeSessionKey"},
+			false,
+		},
+		{
+			&Client{},
+			&http.Response{
+				StatusCode: http.StatusUnauthorized,
+				Body: io.NopCloser(strings.NewReader(`
+				<response>
+  					<messages>
+    					<msg type="WARN" code="incorrect_username_or_password">Login failed</msg>
+  					</messages>
+				</response>
+				`)),
+			},
+			&Client{},
+			true,
+		}}
+
+	for _, test := range tests {
+		gotError := test.inputClient.handleResponseForLogin(test.inputResponse) != nil
+
+		if gotError != test.wantError {
+			t.Errorf("Client.handleResponseForLogin(%#v) returned error? %v", test.inputResponse, gotError)
+		}
+
+		if !reflect.DeepEqual(test.inputClient, test.wantClient) {
+			t.Errorf("Client.handleResponseForLogin(%#v) = %#v, want %#v", test.inputResponse, test.inputClient, test.wantClient)
 		}
 	}
 }
