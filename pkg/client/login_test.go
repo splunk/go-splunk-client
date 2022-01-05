@@ -17,11 +17,11 @@ package client
 import (
 	"testing"
 
-	"github.com/splunk/go-sdk/pkg/internal/testinghelpers"
+	"github.com/splunk/go-sdk/pkg/internal"
 )
 
 func TestLoginResponseElement_Unmarshal(t *testing.T) {
-	test := testinghelpers.XMLUnmarshalerTestCase{
+	test := internal.XMLUnmarshalerTestCase{
 		Input: `
 		<response>
 			<sessionKey>FakeSessionKey</sessionKey>

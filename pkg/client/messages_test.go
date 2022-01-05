@@ -17,11 +17,11 @@ package client
 import (
 	"testing"
 
-	"github.com/splunk/go-sdk/pkg/internal/testinghelpers"
+	"github.com/splunk/go-sdk/pkg/internal"
 )
 
 func TestMessageElement_Unmarshal(t *testing.T) {
-	tests := testinghelpers.XMLUnmarshalerTestCases{
+	tests := internal.XMLUnmarshalerTestCases{
 		{
 			Input:            "<msg>Message</msg>",
 			GotInterfacePtr:  &MessageElement{},
@@ -40,7 +40,7 @@ func TestMessageElement_Unmarshal(t *testing.T) {
 }
 
 func TestMessagesElement_Unmarshal(t *testing.T) {
-	tests := testinghelpers.XMLUnmarshalerTestCases{
+	tests := internal.XMLUnmarshalerTestCases{
 		{
 			Input: `
 				<messages>
