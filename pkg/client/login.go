@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package models
+package client
 
 // Login represents the fields used to authenticate to Splunk.
 type Login struct {

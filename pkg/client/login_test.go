@@ -12,15 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package models
+package client
 
-// MessageElement represents the <msg> element of a <messages> entry.
-type MessageElement struct {
-	Message string `xml:",chardata"`
-	Code    string `xml:"code,attr"`
-}
+import (
+	"testing"
 
-// MessagesElement represents the <messages> element of a <response> entry.
-type MessagesElement struct {
-	MessageElements []MessageElement `xml:"msg"`
+	"github.com/splunk/go-sdk/pkg/internal/testinghelpers"
+)
+
+func TestLoginResponseElement_Unmarshal(t *testing.T) {
+	test := testinghelpers.XMLUnmarshalerTestCase{
+		Input: `
+		<response>
+			<sessionKey>FakeSessionKey</sessionKey>
+			<messages>
+		  		<msg code=""></msg>
+			</messages>
+	  	</response>`,
+		GotInterfacePtr: &LoginResponseElement{},
+		WantInterfacePtr: &LoginResponseElement{
+			SessionKey: "FakeSessionKey",
+			Messages:   MessagesElement{[]MessageElement{{}}},
+		},
+		WantError: false,
+	}
+
+	test.Test(t)
 }

@@ -26,7 +26,6 @@ import (
 	"sync"
 
 	"github.com/google/go-querystring/query"
-	"github.com/splunk/go-sdk/pkg/models"
 	"golang.org/x/net/publicsuffix"
 )
 
@@ -41,7 +40,7 @@ type Client struct {
 }
 
 // urlForPath returns a full url.URL for the given path and namespace.
-func (c *Client) urlForPath(p string, ns models.Namespace) (*url.URL, error) {
+func (c *Client) urlForPath(p string, ns Namespace) (*url.URL, error) {
 	ctxPath, err := ns.Path()
 	if err != nil {
 		return nil, err
@@ -78,12 +77,12 @@ func (c *Client) do(r *http.Request) (*http.Response, error) {
 
 // requestForLogin returns an http.Request that performs authentication.
 func (c *Client) requestForLogin() (*http.Request, error) {
-	url, err := c.urlForPath("auth/login", models.GlobalNamespace)
+	url, err := c.urlForPath("auth/login", GlobalNamespace)
 	if err != nil {
 		return nil, err
 	}
 
-	loginValues, err := query.Values(models.Login{
+	loginValues, err := query.Values(Login{
 		Username: c.Username,
 		Password: c.Password,
 	})
@@ -103,7 +102,7 @@ func (c *Client) requestForLogin() (*http.Request, error) {
 
 // handleResponseForLogin handles the http.Response from a login attempt.
 func (c *Client) handleResponseForLogin(r *http.Response) error {
-	loginResponse := models.LoginResponseElement{}
+	loginResponse := LoginResponseElement{}
 	d := xml.NewDecoder(r.Body)
 	if err := d.Decode(&loginResponse); err != nil {
 		return err

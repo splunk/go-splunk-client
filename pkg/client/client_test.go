@@ -20,22 +20,20 @@ import (
 	"reflect"
 	"strings"
 	"testing"
-
-	"github.com/splunk/go-sdk/pkg/models"
 )
 
 func TestClient_urlForPath(t *testing.T) {
 	tests := []struct {
 		inputClient    *Client
 		inputPath      string
-		inputNamespace models.Namespace
+		inputNamespace Namespace
 		wantURL        string
 		wantError      bool
 	}{
 		{
 			&Client{URL: "https://localhost:8089"},
 			"auth/login",
-			models.GlobalNamespace,
+			GlobalNamespace,
 			"https://localhost:8089/services/auth/login",
 			false,
 		},
