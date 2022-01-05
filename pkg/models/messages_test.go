@@ -17,7 +17,7 @@ package models
 import (
 	"testing"
 
-	"github.com/splunk/go-sdk/pkg/models/internal/testinghelpers"
+	"github.com/splunk/go-sdk/pkg/internal/testinghelpers"
 )
 
 func TestMessageElement_Unmarshal(t *testing.T) {
