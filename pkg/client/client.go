@@ -15,23 +15,29 @@
 package client
 
 import (
+	"crypto/tls"
 	"encoding/xml"
 	"fmt"
 	"io"
 	"net/http"
+	"net/http/cookiejar"
 	"net/url"
 	"strings"
+	"sync"
 
 	"github.com/google/go-querystring/query"
 	"github.com/splunk/go-sdk/pkg/models"
+	"golang.org/x/net/publicsuffix"
 )
 
 type Client struct {
-	URL        string
-	Username   string
-	Password   string
-	sessionKey string
-	// httpClient *http.Client
+	URL                   string
+	Username              string
+	Password              string
+	TLSInsecureSkipVerify bool
+	sessionKey            string
+	httpClient            *http.Client
+	mu                    sync.Mutex
 }
 
 // urlForPath returns a full url.URL for the given path and namespace.
@@ -44,6 +50,30 @@ func (c *Client) urlForPath(p string, ns models.Namespace) (*url.URL, error) {
 	urlString := strings.Join([]string{c.URL, ctxPath, p}, "/")
 
 	return url.Parse(urlString)
+}
+
+func (c *Client) do(r *http.Request) (*http.Response, error) {
+	if c.httpClient == nil {
+		c.mu.Lock()
+
+		jar, err := cookiejar.New(&cookiejar.Options{PublicSuffixList: publicsuffix.List})
+		if err != nil {
+			return nil, fmt.Errorf("unable to create new cookiejar: %s", err)
+		}
+
+		c.httpClient = &http.Client{
+			Transport: &http.Transport{
+				TLSClientConfig: &tls.Config{
+					InsecureSkipVerify: c.TLSInsecureSkipVerify,
+				},
+			},
+			Jar: jar,
+		}
+
+		c.mu.Unlock()
+	}
+
+	return c.httpClient.Do(r)
 }
 
 // requestForLogin returns an http.Request that performs authentication.
@@ -90,4 +120,21 @@ func (c *Client) handleResponseForLogin(r *http.Response) error {
 	c.sessionKey = loginResponse.SessionKey
 
 	return nil
+}
+
+// Login logs in to the Splunk instance. If successful, it retains sessionKey for subsequent requests.
+func (c *Client) Login() error {
+	request, err := c.requestForLogin()
+	if err != nil {
+		return err
+	}
+
+	response, err := c.do(request)
+	if err != nil {
+		return err
+	}
+
+	defer response.Body.Close()
+
+	return c.handleResponseForLogin(response)
 }
