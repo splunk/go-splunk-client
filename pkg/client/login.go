@@ -20,8 +20,8 @@ type Login struct {
 	Password string `url:"password"`
 }
 
-// LoginResponseElement represents the <response> element for an authentication request's reseponse.
-type LoginResponseElement struct {
+// loginResponseElement represents the <response> element for an authentication request's reseponse.
+type loginResponseElement struct {
 	Messages   MessagesElement `xml:"messages"`
 	SessionKey string          `xml:"sessionKey"`
 }

@@ -29,8 +29,8 @@ func TestLoginResponseElement_Unmarshal(t *testing.T) {
 		  		<msg code=""></msg>
 			</messages>
 	  	</response>`,
-		GotInterfacePtr: &LoginResponseElement{},
-		WantInterfacePtr: &LoginResponseElement{
+		GotInterfacePtr: &loginResponseElement{},
+		WantInterfacePtr: &loginResponseElement{
 			SessionKey: "FakeSessionKey",
 			Messages:   MessagesElement{[]MessageElement{{}}},
 		},

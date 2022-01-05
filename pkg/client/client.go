@@ -102,7 +102,7 @@ func (c *Client) requestForLogin() (*http.Request, error) {
 
 // handleResponseForLogin handles the http.Response from a login attempt.
 func (c *Client) handleResponseForLogin(r *http.Response) error {
-	loginResponse := LoginResponseElement{}
+	loginResponse := loginResponseElement{}
 	d := xml.NewDecoder(r.Body)
 	if err := d.Decode(&loginResponse); err != nil {
 		return err
