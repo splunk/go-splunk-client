@@ -24,14 +24,14 @@ func TestMessageElement_Unmarshal(t *testing.T) {
 	tests := internal.XMLUnmarshalerTestCases{
 		{
 			Input:            "<msg>Message</msg>",
-			GotInterfacePtr:  &MessageElement{},
-			WantInterfacePtr: &MessageElement{Message: "Message"},
+			GotInterfacePtr:  &messageElement{},
+			WantInterfacePtr: &messageElement{Message: "Message"},
 			WantError:        false,
 		},
 		{
 			Input:            `<msg code="200OK">Message</msg>`,
-			GotInterfacePtr:  &MessageElement{},
-			WantInterfacePtr: &MessageElement{Code: "200OK", Message: "Message"},
+			GotInterfacePtr:  &messageElement{},
+			WantInterfacePtr: &messageElement{Code: "200OK", Message: "Message"},
 			WantError:        false,
 		},
 	}
@@ -47,9 +47,9 @@ func TestMessagesElement_Unmarshal(t *testing.T) {
 					<msg code="200OK"></msg>
 					<msg code="401Unauthorized">Unauthorized</msg>
 				</messages>`,
-			GotInterfacePtr: &MessagesElement{},
-			WantInterfacePtr: &MessagesElement{
-				MessageElements: []MessageElement{
+			GotInterfacePtr: &messagesElement{},
+			WantInterfacePtr: &messagesElement{
+				MessageElements: []messageElement{
 					{Code: "200OK", Message: ""},
 					{Code: "401Unauthorized", Message: "Unauthorized"},
 				},

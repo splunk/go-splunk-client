@@ -14,13 +14,13 @@
 
 package client
 
-// MessageElement represents the <msg> element of a <messages> entry.
-type MessageElement struct {
+// messageElement represents the <msg> element of a <messages> entry.
+type messageElement struct {
 	Message string `xml:",chardata"`
 	Code    string `xml:"code,attr"`
 }
 
-// MessagesElement represents the <messages> element of a <response> entry.
-type MessagesElement struct {
-	MessageElements []MessageElement `xml:"msg"`
+// messagesElement represents the <messages> element of a <response> entry.
+type messagesElement struct {
+	MessageElements []messageElement `xml:"msg"`
 }

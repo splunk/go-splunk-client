@@ -22,6 +22,6 @@ type Login struct {
 
 // loginResponseElement represents the <response> element for an authentication request's reseponse.
 type loginResponseElement struct {
-	Messages   MessagesElement `xml:"messages"`
+	Messages   messagesElement `xml:"messages"`
 	SessionKey string          `xml:"sessionKey"`
 }
