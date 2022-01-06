@@ -39,6 +39,13 @@ type Client struct {
 	mu                    sync.Mutex
 }
 
+var dummyAuthenticatedClient = Client{
+	URL:        "https://localhost:8089",
+	Username:   "admin",
+	Password:   "changeme",
+	sessionKey: "dummysessionkey",
+}
+
 // urlForPath returns a full url.URL for the given path and namespace.
 func (c *Client) urlForPath(p string, ns Namespace) (*url.URL, error) {
 	ctxPath, err := ns.Path()
@@ -54,6 +61,7 @@ func (c *Client) urlForPath(p string, ns Namespace) (*url.URL, error) {
 func (c *Client) do(r *http.Request) (*http.Response, error) {
 	if c.httpClient == nil {
 		c.mu.Lock()
+		defer c.mu.Unlock()
 
 		jar, err := cookiejar.New(&cookiejar.Options{PublicSuffixList: publicsuffix.List})
 		if err != nil {
@@ -68,8 +76,6 @@ func (c *Client) do(r *http.Request) (*http.Response, error) {
 			},
 			Jar: jar,
 		}
-
-		c.mu.Unlock()
 	}
 
 	return c.httpClient.Do(r)
@@ -136,4 +142,23 @@ func (c *Client) Login() error {
 	defer response.Body.Close()
 
 	return c.handleResponseForLogin(response)
+}
+
+func (c *Client) authenticateRequest(r *http.Request) error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	if c.sessionKey == "" {
+		if err := c.Login(); err != nil {
+			return err
+		}
+	}
+
+	if r.Header == nil {
+		r.Header = http.Header{}
+	}
+
+	r.Header.Add("Authorization", fmt.Sprintf("Splunk: %s", c.sessionKey))
+
+	return nil
 }
