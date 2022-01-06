@@ -16,35 +16,21 @@ package client
 
 import (
 	"net/http"
-	"net/url"
-	"reflect"
 	"testing"
 
-	"github.com/google/go-querystring/query"
 	"github.com/splunk/go-sdk/pkg/internal"
 )
 
 func TestRole_UrlValues(t *testing.T) {
-	tests := []struct {
-		input Role
-		want  url.Values
-	}{
+	tests := urlValuesTestCases{
 		{
-			Role{},
-			url.Values{"capabilities": []string{""}},
+			name:           "empty role",
+			input:          Role{},
+			valuesTestFunc: internal.TestURLValuesEncoded("capabilities="),
 		},
 	}
 
-	for _, test := range tests {
-		got, err := query.Values(test.input)
-		if err != nil {
-			t.Fatalf("unexpected query.Values error: %s", err)
-		}
-
-		if !reflect.DeepEqual(got, test.want) {
-			t.Errorf("query.Values(%#v) = %#v, want %#v", test.input, got, test.want)
-		}
-	}
+	tests.test(t)
 }
 
 func TestRole_requestForRead(t *testing.T) {
