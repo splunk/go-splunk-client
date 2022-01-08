@@ -20,18 +20,17 @@ import (
 	"github.com/splunk/go-sdk/pkg/internal"
 )
 
-// readerTestCase defines a test case for types that implement the "reader" interface.
-type readerTestCase struct {
-	name            string
-	inputClient     *Client
-	inputReader     reader
-	wantError       bool
-	requestTestFunc internal.TestRequestFunc
+type entryCollectionTestCase struct {
+	name                 string
+	inputClient          *Client
+	inputEntryCollection EntryCollection
+	wantError            bool
+	requestTestFunc      internal.TestRequestFunc
 }
 
 // test performs the defined test case.
-func (test readerTestCase) test(t *testing.T) {
-	gotRequest, err := requestForRead(test.inputReader, test.inputClient)
+func (test entryCollectionTestCase) test(t *testing.T) {
+	gotRequest, err := entryCollectionReadRequest(test.inputEntryCollection, test.inputClient)
 	gotError := err != nil
 
 	if gotError != test.wantError {
@@ -43,11 +42,11 @@ func (test readerTestCase) test(t *testing.T) {
 	}
 }
 
-// readerTestCases is a slice of readerTestCase items.
-type readerTestCases []readerTestCase
+// entryCollectionTestCases is a slice of readerTestCase items.
+type entryCollectionTestCases []entryCollectionTestCase
 
 // test runs the test for each item.
-func (tests readerTestCases) test(t *testing.T) {
+func (tests entryCollectionTestCases) test(t *testing.T) {
 	for _, test := range tests {
 		test.test(t)
 	}

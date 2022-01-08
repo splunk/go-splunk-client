@@ -16,23 +16,28 @@ package client
 
 import (
 	"fmt"
-	"io"
-	"net/http"
-	"strings"
 
-	"github.com/google/go-querystring/query"
+	"github.com/splunk/go-sdk/pkg/internal"
 )
+
+type RoleAttributes struct {
+	Capabilities Capabilities `url:"capabilities"`
+}
 
 // Role represents a Splunk role.
 type Role struct {
-	title        title
-	Capabilities Capabilities `url:"capabilities"`
+	internal.Name
+	Attributes RoleAttributes `json:"content"`
+}
+
+func (r Role) entryCollection() EntryCollection {
+	return &Roles{}
 }
 
 // validate returns an error if Role is invalid. It is invalid if it:
 // * has an empty name
 func (r Role) validate() error {
-	if r.title.value == "" {
+	if r.Name.Value == "" {
 		return fmt.Errorf("invalid role, has no title")
 	}
 
@@ -42,41 +47,6 @@ func (r Role) validate() error {
 // NewRoleWithTitle returns a new Role with the given title.
 func NewRoleWithTitle(t string) *Role {
 	return &Role{
-		title: title{value: t},
+		Name: internal.Name{Value: t},
 	}
-}
-
-// Title returns the title of a Role.
-func (r *Role) Title() string {
-	return r.title.value
-}
-
-// requestForRead returns the http.Request to perform the read action for a Role.
-func (r *Role) requestForRead(c *Client) (*http.Request, error) {
-	if err := r.validate(); err != nil {
-		return nil, err
-	}
-
-	path := fmt.Sprintf("authorization/roles/%s", r.Title())
-	url, err := c.urlForPath(path, GlobalNamespace)
-	if err != nil {
-		return nil, err
-	}
-
-	rValues, err := query.Values(r)
-	if err != nil {
-		return nil, err
-	}
-
-	request := &http.Request{
-		URL:    url,
-		Method: http.MethodPost,
-		Body:   io.NopCloser(strings.NewReader(rValues.Encode())),
-	}
-
-	if err := c.authenticateRequest(request); err != nil {
-		return nil, err
-	}
-
-	return request, nil
 }

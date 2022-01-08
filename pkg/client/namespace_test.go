@@ -85,7 +85,7 @@ func TestNamespace_Path(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		gotPath, err := test.inputNamespace.Path()
+		gotPath, err := test.inputNamespace.namespacePath()
 		gotError := err != nil
 
 		if gotError != test.wantError {

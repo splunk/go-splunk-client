@@ -12,17 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package client
+package internal
 
-// title represents the title of a Splunk object. It is abstracted into a struct
+// Name represents the Name of a Splunk object. It is abstracted into a struct
 // to enable immutability from the perspective of external code.
-type title struct {
-	value string
+type Name struct {
+	Value string `json:"name"`
 }
 
-// UnmarshalJSON implements custom unmarshaling of content into a Title.
-func (t *title) UnmarshalJSON(data []byte) error {
-	t.value = string(data)
-
-	return nil
+func (t Name) Title() string {
+	return t.Value
 }

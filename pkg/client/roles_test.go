@@ -15,17 +15,23 @@
 package client
 
 import (
+	"net/http"
 	"testing"
 
 	"github.com/splunk/go-sdk/pkg/internal"
 )
 
-func TestRole_UrlValues(t *testing.T) {
-	tests := urlValuesTestCases{
+func TestRoles_readRequest(t *testing.T) {
+	tests := entryCollectionTestCases{
 		{
-			name:           "empty role",
-			input:          Role{}.Attributes,
-			valuesTestFunc: internal.TestURLValuesEncoded("capabilities="),
+			name:                 "empty",
+			inputClient:          &dummyAuthenticatedClient,
+			inputEntryCollection: Roles{},
+			wantError:            false,
+			requestTestFunc: internal.ComposeTestRequests(
+				internal.TestRequestHasAuth(),
+				internal.TestRequestMethod(http.MethodGet),
+			),
 		},
 	}
 

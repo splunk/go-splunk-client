@@ -47,8 +47,8 @@ var dummyAuthenticatedClient = Client{
 }
 
 // urlForPath returns a full url.URL for the given path and namespace.
-func (c *Client) urlForPath(p string, ns Namespace) (*url.URL, error) {
-	ctxPath, err := ns.Path()
+func (c *Client) urlForPath(p string, ns namespace) (*url.URL, error) {
+	ctxPath, err := ns.namespacePath()
 	if err != nil {
 		return nil, err
 	}
@@ -158,7 +158,7 @@ func (c *Client) authenticateRequest(r *http.Request) error {
 		r.Header = http.Header{}
 	}
 
-	r.Header.Add("Authorization", fmt.Sprintf("Splunk: %s", c.sessionKey))
+	r.Header.Add("Authorization", fmt.Sprintf("Splunk %s", c.sessionKey))
 
 	return nil
 }

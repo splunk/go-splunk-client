@@ -14,20 +14,21 @@
 
 package client
 
-import (
-	"testing"
+type Roles struct {
+	Namespace
+	Entries []Role `json:"entry"`
+}
 
-	"github.com/splunk/go-sdk/pkg/internal"
-)
+func (r Roles) collectionPath() string {
+	return "authorization/roles"
+}
 
-func TestRole_UrlValues(t *testing.T) {
-	tests := urlValuesTestCases{
-		{
-			name:           "empty role",
-			input:          Role{}.Attributes,
-			valuesTestFunc: internal.TestURLValuesEncoded("capabilities="),
-		},
+func (r Roles) EntryWithTitle(title string) (Entry, bool) {
+	for _, entry := range r.Entries {
+		if entry.Title() == title {
+			return entry, true
+		}
 	}
 
-	tests.test(t)
+	return nil, false
 }
