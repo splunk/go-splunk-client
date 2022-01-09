@@ -15,17 +15,27 @@
 package client
 
 import (
+	"crypto/tls"
+	"fmt"
+	"net/http"
+	"net/http/cookiejar"
 	"net/url"
 	"strings"
+	"sync"
+
+	"golang.org/x/net/publicsuffix"
 )
 
 // Client defines how to connect and authenticate to the Splunk REST API.
 type Client struct {
-	URL string
+	URL                   string
+	TLSInsecureSkipVerify bool
+	httpClient            *http.Client
+	mu                    sync.Mutex
 }
 
 // urlForPath returns a url.URL for the given Namespace and path components.
-func (c Client) urlForPath(ns Namespace, path ...string) (*url.URL, error) {
+func (c *Client) urlForPath(ns Namespace, path ...string) (*url.URL, error) {
 	// parts will hold the Client URL, Namespace, and all path components, capacity set to accomodate
 	parts := make([]string, 0, len(path)+2)
 
@@ -43,4 +53,37 @@ func (c Client) urlForPath(ns Namespace, path ...string) (*url.URL, error) {
 	pathURL := strings.Join(parts, "/")
 
 	return url.Parse(pathURL)
+}
+
+// httpClientPrep prepares the Client's http.Client.
+func (c *Client) httpClientPrep() error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	if c.httpClient == nil {
+		jar, err := cookiejar.New(&cookiejar.Options{PublicSuffixList: publicsuffix.List})
+		if err != nil {
+			return fmt.Errorf("unable to create new cookiejar: %s", err)
+		}
+
+		c.httpClient = &http.Client{
+			Transport: &http.Transport{
+				TLSClientConfig: &tls.Config{
+					InsecureSkipVerify: c.TLSInsecureSkipVerify,
+				},
+			},
+			Jar: jar,
+		}
+	}
+
+	return nil
+}
+
+// do performs an http.Request, returning its http.Response and error.
+func (c *Client) do(r *http.Request) (*http.Response, error) {
+	if err := c.httpClientPrep(); err != nil {
+		return nil, err
+	}
+
+	return c.httpClient.Do(r)
 }
