@@ -21,7 +21,7 @@ import (
 
 // SessionKeyAuth passes SessionKey to the REST API via the Authorization header.
 type SessionKeyAuth struct {
-	SessionKey string
+	SessionKey string `xml:"sessionKey"`
 }
 
 // AuthenticateRequest adds the SessionKey to the http.Request's Header.

@@ -14,5 +14,27 @@
 
 package client
 
+import (
+	"net/url"
+	"strings"
+)
+
 // Client defines how to connect and authenticate to the Splunk REST API.
-type Client struct{}
+type Client struct {
+	URL string
+}
+
+// urlForPath returns a url.URL for the given path components.
+func (c Client) urlForPath(path ...string) (*url.URL, error) {
+	// parts will hold the Client URL and all path components, capacity set to accomodate
+	parts := make([]string, 0, len(path)+1)
+	parts = append(parts, strings.Trim(c.URL, "/"))
+
+	for _, part := range path {
+		parts = append(parts, strings.Trim(part, "/"))
+	}
+
+	pathURL := strings.Join(parts, "/")
+
+	return url.Parse(pathURL)
+}
