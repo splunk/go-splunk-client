@@ -15,6 +15,7 @@
 package checks
 
 import (
+	"io"
 	"net/http"
 	"reflect"
 	"testing"
@@ -51,6 +52,28 @@ func CheckRequestHeaderKeyValue(key string, value ...string) CheckRequestFunc {
 		if !reflect.DeepEqual(got, value) {
 			t.Errorf("CheckRequestHeaderKeyValue: Key %s = %#v, want %#v", key, got, value)
 			return
+		}
+	}
+}
+
+func CheckRequestBodyValue(value string) CheckRequestFunc {
+	return func(r *http.Request, t *testing.T) {
+		gotBodyData, err := io.ReadAll(r.Body)
+		if err != nil {
+			t.Fatalf("unexpected error reading http.Request body: %s", err)
+		}
+
+		gotValue := string(gotBodyData)
+		if gotValue != value {
+			t.Errorf("CheckRequestBodyValue: got\n%s, want\n%s", gotValue, value)
+		}
+	}
+}
+
+func CheckRequestMethod(method string) CheckRequestFunc {
+	return func(r *http.Request, t *testing.T) {
+		if r.Method != method {
+			t.Errorf("CheckRequestMethod: got %s, want %s", r.Method, method)
 		}
 	}
 }
