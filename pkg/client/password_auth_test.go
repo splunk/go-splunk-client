@@ -38,6 +38,16 @@ func TestPasswordAuth_AuthenticateRequest(t *testing.T) {
 			wantError:    false,
 			requestCheck: checks.CheckRequestHeaderKeyValue("Authorization", "Splunk fake-session-key"),
 		},
+		{
+			name: "use basic auth",
+			inputAuthenticator: &PasswordAuth{
+				Username:     "admin",
+				Password:     "changeme",
+				UseBasicAuth: true,
+			},
+			wantError:    false,
+			requestCheck: checks.CheckRequestBasicAuth("admin", "changeme"),
+		},
 	}
 
 	tests.test(t)
