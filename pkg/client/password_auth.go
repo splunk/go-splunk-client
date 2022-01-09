@@ -17,17 +17,46 @@ package client
 import (
 	"encoding/xml"
 	"fmt"
+	"io"
 	"net/http"
+	"strings"
+
+	"github.com/google/go-querystring/query"
 )
 
 // PasswordAuth authenticates to auth/login and stores the resulting sessionKey for
 // future authentication.
 type PasswordAuth struct {
-	Username string
-	Password string
-	// SessionKeyAuth need not be set, as it is managed by the PasswordAuth instance.
-	// It is, however, visible to the caller in case there is a need to get the SessionKey.
-	SessionKeyAuth
+	Username       string `url:"username"`
+	Password       string `url:"password"`
+	sessionKeyAuth SessionKeyAuth
+}
+
+// requestForLogin creates an http.Response to authenticate to the auth/login endpoint.
+func (p PasswordAuth) requestForLogin(c *Client) (*http.Request, error) {
+	if p.Username == "" || p.Password == "" {
+		return nil, fmt.Errorf("attempted PasswordAuth login with empty Username or Password")
+	}
+
+	loginURL, err := c.urlForPath("auth/login")
+	if err != nil {
+		return nil, fmt.Errorf("unable to determine loginURL: %s", err)
+	}
+
+	loginValues, err := query.Values(p)
+	if err != nil {
+		// don't include obtained err in the returned error in case it has sensitive values
+		return nil, fmt.Errorf("unable to create url.Values for PasswordAuth")
+	}
+	loginBody := io.NopCloser(strings.NewReader(loginValues.Encode()))
+
+	r := &http.Request{
+		Method: http.MethodPost,
+		URL:    loginURL,
+		Body:   loginBody,
+	}
+
+	return r, nil
 }
 
 // handleLoginResponse checks the http.Response for the correct status code, parses the output,
@@ -56,12 +85,12 @@ func (p *PasswordAuth) handleLoginResponse(r *http.Response) error {
 		return fmt.Errorf("unable to log in: %s: %s", message.Code, message.Value)
 	}
 
-	p.SessionKeyAuth = authResponse.SessionKeyAuth
+	p.sessionKeyAuth = authResponse.SessionKeyAuth
 
 	return nil
 }
 
 // AuthenticateRequest adds the SessionKey to the http.Request's Header.
 func (p *PasswordAuth) AuthenticateRequest(c *Client, r *http.Request) error {
-	return p.SessionKeyAuth.AuthenticateRequest(c, r)
+	return p.sessionKeyAuth.AuthenticateRequest(c, r)
 }
