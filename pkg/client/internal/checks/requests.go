@@ -77,3 +77,16 @@ func CheckRequestMethod(method string) CheckRequestFunc {
 		}
 	}
 }
+
+func CheckRequestBasicAuth(username string, password string) CheckRequestFunc {
+	return func(r *http.Request, t *testing.T) {
+		gotUsername, gotPassword, ok := r.BasicAuth()
+		if !ok {
+			t.Errorf("CheckRequestBasicAuth: no basic auth set")
+		}
+
+		if gotUsername != username || gotPassword != password {
+			t.Errorf("CheckRequestBasicAuth: got %s/%s, want %s/%s", gotUsername, gotPassword, username, password)
+		}
+	}
+}
