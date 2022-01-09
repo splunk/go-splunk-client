@@ -20,6 +20,7 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"sync"
 
 	"github.com/google/go-querystring/query"
 )
@@ -30,10 +31,11 @@ type PasswordAuth struct {
 	Username       string `url:"username"`
 	Password       string `url:"password"`
 	sessionKeyAuth SessionKeyAuth
+	mu             sync.Mutex
 }
 
 // requestForLogin creates an http.Response to authenticate to the auth/login endpoint.
-func (p PasswordAuth) requestForLogin(c *Client) (*http.Request, error) {
+func (p *PasswordAuth) requestForLogin(c *Client) (*http.Request, error) {
 	if p.Username == "" || p.Password == "" {
 		return nil, fmt.Errorf("attempted PasswordAuth login with empty Username or Password")
 	}
@@ -90,7 +92,32 @@ func (p *PasswordAuth) handleLoginResponse(r *http.Response) error {
 	return nil
 }
 
+func (p *PasswordAuth) authenticate(c *Client) error {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	if p.sessionKeyAuth.SessionKey != "" {
+		return nil
+	}
+
+	request, err := p.requestForLogin(c)
+	if err != nil {
+		return err
+	}
+
+	response, err := c.do(request)
+	if err != nil {
+		return err
+	}
+
+	return p.handleLoginResponse(response)
+}
+
 // AuthenticateRequest adds the SessionKey to the http.Request's Header.
 func (p *PasswordAuth) AuthenticateRequest(c *Client, r *http.Request) error {
+	if err := p.authenticate(c); err != nil {
+		return err
+	}
+
 	return p.sessionKeyAuth.AuthenticateRequest(c, r)
 }
