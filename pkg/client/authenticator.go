@@ -18,5 +18,5 @@ import "net/http"
 
 // Authenticator is the interface that allows a type to add authentication to an http.Request.
 type Authenticator interface {
-	AuthenticateRequest(*Client, *http.Request) error
+	authenticateRequest(*Client, *http.Request) error
 }

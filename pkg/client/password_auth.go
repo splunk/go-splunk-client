@@ -114,8 +114,8 @@ func (p *PasswordAuth) authenticate(c *Client) error {
 	return p.handleLoginResponse(response)
 }
 
-// AuthenticateRequest adds the SessionKey to the http.Request's Header.
-func (p *PasswordAuth) AuthenticateRequest(c *Client, r *http.Request) error {
+// authenticateRequest adds the SessionKey to the http.Request's Header.
+func (p *PasswordAuth) authenticateRequest(c *Client, r *http.Request) error {
 	if p.UseBasicAuth {
 		if r.Header == nil {
 			r.Header = http.Header{}
@@ -129,5 +129,5 @@ func (p *PasswordAuth) AuthenticateRequest(c *Client, r *http.Request) error {
 		return err
 	}
 
-	return p.sessionKeyAuth.AuthenticateRequest(c, r)
+	return p.sessionKeyAuth.authenticateRequest(c, r)
 }

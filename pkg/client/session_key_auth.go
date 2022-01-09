@@ -24,8 +24,8 @@ type SessionKeyAuth struct {
 	SessionKey string `xml:"sessionKey"`
 }
 
-// AuthenticateRequest adds the SessionKey to the http.Request's Header.
-func (s *SessionKeyAuth) AuthenticateRequest(c *Client, r *http.Request) error {
+// authenticateRequest adds the SessionKey to the http.Request's Header.
+func (s *SessionKeyAuth) authenticateRequest(c *Client, r *http.Request) error {
 	if s.SessionKey == "" {
 		return fmt.Errorf("attempted to authenticate request with empty SessionKey")
 	}

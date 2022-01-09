@@ -32,7 +32,7 @@ type AuthenticatorTestCase struct {
 // test performs a AuthenticatorTestCase's defined test.
 func (test AuthenticatorTestCase) test(t *testing.T) {
 	r := &http.Request{}
-	err := test.inputAuthenticator.AuthenticateRequest(test.inputClient, r)
+	err := test.inputAuthenticator.authenticateRequest(test.inputClient, r)
 	gotError := err != nil
 
 	if gotError != test.wantError {
