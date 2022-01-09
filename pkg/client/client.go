@@ -24,11 +24,17 @@ type Client struct {
 	URL string
 }
 
-// urlForPath returns a url.URL for the given path components.
-func (c Client) urlForPath(path ...string) (*url.URL, error) {
-	// parts will hold the Client URL and all path components, capacity set to accomodate
-	parts := make([]string, 0, len(path)+1)
-	parts = append(parts, strings.Trim(c.URL, "/"))
+// urlForPath returns a url.URL for the given Namespace and path components.
+func (c Client) urlForPath(ns Namespace, path ...string) (*url.URL, error) {
+	// parts will hold the Client URL, Namespace, and all path components, capacity set to accomodate
+	parts := make([]string, 0, len(path)+2)
+
+	nsPart, err := ns.path()
+	if err != nil {
+		return nil, err
+	}
+
+	parts = append(parts, strings.Trim(c.URL, "/"), nsPart)
 
 	for _, part := range path {
 		parts = append(parts, strings.Trim(part, "/"))
