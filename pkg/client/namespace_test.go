@@ -14,7 +14,9 @@
 
 package client
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestNamespace_validate(t *testing.T) {
 	tests := []struct {
@@ -97,3 +99,74 @@ func TestNamespace_Path(t *testing.T) {
 		}
 	}
 }
+
+// func TestNamespace_namespace(t *testing.T) {
+// 	tests := []struct {
+// 		name          string
+// 		input         interface{}
+// 		wantError     bool
+// 		wantNamespace Namespace
+// 	}{
+// 		{
+// 			"non-struct",
+// 			"this string is not a struct",
+// 			true,
+// 			Namespace{},
+// 		},
+// 		{
+// 			"empty struct",
+// 			struct{}{},
+// 			false,
+// 			Namespace{},
+// 		},
+// 		{
+// 			"struct lacking Namespace field",
+// 			struct {
+// 				Name string
+// 			}{
+// 				Name: "Unused",
+// 			},
+// 			false,
+// 			Namespace{},
+// 		},
+// 		{
+// 			"struct with non-Namespace{} Namespace field",
+// 			struct {
+// 				Namespace string
+// 			}{
+// 				Namespace: "Invalid",
+// 			},
+// 			true,
+// 			Namespace{},
+// 		},
+// 		{
+// 			"struct with Namespace{} Namespace field",
+// 			struct {
+// 				Namespace Namespace
+// 			}{
+// 				Namespace: Namespace{
+// 					User: "ns_user",
+// 					App:  "ns_app",
+// 				},
+// 			},
+// 			false,
+// 			Namespace{
+// 				User: "ns_user",
+// 				App:  "ns_app",
+// 			},
+// 		},
+// 	}
+
+// 	for _, test := range tests {
+// 		gotNamespace, err := namespace(test.input)
+// 		gotError := err != nil
+
+// 		if gotError != test.wantError {
+// 			t.Errorf("%s namespace() returned error? %v", test.name, gotError)
+// 		}
+
+// 		if gotNamespace != test.wantNamespace {
+// 			t.Errorf("%s namespace() got\n%#v, want\n%#v", test.name, gotNamespace, test.wantNamespace)
+// 		}
+// 	}
+// }

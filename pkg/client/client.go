@@ -29,6 +29,7 @@ import (
 // Client defines how to connect and authenticate to the Splunk REST API.
 type Client struct {
 	URL                   string
+	Authenticator         Authenticator
 	TLSInsecureSkipVerify bool
 	httpClient            *http.Client
 	mu                    sync.Mutex

@@ -15,7 +15,29 @@
 package client
 
 // entryCollection types represent collections of entries.
-type entryCollection interface {
-	collectionPath() string
-	firstAndOnlyEntry() (User, error)
+type entryCollection struct {
+	path string
 }
+
+// func entryCollectionReadRequest(client *Client, collection entryCollection) (*http.Request, error) {
+// 	ns, err := namespace(collection)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	url, err := client.urlForPath(ns, collection.collectionPath())
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	r := &http.Request{
+// 		Method: http.MethodGet,
+// 		URL:    url,
+// 	}
+
+// 	if err := client.Authenticator.authenticateRequest(client, r); err != nil {
+// 		return nil, err
+// 	}
+
+// 	return r, nil
+// }

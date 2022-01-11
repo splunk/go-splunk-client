@@ -14,17 +14,14 @@
 
 package client
 
-import "go-sdk/pkg/client/internal/immutable"
+import "strings"
 
-// UserAttributes are the Attributes of a User.
-type UserAttributes struct {
-	DefaultApp string `url:"defaultApp"`
-}
+func urlJoin(paths ...string) string {
+	parts := make([]string, 0, len(paths))
 
-// User represents a Splunk user.
-type User struct {
-	immutable.Name
-	collection Users
-	Namespace  Namespace
-	Attributes UserAttributes `json:"content"`
+	for _, path := range paths {
+		parts = append(parts, strings.Trim(c.URL, "/"), path)
+	}
+
+	return strings.Join(parts, "/")
 }

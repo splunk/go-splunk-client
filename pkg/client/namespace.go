@@ -55,3 +55,14 @@ func (c Namespace) path() (string, error) {
 
 	return path.Join("servicesNS", c.User, c.App), nil
 }
+
+func (ns Namespace) pathForCollection(c collection) (string, error) {
+	nsPath, err := ns.path()
+	if err != nil {
+		return "", err
+	}
+
+	return urlJoin(nsPath, p), nil
+}
+
+func (ns Namespace) pathForCollectionEntry()

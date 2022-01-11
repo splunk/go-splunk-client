@@ -16,11 +16,7 @@ package client
 
 // Users represents a collection of User entries.
 type Users struct {
-	Namespace Namespace
-	Entries   []User
-}
-
-// collectionPath returns the REST path for Users.
-func (u Users) collectionPath() string {
-	return "authentication/users"
+	collectionPath `collection:"authentication/users"`
+	Namespace      Namespace
+	Entries        []User
 }
