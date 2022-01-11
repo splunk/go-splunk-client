@@ -25,27 +25,3 @@ type entryCollection interface {
 	collectionPath() string
 	firstAndOnlyEntry() (User, error)
 }
-
-func firstAndOnlyEntry(entries interface{}) (entry, error) {
-	entriesV := reflect.ValueOf(entries)
-	if entriesV.Kind() != reflect.Slice {
-		return nil, fmt.Errorf("entryCollection.Entries is not a slice")
-	}
-
-	if entriesV.Len() == 0 {
-		return nil, fmt.Errorf("no entries present")
-	}
-
-	if entriesV.Len() > 1 {
-		return nil, fmt.Errorf("more than one entry present, which should never happen")
-	}
-
-	foundEntryV := entriesV.Index(0)
-
-	entryType := reflect.TypeOf((*entry)(nil)).Elem()
-	if !foundEntryV.Type().Implements(entryType) {
-		return nil, fmt.Errorf("non-entry value found")
-	}
-
-	return foundEntryV.Interface().(entry), nil
-}

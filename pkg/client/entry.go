@@ -14,7 +14,39 @@
 
 package client
 
+import (
+	"fmt"
+	"reflect"
+)
+
 // entry types represent a single entry in an entryCollection.
 type entry interface {
 	Title() string
+}
+
+// firstAndOnlyEntry returns the only entry in a slice of entry objects. If the items
+// in the given interface aren't of the entry type or if too many or too few items are
+// present, an error is returned.
+func firstAndOnlyEntry(entries interface{}) (entry, error) {
+	entriesV := reflect.ValueOf(entries)
+	if entriesV.Kind() != reflect.Slice {
+		return nil, fmt.Errorf("entryCollection.Entries is not a slice")
+	}
+
+	if entriesV.Len() == 0 {
+		return nil, fmt.Errorf("no entries present")
+	}
+
+	if entriesV.Len() > 1 {
+		return nil, fmt.Errorf("more than one entry present, which should never happen")
+	}
+
+	foundEntryV := entriesV.Index(0)
+
+	entryType := reflect.TypeOf((*entry)(nil)).Elem()
+	if !foundEntryV.Type().Implements(entryType) {
+		return nil, fmt.Errorf("non-entry value found")
+	}
+
+	return foundEntryV.Interface().(entry), nil
 }
