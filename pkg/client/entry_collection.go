@@ -14,12 +14,6 @@
 
 package client
 
-import (
-	"fmt"
-	"log"
-	"reflect"
-)
-
 // entryCollection types represent collections of entries.
 type entryCollection interface {
 	collectionPath() string
