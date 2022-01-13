@@ -14,10 +14,16 @@
 
 package client
 
+import "fmt"
+
 // Title represents the title of an object in Splunk.
 type Title string
 
 // title returns the string value of the Title.
-func (t Title) title() string {
-	return string(t)
+func (t Title) title() (string, error) {
+	if t == "" {
+		return "", fmt.Errorf("Title is empty")
+	}
+
+	return string(t), nil
 }
