@@ -30,6 +30,7 @@ import (
 type Client struct {
 	URL                   string
 	TLSInsecureSkipVerify bool
+	Authenticator         Authenticator
 	httpClient            *http.Client
 	mu                    sync.Mutex
 }
