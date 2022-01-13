@@ -12,11 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package client
+package main
 
-// Users represents a collection of User entries.
-type Users struct {
-	service   `service:"authentication/users"`
-	Namespace Namespace
-	Entries   []User
+import (
+	"go-sdk/pkg/client"
+	"log"
+)
+
+func main() {
+	c := &client.Client{
+		URL:                   "https://localhost:8089",
+		TLSInsecureSkipVerify: true,
+		Authenticator:         &client.PasswordAuth{Username: "admin", Password: "changeme"},
+	}
+
+	u := &client.User{Title: "admin"}
+
+	if err := client.ReadEntry(c, u); err != nil {
+		log.Fatalf("failed: %s", err)
+	}
+
+	log.Printf("user:\n%#v\n", u)
 }

@@ -15,6 +15,8 @@
 package client
 
 import (
+	"fmt"
+	"go-sdk/pkg/client/internal/checks"
 	"go-sdk/pkg/client/internal/immutable"
 	"reflect"
 	"testing"
@@ -75,5 +77,80 @@ func TestEntryCollection_firstAndOnly(t *testing.T) {
 		if !reflect.DeepEqual(gotEntry, test.wantEntry) {
 			t.Errorf("%s firstAndOnlyEntry got\n%#v, want\n%#v", test.name, gotEntry, test.wantEntry)
 		}
+	}
+}
+
+func TestEntry_entriesAsType(t *testing.T) {
+	tests := []struct {
+		name         string
+		inputEntries []entry
+		inputType    User
+		wantError    bool
+		wantEntries  []User
+	}{
+		{
+			"valid",
+			[]entry{
+				User{},
+			},
+			User{},
+			false,
+			[]User{
+				{},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		gotEntries, err := entriesAsType(test.inputEntries, test.inputType)
+		gotError := err != nil
+
+		if gotError != test.wantError {
+			fmt.Errorf("%s entriesAsType returned error? %v", test.name, gotError)
+		}
+
+		if !reflect.DeepEqual(gotEntries, test.wantEntries) {
+			t.Errorf("%s entriesAsType got\n%#v, want\n%#v", test.name, gotEntries, test.wantEntries)
+		}
+	}
+}
+
+func TestEntry_entryReadRequest(t *testing.T) {
+	tests := []struct {
+		name         string
+		inputEntry   entry
+		wantError    bool
+		checkRequest checks.CheckRequestFunc
+	}{
+		{
+			"missing title",
+			User{},
+			true,
+			checks.ComposeCheckRequestFunc(),
+		},
+		{
+			"valid",
+			User{Name: immutable.Name{Value: "admin"}},
+			false,
+			checks.ComposeCheckRequestFunc(
+				checks.CheckRequestURL("https://localhost:8089/services/authentication/users/admin"),
+			),
+		},
+	}
+
+	c := &Client{
+		URL:           "https://localhost:8089",
+		Authenticator: &SessionKeyAuth{SessionKey: "fake-session-key"},
+	}
+
+	for _, test := range tests {
+		r, err := entryReadRequest(c, test.inputEntry)
+		gotError := err != nil
+
+		if gotError != test.wantError {
+			t.Errorf("%s entryCollectionReadRequest returned error? %v (%s)", test.name, gotError, err)
+		}
+
+		test.checkRequest(r, t)
 	}
 }

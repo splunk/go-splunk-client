@@ -14,9 +14,8 @@
 
 package client
 
-// Users represents a collection of User entries.
-type Users struct {
-	service   `service:"authentication/users"`
-	Namespace Namespace
-	Entries   []User
+type Title string
+
+func (t Title) title() string {
+	return string(t)
 }

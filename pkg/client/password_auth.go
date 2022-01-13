@@ -41,7 +41,7 @@ func (p *PasswordAuth) requestForLogin(c *Client) (*http.Request, error) {
 		return nil, fmt.Errorf("attempted PasswordAuth login with empty Username or Password")
 	}
 
-	loginURL, err := c.urlForPath(GlobalNamespace, "auth/login")
+	loginURL, err := c.urlForPath("services/auth/login")
 	if err != nil {
 		return nil, fmt.Errorf("unable to determine loginURL: %s", err)
 	}

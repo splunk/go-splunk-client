@@ -14,9 +14,8 @@
 
 package client
 
-// Users represents a collection of User entries.
-type Users struct {
-	service   `service:"authentication/users"`
-	Namespace Namespace
-	Entries   []User
+type globalNamespace struct{}
+
+func (ns globalNamespace) endpointPath(paths ...string) (string, error) {
+	return Namespace{}.endpointPath(paths...)
 }

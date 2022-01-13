@@ -17,6 +17,7 @@ package client
 import (
 	"fmt"
 	"path"
+	"strings"
 )
 
 // Namespace represents a Splunk namespace/context. If both User/App are empty, the
@@ -32,10 +33,10 @@ var GlobalNamespace = Namespace{}
 
 // validate returns an error if Namespace is invalid. It is invalid if either User or App
 // is set without the other.
-func (c Namespace) validate() error {
-	if c.App != "" && c.User != "" {
+func (ns Namespace) validate() error {
+	if ns.App != "" && ns.User != "" {
 		return nil
-	} else if c.App == "" && c.User == "" {
+	} else if ns.App == "" && ns.User == "" {
 		return nil
 	}
 
@@ -43,15 +44,33 @@ func (c Namespace) validate() error {
 }
 
 // path returns the relative URL path for the Namespace.
-func (c Namespace) path() (string, error) {
-	if err := c.validate(); err != nil {
+func (ns Namespace) path() (string, error) {
+	if err := ns.validate(); err != nil {
 		return "", err
 	}
 
 	// absence of either field indicates global context
-	if c.App == "" {
+	if ns.App == "" {
 		return "services", nil
 	}
 
-	return path.Join("servicesNS", c.User, c.App), nil
+	return path.Join("servicesNS", ns.User, ns.App), nil
+}
+
+func (ns Namespace) endpointPath(paths ...string) (string, error) {
+	// parts will hold the namespace path and all the passed paths
+	parts := make([]string, 0, len(paths)+1)
+
+	nsPath, err := ns.path()
+	if err != nil {
+		return "", err
+	}
+
+	parts = append(parts, nsPath)
+
+	for _, path := range paths {
+		parts = append(parts, strings.Trim(path, "/"))
+	}
+
+	return strings.Join(parts, "/"), nil
 }

@@ -18,23 +18,21 @@ import "testing"
 
 func TestClient_urlForPath(t *testing.T) {
 	tests := []struct {
-		name           string
-		inputClient    *Client
-		inputNamespace Namespace
-		inputPath      []string
-		wantURL        string
+		name        string
+		inputClient *Client
+		inputPath   []string
+		wantURL     string
 	}{
 		{
 			"excessive slashes removed",
 			&Client{URL: "https://localhost:8089/"},
-			Namespace{},
 			[]string{"/path1/", "/path2/"},
-			"https://localhost:8089/services/path1/path2",
+			"https://localhost:8089/path1/path2",
 		},
 	}
 
 	for _, test := range tests {
-		gotURL, err := test.inputClient.urlForPath(test.inputNamespace, test.inputPath...)
+		gotURL, err := test.inputClient.urlForPath(test.inputPath...)
 		if err != nil {
 			t.Fatalf("%s urlForPath unexpected error parsing URL: %s", test.name, err)
 		}

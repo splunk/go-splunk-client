@@ -29,22 +29,18 @@ import (
 // Client defines how to connect and authenticate to the Splunk REST API.
 type Client struct {
 	URL                   string
+	Authenticator         Authenticator
 	TLSInsecureSkipVerify bool
 	httpClient            *http.Client
 	mu                    sync.Mutex
 }
 
 // urlForPath returns a url.URL for the given Namespace and path components.
-func (c *Client) urlForPath(ns Namespace, path ...string) (*url.URL, error) {
-	// parts will hold the Client URL, Namespace, and all path components, capacity set to accomodate
-	parts := make([]string, 0, len(path)+2)
+func (c *Client) urlForPath(path ...string) (*url.URL, error) {
+	// parts will hold the Client URL and all path components, capacity set to accomodate
+	parts := make([]string, 0, len(path)+1)
 
-	nsPart, err := ns.path()
-	if err != nil {
-		return nil, err
-	}
-
-	parts = append(parts, strings.Trim(c.URL, "/"), nsPart)
+	parts = append(parts, strings.Trim(c.URL, "/"))
 
 	for _, part := range path {
 		parts = append(parts, strings.Trim(part, "/"))
@@ -86,4 +82,21 @@ func (c *Client) do(r *http.Request) (*http.Response, error) {
 	}
 
 	return c.httpClient.Do(r)
+}
+
+func (c *Client) authenticateRequest(r *http.Request) error {
+	if c.Authenticator == nil {
+		return fmt.Errorf("Client has no Authenticator")
+	}
+
+	return c.Authenticator.authenticateRequest(c, r)
+}
+
+func (c *Client) Users(ns Namespace) ([]User, error) {
+	return nil, nil
+
+}
+
+func ReadEntry[E entry](c *Client, e E) error {
+	return readEntry(c, e)
 }
