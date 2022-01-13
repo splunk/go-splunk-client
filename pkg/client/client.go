@@ -39,7 +39,7 @@ func (c *Client) urlForPath(ns Namespace, path ...string) (*url.URL, error) {
 	// parts will hold the Client URL, Namespace, and all path components, capacity set to accomodate
 	parts := make([]string, 0, len(path)+2)
 
-	nsPart, err := ns.path()
+	nsPart, err := ns.nsPath()
 	if err != nil {
 		return nil, err
 	}

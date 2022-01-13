@@ -42,8 +42,8 @@ func (c Namespace) validate() error {
 	return fmt.Errorf("invalid Context, neither or both App/User must be set")
 }
 
-// path returns the relative URL path for the Namespace.
-func (c Namespace) path() (string, error) {
+// nsPath returns the namespace path.
+func (c Namespace) nsPath() (string, error) {
 	if err := c.validate(); err != nil {
 		return "", err
 	}
