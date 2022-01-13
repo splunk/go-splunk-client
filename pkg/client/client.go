@@ -35,7 +35,7 @@ type Client struct {
 }
 
 // urlForPath returns a url.URL for the given Namespace and path components.
-func (c *Client) urlForPath(ns Namespace, path ...string) (*url.URL, error) {
+func (c *Client) urlForPath(ns namespacer, path ...string) (*url.URL, error) {
 	// parts will hold the Client URL, Namespace, and all path components, capacity set to accomodate
 	parts := make([]string, 0, len(path)+2)
 
