@@ -28,6 +28,8 @@ import (
 // PasswordAuth authenticates to auth/login and stores the resulting sessionKey for
 // future authentication.
 type PasswordAuth struct {
+	globalNamespace
+	service        `service:"auth/login"`
 	Username       string `url:"username"`
 	Password       string `url:"password"`
 	UseBasicAuth   bool   `url:"-"`
@@ -41,9 +43,14 @@ func (p *PasswordAuth) requestForLogin(c *Client) (*http.Request, error) {
 		return nil, fmt.Errorf("attempted PasswordAuth login with empty Username or Password")
 	}
 
-	loginURL, err := c.urlForPath(GlobalNamespace, "auth/login")
+	loginPath, err := p.servicePath(p)
 	if err != nil {
-		return nil, fmt.Errorf("unable to determine loginURL: %s", err)
+		return nil, err
+	}
+
+	loginURL, err := c.urlForPath(loginPath)
+	if err != nil {
+		return nil, err
 	}
 
 	loginValues, err := query.Values(p)

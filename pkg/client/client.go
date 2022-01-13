@@ -20,7 +20,6 @@ import (
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
-	"strings"
 	"sync"
 
 	"golang.org/x/net/publicsuffix"
@@ -35,25 +34,12 @@ type Client struct {
 	mu                    sync.Mutex
 }
 
-// urlForPath returns a url.URL for the given Namespace and path components.
-func (c *Client) urlForPath(ns namespacer, path ...string) (*url.URL, error) {
-	// parts will hold the Client URL, Namespace, and all path components, capacity set to accomodate
-	parts := make([]string, 0, len(path)+2)
+// urlForPath returns a url.URL for the given path components.
+func (c *Client) urlForPath(paths ...string) (*url.URL, error) {
+	pathsString := urlJoin(paths...)
+	urlString := urlJoin(c.URL, pathsString)
 
-	nsPart, err := ns.nsPath()
-	if err != nil {
-		return nil, err
-	}
-
-	parts = append(parts, strings.Trim(c.URL, "/"), nsPart)
-
-	for _, part := range path {
-		parts = append(parts, strings.Trim(part, "/"))
-	}
-
-	pathURL := strings.Join(parts, "/")
-
-	return url.Parse(pathURL)
+	return url.Parse(urlString)
 }
 
 // httpClientPrep prepares the Client's http.Client.
