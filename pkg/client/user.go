@@ -14,11 +14,13 @@
 
 package client
 
-// Title represents the title of an object in Splunk.
-type Title string
+type UserAttributes struct {
+	DefaultApp string `json:"defaultApp"`
+}
 
-// title returns the string value of the Title and a boolean indicating if
-// it has a value.
-func (t Title) title() (string, bool) {
-	return string(t), t != ""
+type User struct {
+	service `service:"authentication/users"`
+	globalNamespace
+	Title      `json:"name"`
+	Attributes UserAttributes `json:"content"`
 }

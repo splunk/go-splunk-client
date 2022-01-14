@@ -17,5 +17,5 @@ package client
 // title defines methods that a type must implement to be a titled object.
 type titler interface {
 	// title returns the string representation of the type's title.
-	title() (string, error)
+	title() (string, bool)
 }

@@ -90,3 +90,17 @@ func CheckRequestBasicAuth(username string, password string) CheckRequestFunc {
 		}
 	}
 }
+
+func CheckRequestURL(url string) CheckRequestFunc {
+	return func(r *http.Request, t *testing.T) {
+		if r.URL == nil {
+			t.Errorf("CheckRequestURL: URL is nil")
+		}
+
+		gotURL := r.URL.String()
+
+		if gotURL != url {
+			t.Errorf("CheckRequestURL: got %s, want %s", gotURL, url)
+		}
+	}
+}

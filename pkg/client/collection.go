@@ -14,11 +14,24 @@
 
 package client
 
-// Title represents the title of an object in Splunk.
-type Title string
+// collection types have the required methods to represent a collection of entries.
+type collection interface {
+	namespacer
+	servicer
+}
 
-// title returns the string value of the Title and a boolean indicating if
-// it has a value.
-func (t Title) title() (string, bool) {
-	return string(t), t != ""
+// collectionPath returns the REST path to the collection, including the namespace and
+// service paths.
+func collectionPath(c collection) (string, error) {
+	nsPath, err := c.nsPath()
+	if err != nil {
+		return "", err
+	}
+
+	servicePath, err := c.servicePath(c)
+	if err != nil {
+		return "", err
+	}
+
+	return urlJoin(nsPath, servicePath), nil
 }

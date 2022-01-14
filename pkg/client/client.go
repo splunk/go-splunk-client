@@ -74,3 +74,7 @@ func (c *Client) do(r *http.Request) (*http.Response, error) {
 
 	return c.httpClient.Do(r)
 }
+
+func ReadCollection[E collectionEntry](c *Client, e E) ([]E, error) {
+	return readEntryCollection(c, e)
+}

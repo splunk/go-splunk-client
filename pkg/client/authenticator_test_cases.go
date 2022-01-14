@@ -15,9 +15,10 @@
 package client
 
 import (
-	"go-sdk/pkg/client/internal/checks"
 	"net/http"
 	"testing"
+
+	"github.com/splunk/go-sdk/pkg/client/internal/checks"
 )
 
 // AuthenticatorTestCase defines a test against a specific Authenticator and Client.
