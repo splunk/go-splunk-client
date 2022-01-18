@@ -27,6 +27,11 @@ type SessionKey struct {
 	SessionKey string `xml:"sessionKey"`
 }
 
+// authenticated returns true if SessionKey is not empty.
+func (s SessionKey) authenticated() bool {
+	return s.SessionKey != ""
+}
+
 // AuthenticateRequest adds the SessionKey to the http.Request's Header.
 func (s *SessionKey) AuthenticateRequest(c *client.Client, r *http.Request) error {
 	if s.SessionKey == "" {
