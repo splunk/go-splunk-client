@@ -70,6 +70,16 @@ func (c *Client) ServiceURL(s Service) (*url.URL, error) {
 	return c.urlForPath(servicePath)
 }
 
+// CollectionURL returns a url.URL for a Collection, relative to the Client's URL.
+func (c *Client) CollectionURL(coll Collection) (*url.URL, error) {
+	collectionPath, err := collectionPath(coll)
+	if err != nil {
+		return nil, err
+	}
+
+	return c.urlForPath(collectionPath)
+}
+
 // httpClientPrep prepares the Client's http.Client.
 func (c *Client) httpClientPrep() error {
 	c.mu.Lock()
