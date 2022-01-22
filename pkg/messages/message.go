@@ -16,6 +16,6 @@ package messages
 
 // Message represents the <msg> element of a <messages> entry.
 type Message struct {
-	Value string `xml:",chardata"`
-	Code  string `xml:"code,attr"`
+	Value string `xml:",chardata" json:"text"`
+	Code  string `xml:"code,attr" json:"type"`
 }

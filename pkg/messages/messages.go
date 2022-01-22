@@ -17,7 +17,7 @@ package messages
 // Messages represents the <messages> element of a <response> entry.
 type Messages struct {
 	XMLName string    `xml:"messages"`
-	Items   []Message `xml:"msg"`
+	Items   []Message `xml:"msg" json:"messages"`
 }
 
 // FirstAndOnly returns the first message if exactly one message is present. Otherwise
