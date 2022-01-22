@@ -112,3 +112,20 @@ func (c *Client) Do(r *http.Request) (*http.Response, error) {
 
 	return c.httpClient.Do(r)
 }
+
+// performOperation builds a new http.Request with the provided requestBuilder, performs
+// the request, and handles the request with the provided responseHandler.
+func (c *Client) performOperation(builder requestBuilder, handler responseHandler) error {
+	req, err := buildRequest(builder)
+	if err != nil {
+		return err
+	}
+
+	resp, err := c.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	return handleResponse(resp, handler)
+}
