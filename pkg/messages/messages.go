@@ -14,18 +14,23 @@
 
 package messages
 
+import (
+	"strings"
+)
+
 // Messages represents the <messages> element of a <response> entry.
 type Messages struct {
 	XMLName string    `xml:"messages"`
 	Items   []Message `xml:"msg"`
 }
 
-// FirstAndOnly returns the first message if exactly one message is present. Otherwise
-// it returns an empty message and false.
-func (m Messages) FirstAndOnly() (Message, bool) {
-	if len(m.Items) != 1 {
-		return Message{}, false
+// String returns the string representation of Messages. If multiple Message items are
+// present, they will be comma-separated.
+func (m Messages) String() string {
+	itemStrings := make([]string, len(m.Items))
+	for i := 0; i < len(m.Items); i++ {
+		itemStrings[i] = m.Items[i].String()
 	}
 
-	return m.Items[0], true
+	return strings.Join(itemStrings, ",")
 }
