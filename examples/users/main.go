@@ -22,6 +22,7 @@ import (
 	"github.com/splunk/go-sdk/pkg/authenticators"
 	"github.com/splunk/go-sdk/pkg/client"
 	"github.com/splunk/go-sdk/pkg/collections"
+	"github.com/splunk/go-sdk/pkg/errors"
 )
 
 func main() {
@@ -35,8 +36,14 @@ func main() {
 	}
 
 	// List
-	users, err := client.CollectionList(c, collections.User{})
+	users, err := client.CollectionList(c, collections.User{Title: "admin"})
 	if err != nil {
+		if clientErr, ok := err.(errors.Error); ok {
+			if clientErr.Kind == errors.ErrorHTTPNotFound {
+				log.Fatalf("not found")
+			}
+		}
+
 		log.Fatalf("error: %s", err)
 	}
 	fmt.Printf("list users:\n")

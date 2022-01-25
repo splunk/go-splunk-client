@@ -12,4 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package authenticators
+package main
+
+import (
+	"fmt"
+	"log"
+	"net/http"
+
+	"github.com/splunk/go-sdk/pkg/authenticators"
+	"github.com/splunk/go-sdk/pkg/client"
+)
+
+func main() {
+	c := &client.Client{
+		URL:                   "https://localhost:8089",
+		Authenticator:         &authenticators.Password{Username: "admin", Password: "changeme"},
+		TLSInsecureSkipVerify: true,
+	}
+
+	r := &http.Request{}
+	if err := c.Authenticator.AuthenticateRequest(c, r); err != nil {
+		log.Fatalf("error authenticating request: %s", err)
+	}
+
+	fmt.Printf("%#v\n", r)
+}

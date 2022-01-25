@@ -16,18 +16,20 @@ package client
 
 import (
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"net/http"
 
+	"github.com/splunk/go-sdk/pkg/errors"
 	"github.com/splunk/go-sdk/pkg/messages"
 )
 
-// responseHandler defines a function that performs an action on an http.Response.
-type responseHandler func(*http.Response) error
+// ResponseHandler defines a function that performs an action on an http.Response.
+type ResponseHandler func(*http.Response) error
 
-// composeResponseHandler creates a new responseHandleFunc that runs each responseHandler
+// ComposeResponseHandler creates a new responseHandleFunc that runs each responseHandler
 // provided as an argument.
-func composeResponseHandler(handlers ...responseHandler) responseHandler {
+func ComposeResponseHandler(handlers ...ResponseHandler) ResponseHandler {
 	return func(r *http.Response) error {
 		for _, check := range handlers {
 			if err := check(r); err != nil {
@@ -40,7 +42,7 @@ func composeResponseHandler(handlers ...responseHandler) responseHandler {
 }
 
 // handleResponse runs each responseHandler against the provided http.Response.
-func handleResponse(r *http.Response, handlers ...responseHandler) error {
+func handleResponse(r *http.Response, handlers ...ResponseHandler) error {
 	for _, check := range handlers {
 		if err := check(r); err != nil {
 			return err
@@ -50,52 +52,80 @@ func handleResponse(r *http.Response, handlers ...responseHandler) error {
 	return nil
 }
 
-// handleResponseRequireCode returns a responseHandler that returns an error if
+func HandleResponseXML(i interface{}) ResponseHandler {
+	return func(r *http.Response) error {
+		return xml.NewDecoder(r.Body).Decode(i)
+	}
+}
+
+// HandleResponseMessages returns a responseHandler that returns an error representing
+// the parsed Messages from the http.Response.
+func HandleResponseMessages(kind errors.Kind) ResponseHandler {
+	return func(r *http.Response) error {
+		msg, err := messages.NewMessagesFromResponse(r)
+		if err != nil {
+			return err
+		}
+
+		return errors.FromMessages(kind, msg)
+	}
+}
+
+// HandleResponseMessagesForCode returns a responseHandler that returns an error representing
+// the parsed Messages from the http.Response if the response's status code matches the given
+// code.
+func HandleResponseMessagesForCode(code int, kind errors.Kind) ResponseHandler {
+	return func(r *http.Response) error {
+		if r.StatusCode == code {
+			return HandleResponseMessages(kind)(r)
+		}
+
+		return nil
+	}
+}
+
+// HandleResponseRequireCode returns a responseHandler that returns an error if
 // the http.Response has a StatusCode that doesn't match the provided code.
-func handleResponseRequireCode(code int) responseHandler {
+func HandleResponseRequireCode(code int) ResponseHandler {
 	return func(r *http.Response) error {
 		if r.StatusCode != code {
-			return fmt.Errorf("got status code %d, expected %d", r.StatusCode, code)
+			inner := HandleResponseMessages(errors.ErrorUnhandled)(r)
+
+			return errors.Wrap(errors.ErrorUnhandled, inner, "got status code %d, expected %d", r.StatusCode, code)
 		}
 
 		return nil
 	}
 }
 
-// handleResponseRequireCodeWithMessage returns a responseHandler that returns
+// HandleResponseRequireCodeWithMessage returns a responseHandler that returns
 // an error containing returned Message's Value if the http.Response has a StatusCode
 // that doesn't match the provided code.
-func handleResponseRequireCodeWithMessage(code int) responseHandler {
+func HandleResponseRequireCodeWithMessage(code int) ResponseHandler {
 	return func(r *http.Response) error {
-		if err := handleResponseRequireCode(code)(r); err != nil {
-			msg := messages.Messages{}
-			d := json.NewDecoder(r.Body)
-			if err := d.Decode(&msg); err != nil {
-				return err
-			}
-
-			m, ok := msg.FirstAndOnly()
-			if !ok {
-				return fmt.Errorf("unexpected status code (%d) didn't return exactly one Message: %v", r.StatusCode, msg.Items)
-			}
-
-			return fmt.Errorf("unexpected status code (%d): %s", r.StatusCode, m.Value)
+		if err := HandleResponseRequireCode(code)(r); err != nil {
+			return HandleResponseMessages(errors.ErrorUnhandled)(r)
 		}
 
 		return nil
 	}
 }
 
-// handleResponseEntries returns a responseHandler that parses the http.Response Body
+func HandleResponseJSON(i interface{}) ResponseHandler {
+	return func(r *http.Response) error {
+		return json.NewDecoder(r.Body).Decode(i)
+	}
+}
+
+// HandleResponseEntries returns a responseHandler that parses the http.Response Body
 // into the list of Collections provided.
-func handleResponseEntries[C Collection](entries *[]C) responseHandler {
+func HandleResponseEntries[C Collection](entries *[]C) ResponseHandler {
 	return func(r *http.Response) error {
 		collectionResponse := struct{
 			Items []C `json:"entry"`
 		}{}
 
-		d := json.NewDecoder(r.Body)
-		if err := d.Decode(&collectionResponse); err != nil {
+		if err := HandleResponseJSON(&collectionResponse)(r); err != nil {
 			return err
 		}
 
@@ -105,13 +135,13 @@ func handleResponseEntries[C Collection](entries *[]C) responseHandler {
 	}
 }
 
-// handleResponseEntry returns a responseHandler that parses the http.Response Body
+// HandleResponseEntry returns a responseHandler that parses the http.Response Body
 // into the given Collection.
-func handleResponseEntry[C Collection](entry *C) responseHandler {
+func HandleResponseEntry[C Collection](entry *C) ResponseHandler {
 	return func(r *http.Response) error {
 		entries := make([]C, 0)
 
-		if err := handleResponseEntries(&entries)(r); err != nil {
+		if err := HandleResponseEntries(&entries)(r); err != nil {
 			return err
 		}
 

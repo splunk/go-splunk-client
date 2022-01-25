@@ -17,6 +17,7 @@ package client
 import (
 	"net/http"
 
+	"github.com/splunk/go-sdk/pkg/errors"
 	"github.com/splunk/go-sdk/pkg/internal/paths"
 )
 
@@ -45,16 +46,17 @@ func collectionPath(collection Collection) (string, error) {
 func CollectionList[C Collection](c *Client, collection C) ([]C, error) {
 	entries := make([]C, 0)
 
-	if err := c.performOperation(
-		composeRequestBuilder(
-			buildRequestMethod(http.MethodGet),
-			buildRequestCollectionURL(c, collection),
-			buildRequestOutputModeJSON(),
-			buildRequestAuthenticate(c),
+	if err := c.PerformOperation(
+		ComposeRequestBuilder(
+			BuildRequestMethod(http.MethodGet),
+			BuildRequestCollectionURL(c, collection),
+			BuildRequestOutputModeJSON(),
+			BuildRequestAuthenticate(c),
 		),
-		composeResponseHandler(
-			handleResponseRequireCode(http.StatusOK),
-			handleResponseEntries(&entries),
+		ComposeResponseHandler(
+			HandleResponseMessagesForCode(http.StatusNotFound, errors.ErrorHTTPNotFound),
+			HandleResponseRequireCode(http.StatusOK),
+			HandleResponseEntries(&entries),
 		),
 	); err != nil {
 		return nil, err
@@ -68,17 +70,17 @@ func CollectionList[C Collection](c *Client, collection C) ([]C, error) {
 func CollectionCreate[C Collection](c *Client, collection C) (C, error) {
 	entry := new(C)
 
-	if err := c.performOperation(
-		composeRequestBuilder(
-			buildRequestMethod(http.MethodPost),
-			buildRequestServiceURL(c, collection),
-			buildRequestOutputModeJSON(),
-			buildRequestBodyValuesWithTitle(collection),
-			buildRequestAuthenticate(c),
+	if err := c.PerformOperation(
+		ComposeRequestBuilder(
+			BuildRequestMethod(http.MethodPost),
+			BuildRequestServiceURL(c, collection),
+			BuildRequestOutputModeJSON(),
+			BuildRequestBodyValuesWithTitle(collection),
+			BuildRequestAuthenticate(c),
 		),
-		composeResponseHandler(
-			handleResponseRequireCodeWithMessage(http.StatusCreated),
-			handleResponseEntry(entry),
+		ComposeResponseHandler(
+			HandleResponseRequireCodeWithMessage(http.StatusCreated),
+			HandleResponseEntry(entry),
 		),
 	); err !=  nil {
 		return *new(C), err
@@ -92,16 +94,16 @@ func CollectionCreate[C Collection](c *Client, collection C) (C, error) {
 func CollectionRead[C Collection](c *Client, collection C) (C, error) {
 	entry := new(C)
 
-	if err := c.performOperation(
-		composeRequestBuilder(
-			buildRequestMethod(http.MethodGet),
-			buildRequestCollectionURLWithTitle(c, collection),
-			buildRequestOutputModeJSON(),
-			buildRequestAuthenticate(c),
+	if err := c.PerformOperation(
+		ComposeRequestBuilder(
+			BuildRequestMethod(http.MethodGet),
+			BuildRequestCollectionURLWithTitle(c, collection),
+			BuildRequestOutputModeJSON(),
+			BuildRequestAuthenticate(c),
 		),
-		composeResponseHandler(
-			handleResponseRequireCodeWithMessage(http.StatusOK),
-			handleResponseEntry(entry),
+		ComposeResponseHandler(
+			HandleResponseRequireCodeWithMessage(http.StatusOK),
+			HandleResponseEntry(entry),
 		),
 	); err != nil {
 		return *new(C), nil
@@ -115,17 +117,17 @@ func CollectionRead[C Collection](c *Client, collection C) (C, error) {
 func CollectionUpdate[C Collection](c *Client, collection C) (C, error) {
 	entry := new(C)
 
-	if err := c.performOperation(
-		composeRequestBuilder(
-			buildRequestMethod(http.MethodPost),
-			buildRequestCollectionURLWithTitle(c, collection),
-			buildRequestOutputModeJSON(),
-			buildRequestBodyContentValues(collection),
-			buildRequestAuthenticate(c),	
+	if err := c.PerformOperation(
+		ComposeRequestBuilder(
+			BuildRequestMethod(http.MethodPost),
+			BuildRequestCollectionURLWithTitle(c, collection),
+			BuildRequestOutputModeJSON(),
+			BuildRequestBodyContentValues(collection),
+			BuildRequestAuthenticate(c),	
 		),
-		composeResponseHandler(
-			handleResponseRequireCode(http.StatusOK),
-			handleResponseEntry(entry),	
+		ComposeResponseHandler(
+			HandleResponseRequireCode(http.StatusOK),
+			HandleResponseEntry(entry),	
 		),
 	); err !=  nil {
 		return *new(C), err
@@ -139,16 +141,16 @@ func CollectionUpdate[C Collection](c *Client, collection C) (C, error) {
 func CollectionDelete[C Collection](c *Client, collection C) ([]C, error) {
 	entries := make([]C, 0)
 
-	if err := c.performOperation(
-		composeRequestBuilder(
-			buildRequestMethod(http.MethodDelete),
-			buildRequestCollectionURLWithTitle(c, collection),
-			buildRequestOutputModeJSON(),
-			buildRequestAuthenticate(c),
+	if err := c.PerformOperation(
+		ComposeRequestBuilder(
+			BuildRequestMethod(http.MethodDelete),
+			BuildRequestCollectionURLWithTitle(c, collection),
+			BuildRequestOutputModeJSON(),
+			BuildRequestAuthenticate(c),
 		),
-		composeResponseHandler(
-			handleResponseRequireCode(http.StatusOK),
-			handleResponseEntries(&entries),
+		ComposeResponseHandler(
+			HandleResponseRequireCode(http.StatusOK),
+			HandleResponseEntries(&entries),
 		),
 	); err != nil {
 		return nil, err

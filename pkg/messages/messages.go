@@ -14,10 +14,27 @@
 
 package messages
 
+import (
+	"encoding/json"
+	"net/http"
+	"strings"
+)
+
 // Messages represents the <messages> element of a <response> entry.
 type Messages struct {
 	XMLName string    `xml:"messages"`
 	Items   []Message `xml:"msg" json:"messages"`
+}
+
+func NewMessagesFromResponse(r *http.Response) (Messages, error) {
+	m := Messages{}
+
+	d := json.NewDecoder(r.Body)
+	if err := d.Decode(&m); err != nil {
+		return Messages{}, err
+	}
+
+	return m, nil
 }
 
 // FirstAndOnly returns the first message if exactly one message is present. Otherwise
@@ -28,4 +45,15 @@ func (m Messages) FirstAndOnly() (Message, bool) {
 	}
 
 	return m.Items[0], true
+}
+
+// String returns the string representation of Messages. If multiple Message items are
+// present, they will be comma-separated.
+func (m Messages) String() string {
+	itemStrings := make([]string, len(m.Items))
+	for i := 0; i < len(m.Items); i++ {
+		itemStrings[i] = m.Items[i].String()
+	}
+
+	return strings.Join(itemStrings, ",")
 }

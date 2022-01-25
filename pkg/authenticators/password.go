@@ -15,14 +15,9 @@
 package authenticators
 
 import (
-	"encoding/xml"
-	"fmt"
-	"io"
 	"net/http"
-	"strings"
 	"sync"
 
-	"github.com/google/go-querystring/query"
 	"github.com/splunk/go-sdk/pkg/client"
 	"github.com/splunk/go-sdk/pkg/messages"
 )
@@ -56,75 +51,28 @@ type loginResponse struct {
 	SessionKey
 }
 
-// loginRequest creates an http.Request to perform a password login to Splunk.
-func (p *Password) loginRequest(c *client.Client) (*http.Request, error) {
-	if p.Username == "" || p.Password == "" {
-		return nil, fmt.Errorf("Password authenticator missing Username or Password")
-	}
-
-	u, err := c.ServiceURL(p)
-	if err != nil {
-		return nil, err
-	}
-
-	v, err := query.Values(p)
-	if err != nil {
-		return nil, err
-	}
-
-	r := &http.Request{
-		Method: http.MethodPost,
-		URL:    u,
-		Body:   io.NopCloser(strings.NewReader(v.Encode())),
-	}
-
-	return r, nil
-}
-
-// handleLoginResponse handles a response from a password login request.
-func (p *Password) handleLoginResponse(r *http.Response) error {
-	if r == nil {
-		return fmt.Errorf("handleLoginResponse unable to process nil http.Response")
-	}
-
+// authenticate performs the authentication request and handles the response, storing the SessionKey
+// if successful.
+func (p *Password) authenticate(c *client.Client) error {
 	lR := loginResponse{}
 
-	d := xml.NewDecoder(r.Body)
-	if err := d.Decode(&lR); err != nil {
-		return fmt.Errorf("unable to parse login response: %s", err)
-	}
-
-	if r.StatusCode != http.StatusOK {
-		m, ok := lR.Messages.FirstAndOnly()
-		if !ok {
-			// this is an unlikely situation, but passing messages back to the calling
-			// function in case it does occur
-			return fmt.Errorf("login failed with multiple messages: %s - %v", r.Status, lR.Messages.Items)
-		}
-
-		return fmt.Errorf("unable to log in: %s", m.Value)
+	if err := c.PerformOperation(
+		client.ComposeRequestBuilder(
+			client.BuildRequestMethod(http.MethodPost),
+			client.BuildRequestServiceURL(c, p),
+			client.BuildRequestBodyValues(p),
+		),
+		client.ComposeResponseHandler(
+			client.HandleResponseRequireCode(http.StatusOK),
+			client.HandleResponseXML(&lR),
+		),
+	); err != nil {
+		return err
 	}
 
 	p.SessionKey = lR.SessionKey
 
 	return nil
-}
-
-// authenticate performs the authentication request and handles the response, storing the SessionKey
-// if successful.
-func (p *Password) authenticate(c *client.Client) error {
-	req, err := p.loginRequest(c)
-	if err != nil {
-		return err
-	}
-
-	resp, err := c.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	return p.handleLoginResponse(resp)
 }
 
 // authenticateOnce calls authenticate only if currently unauthenticated.

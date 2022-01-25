@@ -24,12 +24,12 @@ import (
 	"github.com/google/go-querystring/query"
 )
 
-// requestBuilder defines a function that performs an operation on an http.Request.
-type requestBuilder func(*http.Request) error
+// RequestBuilder defines a function that performs an operation on an http.Request.
+type RequestBuilder func(*http.Request) error
 
-// composeRequestBuilder creates a new buildRequestFunc that performs each buildRequestFunc
+// ComposeRequestBuilder creates a new buildRequestFunc that performs each buildRequestFunc
 // provided as an argument.
-func composeRequestBuilder(mods ...requestBuilder) requestBuilder {
+func ComposeRequestBuilder(mods ...RequestBuilder) RequestBuilder {
 	return func(r *http.Request) error {
 		for _, mod := range mods {
 			if err := mod(r); err != nil {
@@ -44,7 +44,7 @@ func composeRequestBuilder(mods ...requestBuilder) requestBuilder {
 // buildRequest creates a new http.Request and applies each requestBuilder defined.
 // If any of requestBuilder returns an error, buildRequest will return a nil http.Request
 // and the error.
-func buildRequest(mods ...requestBuilder) (*http.Request, error) {
+func buildRequest(mods ...RequestBuilder) (*http.Request, error) {
 	r := &http.Request{}
 
 	for _, mod := range mods {
@@ -56,8 +56,8 @@ func buildRequest(mods ...requestBuilder) (*http.Request, error) {
 	return r, nil
 }
 
-// buildRequestMethod returns a requestBuilder that sets the given method.
-func buildRequestMethod(method string) requestBuilder {
+// BuildRequestMethod returns a requestBuilder that sets the given method.
+func BuildRequestMethod(method string) RequestBuilder {
 	return func(r *http.Request) error {
 		r.Method = method
 
@@ -65,9 +65,9 @@ func buildRequestMethod(method string) requestBuilder {
 	}
 }
 
-// buildRequestServiceURL returns a requestBuilder that sets the URL to the ServiceURL
+// BuildRequestServiceURL returns a requestBuilder that sets the URL to the ServiceURL
 // for a given Service.
-func buildRequestServiceURL(c *Client, service Service) requestBuilder {
+func BuildRequestServiceURL(c *Client, service Service) RequestBuilder {
 	return func(r *http.Request) error {
 		u, err := c.ServiceURL(service)
 		if err != nil {
@@ -80,9 +80,9 @@ func buildRequestServiceURL(c *Client, service Service) requestBuilder {
 	}
 }
 
-// buildRequestCollectionURL returns a requestBuilder that sets the URL to the CollectionURL
+// BuildRequestCollectionURL returns a requestBuilder that sets the URL to the CollectionURL
 // for a given Collection.
-func buildRequestCollectionURL(c *Client, collection Collection) requestBuilder {
+func BuildRequestCollectionURL(c *Client, collection Collection) RequestBuilder {
 	return func(r *http.Request) error {
 		u, err := c.CollectionURL(collection)
 		if err != nil {
@@ -95,21 +95,21 @@ func buildRequestCollectionURL(c *Client, collection Collection) requestBuilder 
 	}
 }
 
-// buildRequestCollectionURLWithTitle returns a requestBuilder that sets the URL to the CollectionURL
+// BuildRequestCollectionURLWithTitle returns a requestBuilder that sets the URL to the CollectionURL
 // for a given Collection, but also checks that the Collection's Title is not empty.
-func buildRequestCollectionURLWithTitle(c *Client, collection Collection) requestBuilder {
+func BuildRequestCollectionURLWithTitle(c *Client, collection Collection) RequestBuilder {
 	return func(r *http.Request) error {
 		if !collection.HasTitle() {
 			return fmt.Errorf("Title is required")
 		}
 
-		return buildRequestCollectionURL(c, collection)(r)
+		return BuildRequestCollectionURL(c, collection)(r)
 	}
 }
 
-// buildRequestBodyValues returns a requestBuilder that sets the Body to the encoded url.Values for
+// BuildRequestBodyValues returns a requestBuilder that sets the Body to the encoded url.Values for
 // a given interface.
-func buildRequestBodyValues(i interface{}) requestBuilder {
+func BuildRequestBodyValues(i interface{}) RequestBuilder {
 	return func(r *http.Request) error {
 		v, err := query.Values(i)
 		if err != nil {
@@ -122,35 +122,35 @@ func buildRequestBodyValues(i interface{}) requestBuilder {
 	}
 }
 
-// buildRequestBodyValuesWithTitle returns a requestBuilder that sets the Body to the encoded url.Values
+// BuildRequestBodyValuesWithTitle returns a requestBuilder that sets the Body to the encoded url.Values
 // for a given Titler. It checks that the Title is not empty.
-func buildRequestBodyValuesWithTitle(t Titler) requestBuilder {
+func BuildRequestBodyValuesWithTitle(t Titler) RequestBuilder {
 	return func(r *http.Request) error {
 		if !t.HasTitle() {
 			return fmt.Errorf("Title is required")
 		}
 
-		return buildRequestBodyValues(t)(r)
+		return BuildRequestBodyValues(t)(r)
 	}
 }
 
-// buildRequestBodyContentValues returns a requestBuilder that sets the Body to the encoded url.Values
+// BuildRequestBodyContentValues returns a requestBuilder that sets the Body to the encoded url.Values
 // for a given ContentGetter.
-func buildRequestBodyContentValues(c ContentGetter) requestBuilder {
+func BuildRequestBodyContentValues(c ContentGetter) RequestBuilder {
 	return func(r *http.Request) error {
 		content := c.GetContent(c)
 		if content == nil {
 			return fmt.Errorf("unable to GetContent")
 		}
 
-		return buildRequestBodyValues(content)(r)
+		return BuildRequestBodyValues(content)(r)
 	}
 }
 
-// buildRequestOutputModeJSON returns a requestBuilder that sets the URL's RawQuery to output_mode=json.
+// BuildRequestOutputModeJSON returns a requestBuilder that sets the URL's RawQuery to output_mode=json.
 // It checks that the URL is already set, so it must be applied after setting the URL. It overwrites
 // any existing RawQuery Values.
-func buildRequestOutputModeJSON() requestBuilder {
+func BuildRequestOutputModeJSON() RequestBuilder {
 	return func(r *http.Request) error {
 		if r.URL == nil {
 			return fmt.Errorf("unable to set output mode on empty URL")
@@ -164,8 +164,8 @@ func buildRequestOutputModeJSON() requestBuilder {
 	}
 }
 
-// buildRequestAuthenticate returns a requestBuilder that authenticates a request for a given Client.
-func buildRequestAuthenticate(c *Client) requestBuilder {
+// BuildRequestAuthenticate returns a requestBuilder that authenticates a request for a given Client.
+func BuildRequestAuthenticate(c *Client) RequestBuilder {
 	return func(r *http.Request) error {
 		return c.Authenticator.AuthenticateRequest(c, r)
 	}

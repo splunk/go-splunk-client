@@ -104,8 +104,8 @@ func (c *Client) httpClientPrep() error {
 	return nil
 }
 
-// Do performs a given http.Request via the Client's http.Client.
-func (c *Client) Do(r *http.Request) (*http.Response, error) {
+// do performs a given http.Request via the Client's http.Client.
+func (c *Client) do(r *http.Request) (*http.Response, error) {
 	if err := c.httpClientPrep(); err != nil {
 		return nil, err
 	}
@@ -113,15 +113,15 @@ func (c *Client) Do(r *http.Request) (*http.Response, error) {
 	return c.httpClient.Do(r)
 }
 
-// performOperation builds a new http.Request with the provided requestBuilder, performs
+// PerformOperation builds a new http.Request with the provided requestBuilder, performs
 // the request, and handles the request with the provided responseHandler.
-func (c *Client) performOperation(builder requestBuilder, handler responseHandler) error {
+func (c *Client) PerformOperation(builder RequestBuilder, handler ResponseHandler) error {
 	req, err := buildRequest(builder)
 	if err != nil {
 		return err
 	}
 
-	resp, err := c.Do(req)
+	resp, err := c.do(req)
 	if err != nil {
 		return err
 	}
