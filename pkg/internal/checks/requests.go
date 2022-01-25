@@ -15,7 +15,10 @@
 package checks
 
 import (
+	"bytes"
+	"io"
 	"net/http"
+	"net/url"
 	"reflect"
 	"testing"
 )
@@ -50,6 +53,63 @@ func CheckRequestHeaderKeyValue(key string, value ...string) CheckRequestFunc {
 
 		if !reflect.DeepEqual(got, value) {
 			t.Errorf("CheckRequestHeaderKeyValue: Key %s = %#v, want %#v", key, got, value)
+			return
+		}
+	}
+}
+
+// CheckRequestMethod checks that a requests method matches the given method.
+func CheckRequestMethod(method string) CheckRequestFunc {
+	return func(r *http.Request, t *testing.T) {
+		if r.Method != method {
+			t.Errorf("CheckRequestMethod: got %s, want %s", r.Method, method)
+		}
+	}
+}
+
+// CheckRequestURL checks that a request's URL matches the given URL.
+func CheckRequestURL(url string) CheckRequestFunc {
+	return func(r *http.Request, t *testing.T) {
+		gotURL := r.URL.String()
+
+		if gotURL != url {
+			t.Errorf("CheckRequestURL: got\n%s, want\n%s", gotURL, url)
+		}
+	}
+}
+
+// CheckRequestBodyValue checks that a requests URL-encoded body has the given
+// key and value.
+func CheckRequestBodyValue(key string, value ...string) CheckRequestFunc {
+	return func(r *http.Request, t *testing.T) {
+		if r.Body == nil {
+			t.Errorf("CheckRequestBodyValue: Body is nil")
+		}
+
+		data, err := io.ReadAll(r.Body)
+		if err != nil {
+			t.Errorf("CheckRequestBodyValue: unable to read body: %s", err)
+			return
+		}
+
+		// because reading is a one-time deal, we need to put back the data we
+		// read from r.Body
+		r.Body = io.NopCloser(bytes.NewReader(data))
+
+		v, err := url.ParseQuery(string(data))
+		if err != nil {
+			t.Errorf("CheckRequestBodyValue: unable to parse query: %s", err)
+			return
+		}
+
+		got, ok := v[key]
+		if !ok {
+			t.Errorf("CheckRequestBodyValue: key %s not present", key)
+			return
+		}
+
+		if !reflect.DeepEqual(got, value) {
+			t.Errorf("CheckRequestBodyValue: key %s got %v, want %v", key, got, value)
 			return
 		}
 	}
