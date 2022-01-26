@@ -15,8 +15,10 @@
 package client
 
 import (
+	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/google/go-querystring/query"
@@ -86,5 +88,41 @@ func BuildRequestBodyValues(i interface{}) RequestBuilder {
 		r.Body = io.NopCloser(strings.NewReader(v.Encode()))
 
 		return nil
+	}
+}
+
+// BuildRequestOutputModeJSON returns a RequestBuilder that sets the URL's RawQuery to output_mode=json.
+// It checks that the URL is already set, so it must be applied after setting the URL. It overwrites
+// any existing RawQuery Values.
+func BuildRequestOutputModeJSON() RequestBuilder {
+	return func(r *http.Request) error {
+		if r.URL == nil {
+			return fmt.Errorf("unable to set output mode on empty URL")
+		}
+
+		r.URL.RawQuery = url.Values{
+			"output_mode": []string{"json"},
+		}.Encode()
+
+		return nil
+	}
+}
+
+// BuildRequestBodyValuesWithTitle returns a RequestBuilder that sets the Body to the encoded url.Values
+// for a given Titler. It checks that the Title is not empty.
+func BuildRequestBodyValuesWithTitle(t Titler) RequestBuilder {
+	return func(r *http.Request) error {
+		if !t.HasTitle() {
+			return fmt.Errorf("Title is required")
+		}
+
+		return BuildRequestBodyValues(t)(r)
+	}
+}
+
+// BuildRequestAuthenticate returns a RequestBuilder that authenticates a request for a given Client.
+func BuildRequestAuthenticate(c *Client) RequestBuilder {
+	return func(r *http.Request) error {
+		return c.Authenticator.AuthenticateRequest(c, r)
 	}
 }

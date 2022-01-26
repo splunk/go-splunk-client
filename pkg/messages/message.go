@@ -18,8 +18,8 @@ import "fmt"
 
 // Message represents the <msg> element of a <messages> entry.
 type Message struct {
-	Value string `xml:",chardata"`
-	Code  string `xml:"code,attr"`
+	Value string `json:"text" xml:",chardata"`
+	Code  string `json:"type" xml:"code,attr"`
 }
 
 // String returns the string representation of a message. It will be in the form:
