@@ -14,8 +14,17 @@
 
 package messages
 
+import "fmt"
+
 // Message represents the <msg> element of a <messages> entry.
 type Message struct {
 	Value string `xml:",chardata"`
 	Code  string `xml:"code,attr"`
+}
+
+// String returns the string representation of a message. It will be in the form:
+//
+//   Code: Value
+func (m Message) String() string {
+	return fmt.Sprintf("%s: %s", m.Code, m.Value)
 }

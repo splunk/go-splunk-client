@@ -12,38 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package messages
+package main
 
 import (
-	"testing"
+	"fmt"
+	"log"
+	"net/http"
+
+	"github.com/splunk/go-sdk/pkg/authenticators"
+	"github.com/splunk/go-sdk/pkg/client"
 )
 
-func TestMessages_Unmarshal(t *testing.T) {
-	type responseType struct {
-		Messages Messages
+func main() {
+	c := &client.Client{
+		URL:                   "https://localhost:8089",
+		Authenticator:         &authenticators.Password{Username: "admin", Password: "changeme"},
+		TLSInsecureSkipVerify: true,
 	}
 
-	tests := xmlUnmarshalerTestCases{
-		{
-			input: `
-			<response>
-				<messages>
-					<msg code="200OK"></msg>
-					<msg code="401Unauthorized">Unauthorized</msg>
-				</messages>
-			</response>`,
-			gotInterfacePtr: &responseType{},
-			wantInterfacePtr: &responseType{
-				Messages: Messages{
-					Items: []Message{
-						{Code: "200OK", Value: ""},
-						{Code: "401Unauthorized", Value: "Unauthorized"},
-					},
-				},
-			},
-			wantError: false,
-		},
+	r := &http.Request{}
+	if err := c.Authenticator.AuthenticateRequest(c, r); err != nil {
+		log.Fatalf("error authenticating request: %s", err)
 	}
 
-	tests.test(t)
+	fmt.Printf("Authenticated request: %#v\n", r)
 }

@@ -94,11 +94,28 @@ func (c *Client) httpClientPrep() error {
 	return nil
 }
 
-// Do performs a given http.Request via the Client's http.Client.
-func (c *Client) Do(r *http.Request) (*http.Response, error) {
+// do performs a given http.Request via the Client's http.Client.
+func (c *Client) do(r *http.Request) (*http.Response, error) {
 	if err := c.httpClientPrep(); err != nil {
 		return nil, err
 	}
 
 	return c.httpClient.Do(r)
+}
+
+// RequestAndHandle creates a new http.Request from the given RequestBuilder, performs the
+// request, and handles the http.Response with the given ResponseHandler.
+func (c *Client) RequestAndHandle(builder RequestBuilder, handler ResponseHandler) error {
+	req, err := buildRequest(builder)
+	if err != nil {
+		return err
+	}
+
+	resp, err := c.do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	return handler(resp)
 }
