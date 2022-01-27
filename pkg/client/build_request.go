@@ -120,6 +120,15 @@ func BuildRequestBodyValuesWithTitle(t Titler) RequestBuilder {
 	}
 }
 
+// BuildRequestBodyValuesContent returns a RequestBuilder that sets the Body to the encoded url.Values
+// for a given ContentGetter. The interface returned by c.GetContent(c) will be used to for the resulting
+// values.
+func BuildRequestBodyValuesContent(c ContentGetter) RequestBuilder {
+	return func(r *http.Request) error {
+		return BuildRequestBodyValues(c.GetContent(c))(r)
+	}
+}
+
 // BuildRequestCollectionURL returns a RequestBuilder that sets the URL to the EntryURL
 // for a given Entry.
 func BuildRequestEntryURL(c *Client, entry Entry) RequestBuilder {

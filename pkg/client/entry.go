@@ -87,3 +87,27 @@ func Read[E Entry](client *Client, entry E) (E, error) {
 
 	return *readEntry, nil
 }
+
+// Update performs an Update action for the given Entry. It
+// returns the Entry that resulted from the update.
+func Update[E Entry](client *Client, entry E) (E, error) {
+	updatedEntry := new(E)
+
+	if err := client.RequestAndHandle(
+		ComposeRequestBuilder(
+			BuildRequestMethod(http.MethodPost),
+			BuildRequestEntryURLWithTitle(client, entry),
+			BuildRequestOutputModeJSON(),
+			BuildRequestBodyValuesContent(entry),
+			BuildRequestAuthenticate(client),
+		),
+		ComposeResponseHandler(
+			HandleResponseRequireCode(http.StatusOK, HandleResponseJSONMessagesError()),
+			HandleResponseEntry(updatedEntry),
+		),
+	); err !=  nil {
+		return *new(E), err
+	}
+
+	return *updatedEntry, nil
+}
