@@ -134,3 +134,27 @@ func Delete[E Entry](client *Client, entry E) ([]E, error) {
 
 	return remainingEntries, nil
 }
+
+// List returns a list of the given type of Entry by performing a List
+// action for its Entry URL, which may or may not have a value for its
+// Title.
+func List[E Entry](client *Client, entry E) ([]E, error) {
+	listedEntries := make([]E, 0)
+
+	if err := client.RequestAndHandle(
+		ComposeRequestBuilder(
+			BuildRequestMethod(http.MethodGet),
+			BuildRequestEntryURL(client, entry),
+			BuildRequestOutputModeJSON(),
+			BuildRequestAuthenticate(client),
+		),
+		ComposeResponseHandler(
+			HandleResponseRequireCode(http.StatusOK, HandleResponseJSONMessagesError()),
+			HandleResponseEntries(&listedEntries),
+		),
+	); err != nil {
+		return nil, err
+	}
+
+	return listedEntries, nil
+}
