@@ -14,17 +14,15 @@
 
 package attributes
 
-import "net/url"
-
-// EncodeClearableListValues implements custom encoding into url.Values such
-// that an empty list of strings is passed as a single value with an empty string.
-// This is necessary to coerce Splunk to clear previously set values.
-func EncodeClearableListValues(v *url.Values, key string, values ...string) {
+// ClearableListValues returns values directly, if it has a length greater than
+// zero, otherwise returns a list with a single value of an empty string. This
+// functionality provides what the Splunk REST API needs to clear list values,
+// as otherwise the lack of any provided values would result in a no-op against
+// that field.
+func ClearableListValues(values []string) []string {
 	if len(values) == 0 {
-		v.Add(key, "")
-	} else {
-		for _, value := range values {
-			v.Add(key, value)
-		}
+		return []string{""}
 	}
+
+	return values
 }

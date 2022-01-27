@@ -23,7 +23,9 @@ type Roles []string
 // set of roles is passed as a single value with an empty string. This is
 // necessary to coerce Splunk to clear previously set roles.
 func (r Roles) EncodeValues(key string, v *url.Values) error {
-	EncodeClearableListValues(v, key, r...)
+	for _, value := range ClearableListValues(r) {
+		v.Add(key, value)
+	}
 
 	return nil
 }
