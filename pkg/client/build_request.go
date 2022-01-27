@@ -120,6 +120,33 @@ func BuildRequestBodyValuesWithTitle(t Titler) RequestBuilder {
 	}
 }
 
+// BuildRequestCollectionURL returns a RequestBuilder that sets the URL to the EntryURL
+// for a given Entry.
+func BuildRequestEntryURL(c *Client, entry Entry) RequestBuilder {
+	return func(r *http.Request) error {
+		u, err := c.EntryURL(entry)
+		if err != nil {
+			return err
+		}
+
+		r.URL = u
+
+		return nil
+	}
+}
+
+// BuildRequestEntryURLWithTitle returns a RequestBuilder that sets the URL to the EntryURL
+// for a given Entry, but also checks that the Collection's Title is not empty.
+func BuildRequestEntryURLWithTitle(c *Client, entry Entry) RequestBuilder {
+	return func(r *http.Request) error {
+		if !entry.HasTitle() {
+			return fmt.Errorf("Title is required")
+		}
+
+		return BuildRequestEntryURL(c, entry)(r)
+	}
+}
+
 // BuildRequestAuthenticate returns a RequestBuilder that authenticates a request for a given Client.
 func BuildRequestAuthenticate(c *Client) RequestBuilder {
 	return func(r *http.Request) error {

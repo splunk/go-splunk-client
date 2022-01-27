@@ -70,6 +70,16 @@ func (c *Client) ServiceURL(s Service) (*url.URL, error) {
 	return c.urlForPath(servicePath)
 }
 
+// EntryURL returns a url.URL for an Entry, relative to the Client's URL.
+func (c *Client) EntryURL(e Entry) (*url.URL, error) {
+	entryPath, err := entryPath(e)
+	if err != nil {
+		return nil, err
+	}
+
+	return c.urlForPath(entryPath)
+}
+
 // httpClientPrep prepares the Client's http.Client.
 func (c *Client) httpClientPrep() error {
 	c.mu.Lock()
