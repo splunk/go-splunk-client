@@ -111,3 +111,26 @@ func Update[E Entry](client *Client, entry E) (E, error) {
 
 	return *updatedEntry, nil
 }
+
+// Delete performs a Delete action for the given Entry. It
+// returns a list of the remaining Entry items after the deletion.
+func Delete[E Entry](client *Client, entry E) ([]E, error) {
+	remainingEntries := make([]E, 0)
+
+	if err := client.RequestAndHandle(
+		ComposeRequestBuilder(
+			BuildRequestMethod(http.MethodDelete),
+			BuildRequestEntryURLWithTitle(client, entry),
+			BuildRequestOutputModeJSON(),
+			BuildRequestAuthenticate(client),
+		),
+		ComposeResponseHandler(
+			HandleResponseRequireCode(http.StatusOK, HandleResponseJSONMessagesError()),
+			HandleResponseEntries(&remainingEntries),
+		),
+	); err != nil {
+		return nil, err
+	}
+
+	return remainingEntries, nil
+}
