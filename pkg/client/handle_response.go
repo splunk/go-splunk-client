@@ -15,6 +15,7 @@
 package client
 
 import (
+	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"net/http"
@@ -63,6 +64,27 @@ func HandleResponseXMLMessagesError() ResponseHandler {
 	}
 }
 
+// HandleResponseJSON returns a ResponseHandler that decodes an http.Response's Body
+// as JSON to the given interface.
+func HandleResponseJSON(i interface{}) ResponseHandler {
+	return func(r *http.Response) error {
+		return json.NewDecoder(r.Body).Decode(i)
+	}
+}
+
+// HandleResponseJSONMessagesError returns a ResponseHandler that decode's an http.Response's Body
+// as a JSON document of Messages and returns the Messages as an error.
+func HandleResponseJSONMessagesError() ResponseHandler {
+	return func(r *http.Response) error {
+		msg := messages.Messages{}
+		if err := HandleResponseJSON(&msg)(r); err != nil {
+			return err
+		}
+
+		return fmt.Errorf(msg.String())
+	}
+}
+
 // HandleResponseRequireCode returns a ResponseHandler that checks for a given StatusCode. If
 // the http.Response has a different StatusCode, the provided ResponseHandler will be called
 // to return the appopriate error message.
@@ -73,5 +95,44 @@ func HandleResponseRequireCode(code int, errorResponseHandler ResponseHandler) R
 		}
 
 		return errorResponseHandler(r)
+	}
+}
+
+// HandleResponseEntries returns a ResponseHandler that parses the http.Response Body
+// into the list of Entry reference provided.
+func HandleResponseEntries[E Entry](entries *[]E) ResponseHandler {
+	return func(r *http.Response) error {
+		entriesResponse := struct{
+			Entries []E `json:"entry"`
+		}{}
+
+		d := json.NewDecoder(r.Body)
+		if err := d.Decode(&entriesResponse); err != nil {
+			return err
+		}
+
+		*entries = entriesResponse.Entries
+	
+		return nil
+	}
+}
+
+// HandleResponseEntry returns a responseHaResponseHandlerndler that parses the http.Response Body
+// into the given Entry.
+func HandleResponseEntry[E Entry](entry *E) ResponseHandler {
+	return func(r *http.Response) error {
+		entries := make([]E, 0)
+
+		if err := HandleResponseEntries(&entries)(r); err != nil {
+			return err
+		}
+
+		if len(entries) != 1 {
+			return fmt.Errorf("expected exactly 1 entry, got %d", len(entries))
+		}
+
+		*entry = entries[0]
+
+		return nil
 	}
 }

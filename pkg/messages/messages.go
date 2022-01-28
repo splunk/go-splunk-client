@@ -21,7 +21,7 @@ import (
 // Messages represents the <messages> element of a <response> entry.
 type Messages struct {
 	XMLName string    `xml:"messages"`
-	Items   []Message `xml:"msg"`
+	Items   []Message `json:"messages" xml:"msg"`
 }
 
 // String returns the string representation of Messages. If multiple Message items are

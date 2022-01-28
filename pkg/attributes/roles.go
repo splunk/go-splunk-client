@@ -12,19 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package messages
+package attributes
 
-import "fmt"
+import "net/url"
 
-// Message represents the <msg> element of a <messages> entry.
-type Message struct {
-	Value string `json:"text" xml:",chardata"`
-	Code  string `json:"type" xml:"code,attr"`
-}
+// Roles is a list of role names.
+type Roles []string
 
-// String returns the string representation of a message. It will be in the form:
-//
-//   Code: Value
-func (m Message) String() string {
-	return fmt.Sprintf("%s: %s", m.Code, m.Value)
+// EncodeValues implements custom encoding into url.Values such that an empty
+// set of roles is passed as a single value with an empty string. This is
+// necessary to coerce Splunk to clear previously set roles.
+func (r Roles) EncodeValues(key string, v *url.Values) error {
+	for _, value := range ClearableListValues(r) {
+		v.Add(key, value)
+	}
+
+	return nil
 }

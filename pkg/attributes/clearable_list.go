@@ -12,19 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package messages
+package attributes
 
-import "fmt"
+// ClearableListValues returns values directly, if it has a length greater than
+// zero, otherwise returns a list with a single value of an empty string. This
+// functionality provides what the Splunk REST API needs to clear list values,
+// as otherwise the lack of any provided values would result in a no-op against
+// that field.
+func ClearableListValues(values []string) []string {
+	if len(values) == 0 {
+		return []string{""}
+	}
 
-// Message represents the <msg> element of a <messages> entry.
-type Message struct {
-	Value string `json:"text" xml:",chardata"`
-	Code  string `json:"type" xml:"code,attr"`
-}
-
-// String returns the string representation of a message. It will be in the form:
-//
-//   Code: Value
-func (m Message) String() string {
-	return fmt.Sprintf("%s: %s", m.Code, m.Value)
+	return values
 }

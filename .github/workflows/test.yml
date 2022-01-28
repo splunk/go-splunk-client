@@ -23,24 +23,8 @@ jobs:
           go install golang.org/dl/go1.18beta1@latest
           go1.18beta1 download
           cp $(which go1.18beta1) $(which go)
-
       - name: Checkout
         uses: actions/checkout@v2
 
       - name: Test
         run: go test ./...
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Lint
-        uses: golangci/golangci-lint-action@v2
-
-      - name: Vet
-        run: go vet ./...
-
-      - name: fmt
-        run: gofmt -l . && test -z $(gofmt -l .)

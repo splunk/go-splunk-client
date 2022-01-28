@@ -12,19 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package messages
+package client
 
-import "fmt"
+// Title represents the title of an object in Splunk.
+type Title string
 
-// Message represents the <msg> element of a <messages> entry.
-type Message struct {
-	Value string `json:"text" xml:",chardata"`
-	Code  string `json:"type" xml:"code,attr"`
+// TitleValue returns the string value of the Title.
+func (t Title) TitleValue() string {
+	return string(t)
 }
 
-// String returns the string representation of a message. It will be in the form:
-//
-//   Code: Value
-func (m Message) String() string {
-	return fmt.Sprintf("%s: %s", m.Code, m.Value)
+// HasTitle returns a boolean indicating if the Title value is non-empty.
+func (t Title) HasTitle() bool {
+	return t != ""
+}
+
+// Titler defines methods that a type must implement to be a titled object.
+type Titler interface {
+	// Title returns the string representation of the object's Title.
+	TitleValue() string
+	// HasTitle returns a boolean indicating if there is a non-empty Title.
+	HasTitle() bool
 }

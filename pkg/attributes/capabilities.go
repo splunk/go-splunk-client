@@ -12,19 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package messages
+package attributes
 
-import "fmt"
-
-// Message represents the <msg> element of a <messages> entry.
-type Message struct {
-	Value string `json:"text" xml:",chardata"`
-	Code  string `json:"type" xml:"code,attr"`
-}
-
-// String returns the string representation of a message. It will be in the form:
-//
-//   Code: Value
-func (m Message) String() string {
-	return fmt.Sprintf("%s: %s", m.Code, m.Value)
-}
+// Capabilities is a list of capability names.
+type Capabilities []string
