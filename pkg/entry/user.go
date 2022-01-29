@@ -22,18 +22,18 @@ import (
 // UserContent defines the content of a User object.
 type UserContent struct {
 	// Read/Write
-	DefaultApp            string           `url:"defaultApp"`
-	Email                 string           `url:"email"`
-	Password              string           `url:"password,omitempty"`
-	RealName              string           `url:"realname"`
-	RestartBackgroundJobs bool             `url:"restart_background_jobs"`
-	Roles                 attributes.Roles `url:"roles"`
-	TZ                    string           `url:"tz"`
+	DefaultApp            attributes.String  `url:"defaultApp"`
+	Email                 attributes.String  `url:"email"`
+	Password              attributes.String  `url:"password,omitempty"`
+	RealName              attributes.String  `url:"realname"`
+	RestartBackgroundJobs attributes.Bool    `url:"restart_background_jobs"`
+	Roles                 attributes.Strings `url:"roles"`
+	TZ                    attributes.String  `url:"tz"`
 
 	// Read-only fields are populated by results returned by the Splunk API, but
 	// are not settable by Create or Update operations.
-	Capabilities attributes.Capabilities `url:"-"`
-	Type         string                  `url:"-"`
+	Capabilities attributes.Strings `url:"-"`
+	Type         string             `url:"-"`
 
 	// The below fields don't have values, and only exist to provide context to
 	// the Splunk API.
