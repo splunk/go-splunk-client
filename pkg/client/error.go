@@ -30,8 +30,12 @@ const (
 	// ErrorNamespace indicates an error with the Namespace.
 	ErrorNamespace
 
-	// ErrorEndpoint indicatees an error with the Endpoint configuration.
+	// ErrorEndpoint indicates an error with the Endpoint configuration.
 	ErrorEndpoint
+
+	// ErrorValues indicates an error was encountered while trying to encode
+	// to url.Values.
+	ErrorValues
 )
 
 // Error represents an encountered error. It adheres to the "error" interface,
