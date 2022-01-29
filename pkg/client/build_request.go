@@ -82,7 +82,7 @@ func BuildRequestBodyValues(i interface{}) RequestBuilder {
 	return func(r *http.Request) error {
 		v, err := query.Values(i)
 		if err != nil {
-			return err
+			return wrapError(ErrorValues, err, err.Error())
 		}
 
 		r.Body = io.NopCloser(strings.NewReader(v.Encode()))
