@@ -36,6 +36,14 @@ const (
 	// ErrorValues indicates an error was encountered while trying to encode
 	// to url.Values.
 	ErrorValues
+
+	// ErrorNilValue indicates an attempt to perform an action against a nil value,
+	// such as attempting to set RawQuery on http.Request with a nil URL.
+	ErrorNilValue
+
+	// ErrorOverwriteValue indicates an attempt to overwrite an existing value,
+	// such as attempting to set RawQuery multiple times on a URL.
+	ErrorOverwriteValue
 )
 
 // Error represents an encountered error. It adheres to the "error" interface,
