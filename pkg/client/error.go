@@ -29,6 +29,9 @@ const (
 
 	// ErrorNamespace indicates an error with the Namespace.
 	ErrorNamespace
+
+	// ErrorEndpoint indicatees an error with the Endpoint configuration.
+	ErrorEndpoint
 )
 
 // Error represents an encountered error. It adheres to the "error" interface,
