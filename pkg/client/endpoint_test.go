@@ -18,15 +18,17 @@ import "testing"
 
 func TestEndpoint_endpoint(t *testing.T) {
 	tests := []struct {
-		name         string
-		input        interface{}
-		wantError    bool
-		wantEndpoint string
+		name          string
+		input         interface{}
+		wantError     bool
+		wantErrorCode ErrorCode
+		wantEndpoint  string
 	}{
 		{
 			"non-struct",
 			"this string is not a struct",
 			true,
+			ErrorEndpoint,
 			"",
 		},
 		{
@@ -35,6 +37,7 @@ func TestEndpoint_endpoint(t *testing.T) {
 				path Endpoint `endpoint:"test/endpoint"`
 			}{},
 			true,
+			ErrorEndpoint,
 			"",
 		},
 		{
@@ -43,6 +46,7 @@ func TestEndpoint_endpoint(t *testing.T) {
 				Endpoint string `endpoint:"test/endpoint"`
 			}{},
 			true,
+			ErrorEndpoint,
 			"",
 		},
 		{
@@ -51,6 +55,7 @@ func TestEndpoint_endpoint(t *testing.T) {
 				Endpoint
 			}{},
 			true,
+			ErrorEndpoint,
 			"",
 		},
 		{
@@ -59,6 +64,7 @@ func TestEndpoint_endpoint(t *testing.T) {
 				Endpoint `endpoint:"test/endpoint"`
 			}{},
 			false,
+			ErrorUndefined,
 			"test/endpoint",
 		},
 	}
@@ -66,11 +72,8 @@ func TestEndpoint_endpoint(t *testing.T) {
 	s := Endpoint{}
 	for _, test := range tests {
 		gotEndpoint, err := s.endpointPath(test.input)
-		gotError := err != nil
 
-		if gotError != test.wantError {
-			t.Errorf("%s returned error? %v (%s)", test.name, gotError, err)
-		}
+		testError(test.name, err, test.wantError, test.wantErrorCode, t)
 
 		if gotEndpoint != test.wantEndpoint {
 			t.Errorf("%s got %s, want %s", test.name, gotEndpoint, test.wantEndpoint)

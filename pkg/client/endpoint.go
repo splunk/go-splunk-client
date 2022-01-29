@@ -15,7 +15,6 @@
 package client
 
 import (
-	"fmt"
 	"reflect"
 )
 
@@ -50,24 +49,24 @@ func (e Endpoint) endpointPath(i interface{}) (string, error) {
 	}
 
 	if t.Kind() != reflect.Struct {
-		return "", fmt.Errorf("unable to determine endpoint for non-struct")
+		return "", wrapError(ErrorEndpoint, nil, "unable to determine endpoint for non-struct")
 	}
 
 	f, ok := t.FieldByName("Endpoint")
 	if !ok {
-		return "", fmt.Errorf("unable to determine endpoint without Endpoint field")
+		return "", wrapError(ErrorEndpoint, nil, "unable to determine endpoint without Endpoint field")
 	}
 
 	if f.Type != reflect.TypeOf(e) {
 		// it's not entirely valid to require the field named service to be of the service type,
 		// but by requiring it we avoid potential confusion, and promote the field being an anonymous member,
 		// which is the intention, so that servicePath() is an inherited method.
-		return "", fmt.Errorf("unable to determine endpoint of non-Endpoint field")
+		return "", wrapError(ErrorEndpoint, nil, "unable to determine endpoint of non-Endpoint field")
 	}
 
 	tag := f.Tag.Get("endpoint")
 	if tag == "" {
-		return "", fmt.Errorf("unable to determine endpoint without endpoint tag")
+		return "", wrapError(ErrorEndpoint, nil, "unable to determine endpoint without endpoint tag")
 	}
 
 	return tag, nil
