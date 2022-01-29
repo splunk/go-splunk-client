@@ -15,7 +15,6 @@
 package client
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -117,7 +116,7 @@ func BuildRequestOutputModeJSON() RequestBuilder {
 func BuildRequestBodyValuesWithTitle(t Titler) RequestBuilder {
 	return func(r *http.Request) error {
 		if !t.HasTitle() {
-			return fmt.Errorf("Title is required")
+			return wrapError(ErrorMissingTitle, nil, "attempted to set request body values of Titler with an empty Title value")
 		}
 
 		return BuildRequestBodyValues(t)(r)
@@ -153,7 +152,7 @@ func BuildRequestEntryURL(c *Client, entry Entry) RequestBuilder {
 func BuildRequestEntryURLWithTitle(c *Client, entry Entry) RequestBuilder {
 	return func(r *http.Request) error {
 		if !entry.HasTitle() {
-			return fmt.Errorf("Title is required")
+			return wrapError(ErrorMissingTitle, nil, "attempted to get URLWithTitle of Entry with empty Title")
 		}
 
 		return BuildRequestEntryURL(c, entry)(r)
