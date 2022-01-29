@@ -97,7 +97,11 @@ func BuildRequestBodyValues(i interface{}) RequestBuilder {
 func BuildRequestOutputModeJSON() RequestBuilder {
 	return func(r *http.Request) error {
 		if r.URL == nil {
-			return fmt.Errorf("unable to set output mode on empty URL")
+			return wrapError(ErrorNilValue, nil, "unable to set output mode on nil URL")
+		}
+
+		if r.URL.RawQuery != "" {
+			return wrapError(ErrorOverwriteValue, nil, "attempted to set output_mode after RawQuery already set")
 		}
 
 		r.URL.RawQuery = url.Values{
