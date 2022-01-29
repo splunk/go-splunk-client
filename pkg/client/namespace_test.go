@@ -14,45 +14,53 @@
 
 package client
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestNamespace_validate(t *testing.T) {
 	tests := []struct {
+		name           string
 		inputNamespace Namespace
 		wantError      bool
+		wantErrorCode  ErrorCode
 	}{
 		{
+			"empty",
 			Namespace{},
 			false,
+			ErrorUndefined,
 		},
 		{
-			Namespace{},
-			false,
-		},
-		{
+			"wildcard",
 			Namespace{User: "-", App: "-"},
 			false,
+			ErrorUndefined,
 		},
 		{
+			"user/app",
 			Namespace{User: "admin", App: "search"},
 			false,
+			ErrorUndefined,
 		},
 		{
+			"user only",
 			Namespace{User: "admin"},
 			true,
+			ErrorNamespace,
 		},
 		{
+			"app only",
 			Namespace{App: "search"},
 			true,
+			ErrorNamespace,
 		},
 	}
 
 	for _, test := range tests {
-		gotError := test.inputNamespace.validate() != nil
+		err := test.inputNamespace.validate()
 
-		if gotError != test.wantError {
-			t.Errorf("(%#v).validate() returned error? %v", test.inputNamespace, gotError)
-		}
+		testError(test.name, err, test.wantError, test.wantErrorCode, t)
 	}
 }
 
