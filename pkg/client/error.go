@@ -44,6 +44,10 @@ const (
 	// ErrorOverwriteValue indicates an attempt to overwrite an existing value,
 	// such as attempting to set RawQuery multiple times on a URL.
 	ErrorOverwriteValue
+
+	// ErrorMissingTitle indicates an operation that required a non-empty Title was
+	// attempted with an empty Title.
+	ErrorMissingTitle
 )
 
 // Error represents an encountered error. It adheres to the "error" interface,
