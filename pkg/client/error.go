@@ -51,6 +51,9 @@ const (
 
 	// ErrorMissingURL indicates the Client's URL value is missing.
 	ErrorMissingURL
+
+	// ErrorHTTPClient indicates an error related to the http.Client was encountered.
+	ErrorHTTPClient
 )
 
 // Error represents an encountered error. It adheres to the "error" interface,

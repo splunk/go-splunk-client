@@ -16,7 +16,6 @@ package client
 
 import (
 	"crypto/tls"
-	"fmt"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
@@ -88,7 +87,7 @@ func (c *Client) httpClientPrep() error {
 	if c.httpClient == nil {
 		jar, err := cookiejar.New(&cookiejar.Options{PublicSuffixList: publicsuffix.List})
 		if err != nil {
-			return fmt.Errorf("unable to create new cookiejar: %s", err)
+			return wrapError(ErrorHTTPClient, err, "unable to create new cookiejar: %s", err)
 		}
 
 		c.httpClient = &http.Client{
@@ -110,7 +109,12 @@ func (c *Client) do(r *http.Request) (*http.Response, error) {
 		return nil, err
 	}
 
-	return c.httpClient.Do(r)
+	resp, err := c.httpClient.Do(r)
+	if err != nil {
+		return nil, wrapError(ErrorHTTPClient, err, "error encountered performing request: %s", err)
+	}
+
+	return resp, nil
 }
 
 // RequestAndHandle creates a new http.Request from the given RequestBuilder, performs the
