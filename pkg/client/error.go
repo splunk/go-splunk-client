@@ -48,6 +48,9 @@ const (
 	// ErrorMissingTitle indicates an operation that required a non-empty Title was
 	// attempted with an empty Title.
 	ErrorMissingTitle
+
+	// ErrorMissingURL indicates the Client's URL value is missing.
+	ErrorMissingURL
 )
 
 // Error represents an encountered error. It adheres to the "error" interface,

@@ -50,7 +50,7 @@ type Client struct {
 // urlForPath returns a url.URL for path, relative to Client's URL.
 func (c *Client) urlForPath(path ...string) (*url.URL, error) {
 	if c.URL == "" {
-		return nil, fmt.Errorf("Client has empty URL")
+		return nil, wrapError(ErrorMissingURL, nil, "Client has empty URL")
 	}
 
 	combinedPath := paths.Join(path...)
