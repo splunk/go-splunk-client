@@ -85,16 +85,22 @@ func HandleResponseJSON(i interface{}) ResponseHandler {
 	}
 }
 
-// HandleResponseJSONMessagesError returns a ResponseHandler that decode's an http.Response's Body
-// as a JSON document of Messages and returns the Messages as an error.
-func HandleResponseJSONMessagesError() ResponseHandler {
+func HandleResponseJSONMessagesCustomError(code ErrorCode) ResponseHandler {
 	return func(r *http.Response) error {
 		msg := messages.Messages{}
 		if err := HandleResponseJSON(&msg)(r); err != nil {
 			return err
 		}
 
-		return wrapError(ErrorSplunkMessage, nil, "response contained message: %s", msg.String())
+		return wrapError(code, nil, "response contained message: %s", msg.String())
+	}
+}
+
+// HandleResponseJSONMessagesError returns a ResponseHandler that decode's an http.Response's Body
+// as a JSON document of Messages and returns the Messages as an error.
+func HandleResponseJSONMessagesError() ResponseHandler {
+	return func(r *http.Response) error {
+		return HandleResponseJSONMessagesCustomError(ErrorSplunkMessage)(r)
 	}
 }
 
