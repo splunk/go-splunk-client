@@ -61,6 +61,9 @@ const (
 
 	// ErrorSplunkMessage indicates the Splunk REST API returned an error message.
 	ErrorSplunkMessage
+
+	// ErrorUnauthorized indicates a request was unauthorized.
+	ErrorUnauthorized
 )
 
 // Error represents an encountered error. It adheres to the "error" interface,
