@@ -89,7 +89,7 @@ func HandleResponseJSONMessagesError() ResponseHandler {
 			return err
 		}
 
-		return fmt.Errorf(msg.String())
+		return wrapError(ErrorSplunkMessage, nil, "response contained message: %s", msg.String())
 	}
 }
 
