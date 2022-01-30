@@ -64,6 +64,9 @@ const (
 
 	// ErrorUnauthorized indicates a request was unauthorized.
 	ErrorUnauthorized
+
+	// ErrorNotFound indicates an attempt was made against an object that count not be found.
+	ErrorNotFound
 )
 
 // Error represents an encountered error. It adheres to the "error" interface,
