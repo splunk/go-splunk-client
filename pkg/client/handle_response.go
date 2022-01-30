@@ -44,7 +44,11 @@ func ComposeResponseHandler(handlers ...ResponseHandler) ResponseHandler {
 // as XML to the given interface.
 func HandleResponseXML(i interface{}) ResponseHandler {
 	return func(r *http.Response) error {
-		return xml.NewDecoder(r.Body).Decode(i)
+		if err := xml.NewDecoder(r.Body).Decode(i); err != nil {
+			wrapError(ErrorResponseBody, err, "unable to decode response XML: %s", err)
+		}
+
+		return nil
 	}
 }
 
@@ -68,7 +72,11 @@ func HandleResponseXMLMessagesError() ResponseHandler {
 // as JSON to the given interface.
 func HandleResponseJSON(i interface{}) ResponseHandler {
 	return func(r *http.Response) error {
-		return json.NewDecoder(r.Body).Decode(i)
+		if err := json.NewDecoder(r.Body).Decode(i); err != nil {
+			return wrapError(ErrorResponseBody, err, "unable to decode response JSON: %s", err)
+		}
+
+		return nil
 	}
 }
 
@@ -108,7 +116,7 @@ func HandleResponseEntries[E Entry](entries *[]E) ResponseHandler {
 
 		d := json.NewDecoder(r.Body)
 		if err := d.Decode(&entriesResponse); err != nil {
-			return err
+			return wrapError(ErrorResponseBody, err, "unable to decide JSON: %s", err)
 		}
 
 		*entries = entriesResponse.Entries
@@ -128,7 +136,7 @@ func HandleResponseEntry[E Entry](entry *E) ResponseHandler {
 		}
 
 		if len(entries) != 1 {
-			return fmt.Errorf("expected exactly 1 entry, got %d", len(entries))
+			return wrapError(ErrorResponseBody, nil, "expected exactly 1 entry, got %d", len(entries))
 		}
 
 		*entry = entries[0]

@@ -54,6 +54,10 @@ const (
 
 	// ErrorHTTPClient indicates an error related to the http.Client was encountered.
 	ErrorHTTPClient
+
+	// ErrorResponseBody indicates an error encountered while trying to parse the Body
+	// from an http.Response.
+	ErrorResponseBody
 )
 
 // Error represents an encountered error. It adheres to the "error" interface,
