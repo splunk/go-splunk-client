@@ -58,6 +58,9 @@ const (
 	// ErrorResponseBody indicates an error encountered while trying to parse the Body
 	// from an http.Response.
 	ErrorResponseBody
+
+	// ErrorSplunkMessage indicates the Splunk REST API returned an error message.
+	ErrorSplunkMessage
 )
 
 // Error represents an encountered error. It adheres to the "error" interface,
