@@ -15,7 +15,6 @@
 package client
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -82,7 +81,7 @@ func BuildRequestBodyValues(i interface{}) RequestBuilder {
 	return func(r *http.Request) error {
 		v, err := query.Values(i)
 		if err != nil {
-			return err
+			return wrapError(ErrorValues, err, err.Error())
 		}
 
 		r.Body = io.NopCloser(strings.NewReader(v.Encode()))
@@ -97,7 +96,11 @@ func BuildRequestBodyValues(i interface{}) RequestBuilder {
 func BuildRequestOutputModeJSON() RequestBuilder {
 	return func(r *http.Request) error {
 		if r.URL == nil {
-			return fmt.Errorf("unable to set output mode on empty URL")
+			return wrapError(ErrorNilValue, nil, "unable to set output mode on nil URL")
+		}
+
+		if r.URL.RawQuery != "" {
+			return wrapError(ErrorOverwriteValue, nil, "attempted to set output_mode after RawQuery already set")
 		}
 
 		r.URL.RawQuery = url.Values{
@@ -113,7 +116,7 @@ func BuildRequestOutputModeJSON() RequestBuilder {
 func BuildRequestBodyValuesWithTitle(t Titler) RequestBuilder {
 	return func(r *http.Request) error {
 		if !t.HasTitle() {
-			return fmt.Errorf("Title is required")
+			return wrapError(ErrorMissingTitle, nil, "attempted to set request body values of Titler with an empty Title value")
 		}
 
 		return BuildRequestBodyValues(t)(r)
@@ -149,7 +152,7 @@ func BuildRequestEntryURL(c *Client, entry Entry) RequestBuilder {
 func BuildRequestEntryURLWithTitle(c *Client, entry Entry) RequestBuilder {
 	return func(r *http.Request) error {
 		if !entry.HasTitle() {
-			return fmt.Errorf("Title is required")
+			return wrapError(ErrorMissingTitle, nil, "attempted to get URLWithTitle of Entry with empty Title")
 		}
 
 		return BuildRequestEntryURL(c, entry)(r)

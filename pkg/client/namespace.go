@@ -15,7 +15,6 @@
 package client
 
 import (
-	"fmt"
 	"path"
 )
 
@@ -36,7 +35,7 @@ func (c Namespace) validate() error {
 		return nil
 	}
 
-	return fmt.Errorf("invalid Context, neither or both App and User must be set")
+	return wrapError(ErrorNamespace, nil, "invalid Context, neither or both App and User must be set")
 }
 
 // NamespacePath returns the namespace path.

@@ -61,6 +61,7 @@ func (p *Password) authenticate(c *client.Client) error {
 			client.BuildRequestBodyValues(p),
 		),
 		client.ComposeResponseHandler(
+			client.HandleResponseCode(http.StatusUnauthorized, client.HandleResponseXMLMessagesCustomError(client.ErrorUnauthorized)),
 			client.HandleResponseRequireCode(http.StatusOK, client.HandleResponseXMLMessagesError()),
 			client.HandleResponseXML(&lR),
 		),

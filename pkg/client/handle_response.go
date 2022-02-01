@@ -17,7 +17,6 @@ package client
 import (
 	"encoding/json"
 	"encoding/xml"
-	"fmt"
 	"net/http"
 
 	"github.com/splunk/go-sdk/pkg/messages"
@@ -44,13 +43,15 @@ func ComposeResponseHandler(handlers ...ResponseHandler) ResponseHandler {
 // as XML to the given interface.
 func HandleResponseXML(i interface{}) ResponseHandler {
 	return func(r *http.Response) error {
-		return xml.NewDecoder(r.Body).Decode(i)
+		if err := xml.NewDecoder(r.Body).Decode(i); err != nil {
+			wrapError(ErrorResponseBody, err, "unable to decode response XML: %s", err)
+		}
+
+		return nil
 	}
 }
 
-// HandleResponseXMLMessagesError returns a ResponseHandler that decodes an http.Response's Body
-// as an XML document of Messages and returns the Messages as an error.
-func HandleResponseXMLMessagesError() ResponseHandler {
+func HandleResponseXMLMessagesCustomError(code ErrorCode) ResponseHandler {
 	return func(r *http.Response) error {
 		response := struct {
 			Messages messages.Messages
@@ -60,7 +61,15 @@ func HandleResponseXMLMessagesError() ResponseHandler {
 			return err
 		}
 
-		return fmt.Errorf(response.Messages.String())
+		return wrapError(code, nil, "response contained message: %s", response.Messages.String())
+	}
+}
+
+// HandleResponseXMLMessagesError returns a ResponseHandler that decodes an http.Response's Body
+// as an XML document of Messages and returns the Messages as an error.
+func HandleResponseXMLMessagesError() ResponseHandler {
+	return func(r *http.Response) error {
+		return HandleResponseXMLMessagesCustomError(ErrorSplunkMessage)(r)
 	}
 }
 
@@ -68,7 +77,22 @@ func HandleResponseXMLMessagesError() ResponseHandler {
 // as JSON to the given interface.
 func HandleResponseJSON(i interface{}) ResponseHandler {
 	return func(r *http.Response) error {
-		return json.NewDecoder(r.Body).Decode(i)
+		if err := json.NewDecoder(r.Body).Decode(i); err != nil {
+			return wrapError(ErrorResponseBody, err, "unable to decode response JSON: %s", err)
+		}
+
+		return nil
+	}
+}
+
+func HandleResponseJSONMessagesCustomError(code ErrorCode) ResponseHandler {
+	return func(r *http.Response) error {
+		msg := messages.Messages{}
+		if err := HandleResponseJSON(&msg)(r); err != nil {
+			return err
+		}
+
+		return wrapError(code, nil, "response contained message: %s", msg.String())
 	}
 }
 
@@ -76,12 +100,17 @@ func HandleResponseJSON(i interface{}) ResponseHandler {
 // as a JSON document of Messages and returns the Messages as an error.
 func HandleResponseJSONMessagesError() ResponseHandler {
 	return func(r *http.Response) error {
-		msg := messages.Messages{}
-		if err := HandleResponseJSON(&msg)(r); err != nil {
-			return err
+		return HandleResponseJSONMessagesCustomError(ErrorSplunkMessage)(r)
+	}
+}
+
+func HandleResponseCode(code int, errorResponseHandler ResponseHandler) ResponseHandler {
+	return func(r *http.Response) error {
+		if r.StatusCode != code {
+			return nil
 		}
 
-		return fmt.Errorf(msg.String())
+		return errorResponseHandler(r)
 	}
 }
 
@@ -108,7 +137,7 @@ func HandleResponseEntries[E Entry](entries *[]E) ResponseHandler {
 
 		d := json.NewDecoder(r.Body)
 		if err := d.Decode(&entriesResponse); err != nil {
-			return err
+			return wrapError(ErrorResponseBody, err, "unable to decide JSON: %s", err)
 		}
 
 		*entries = entriesResponse.Entries
@@ -128,7 +157,7 @@ func HandleResponseEntry[E Entry](entry *E) ResponseHandler {
 		}
 
 		if len(entries) != 1 {
-			return fmt.Errorf("expected exactly 1 entry, got %d", len(entries))
+			return wrapError(ErrorResponseBody, nil, "expected exactly 1 entry, got %d", len(entries))
 		}
 
 		*entry = entries[0]

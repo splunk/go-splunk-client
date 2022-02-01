@@ -16,7 +16,6 @@ package client
 
 import (
 	"crypto/tls"
-	"fmt"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
@@ -50,7 +49,7 @@ type Client struct {
 // urlForPath returns a url.URL for path, relative to Client's URL.
 func (c *Client) urlForPath(path ...string) (*url.URL, error) {
 	if c.URL == "" {
-		return nil, fmt.Errorf("Client has empty URL")
+		return nil, wrapError(ErrorMissingURL, nil, "Client has empty URL")
 	}
 
 	combinedPath := paths.Join(path...)
@@ -88,7 +87,7 @@ func (c *Client) httpClientPrep() error {
 	if c.httpClient == nil {
 		jar, err := cookiejar.New(&cookiejar.Options{PublicSuffixList: publicsuffix.List})
 		if err != nil {
-			return fmt.Errorf("unable to create new cookiejar: %s", err)
+			return wrapError(ErrorHTTPClient, err, "unable to create new cookiejar: %s", err)
 		}
 
 		c.httpClient = &http.Client{
@@ -110,7 +109,12 @@ func (c *Client) do(r *http.Request) (*http.Response, error) {
 		return nil, err
 	}
 
-	return c.httpClient.Do(r)
+	resp, err := c.httpClient.Do(r)
+	if err != nil {
+		return nil, wrapError(ErrorHTTPClient, err, "error encountered performing request: %s", err)
+	}
+
+	return resp, nil
 }
 
 // RequestAndHandle creates a new http.Request from the given RequestBuilder, performs the
