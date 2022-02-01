@@ -37,9 +37,9 @@ func main() {
 	createdUser, err := client.Create(c, entry.User{
 		Title: "newuser",
 		UserContent: entry.UserContent{
-			Password: "changedit",
-			RealName: "New User",
-			Roles:    attributes.Roles{"user"},
+			Password: attributes.NewString("changedit"),
+			RealName: attributes.NewString("New User"),
+			Roles:    attributes.NewStrings("user"),
 		},
 	})
 	if err != nil {
@@ -57,7 +57,7 @@ func main() {
 	fmt.Printf("  real name: %s\n", readUser.RealName)
 	fmt.Printf("  roles: %s\n", readUser.Roles)
 
-	createdUser.RealName = "Updated User"
+	createdUser.RealName = attributes.NewString("Updated User")
 	updatedUser, err := client.Update(c, createdUser)
 	if err != nil {
 		log.Fatalf("unable to update user: %s", err)
