@@ -45,7 +45,7 @@ func ComposeResponseHandler(handlers ...ResponseHandler) ResponseHandler {
 func HandleResponseXML(i interface{}) ResponseHandler {
 	return func(r *http.Response) error {
 		if err := xml.NewDecoder(r.Body).Decode(i); err != nil {
-			wrapError(ErrorResponseBody, err, "unable to decode response XML: %s", err)
+			return wrapError(ErrorResponseBody, err, "unable to decode response XML: %s", err)
 		}
 
 		return nil
