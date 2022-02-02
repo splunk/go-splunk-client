@@ -34,28 +34,30 @@ func main() {
 		TLSInsecureSkipVerify: true,
 	}
 
-	createdRole, err := client.Create(c, entry.Role{
+	if err := client.Create(c, entry.Role{
 		Title: "new_role",
 		RoleContent: entry.RoleContent{
 			SrchDiskQuota: attributes.NewInt(1),
 			Capabilities:  attributes.NewStrings("search"),
 		},
-	})
-	if err != nil {
+	}); err != nil {
 		log.Fatalf("unable to create role: %s", err)
+	}
+
+	createdRole, err := client.Read(c, entry.Role{Title: "new_role"})
+	if err != nil {
+		log.Fatalf("unable to read role: %s", err)
 	}
 	fmt.Printf("created role: %#v\n", createdRole)
 
 	// here we explicitly set SrchDiskQuota to 0
 	updateRole := entry.Role{Title: "new_role"}
 	updateRole.SrchDiskQuota.Set(0)
-	updatedRole, err := client.Update(c, updateRole)
-	if err != nil {
+	if err := client.Update(c, updateRole); err != nil {
 		log.Fatalf("unable to update role: %s", err)
 	}
-	fmt.Printf("updated role: %#v\n", updatedRole)
 
-	if _, err := client.Delete(c, createdRole); err != nil {
+	if err := client.Delete(c, createdRole); err != nil {
 		log.Fatalf("unable to delete role: %s", err)
 	}
 }
