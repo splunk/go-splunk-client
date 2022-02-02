@@ -51,6 +51,8 @@ func HandleResponseXML(i interface{}) ResponseHandler {
 	}
 }
 
+// HandleResponseXMLMessagesCustomError returns a ResponseHandler that decode's an http.Response's
+// Body as an XML document of Messages and returns the Messages as an error with the given ErrorCode.
 func HandleResponseXMLMessagesCustomError(code ErrorCode) ResponseHandler {
 	return func(r *http.Response) error {
 		response := struct {
@@ -85,6 +87,8 @@ func HandleResponseJSON(i interface{}) ResponseHandler {
 	}
 }
 
+// HandleResponseJSONMessagesCustomError returns a ResponseHandler that decodes an http.Response's
+// Body as JSON document of Messages and returns the Messages as an error with the given ErrorCode.
 func HandleResponseJSONMessagesCustomError(code ErrorCode) ResponseHandler {
 	return func(r *http.Response) error {
 		msg := messages.Messages{}
@@ -97,13 +101,15 @@ func HandleResponseJSONMessagesCustomError(code ErrorCode) ResponseHandler {
 }
 
 // HandleResponseJSONMessagesError returns a ResponseHandler that decode's an http.Response's Body
-// as a JSON document of Messages and returns the Messages as an error.
+// as a JSON document of Messages and returns the Messages as an error with the Code ErrorSplunkMessage.
 func HandleResponseJSONMessagesError() ResponseHandler {
 	return func(r *http.Response) error {
 		return HandleResponseJSONMessagesCustomError(ErrorSplunkMessage)(r)
 	}
 }
 
+// HandleResponseCode returns a ResponseHandler that calls errorResponseHandler if an http.Response's
+// StatusCode is equal to the provided code.
 func HandleResponseCode(code int, errorResponseHandler ResponseHandler) ResponseHandler {
 	return func(r *http.Response) error {
 		if r.StatusCode != code {
