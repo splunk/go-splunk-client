@@ -114,6 +114,19 @@ func HandleResponseCode(code int, errorResponseHandler ResponseHandler) Response
 	}
 }
 
+// HandleResponseEntryNotFound returns a ResponseHandler that calls errorResponseHandler if the response
+// status code is equal to Entry's endpointConfig.codeNotFound.
+func HandleResponseEntryNotFound(entry Entry, errorResponseHandler ResponseHandler) ResponseHandler {
+	return func(r *http.Response) error {
+		config, err := entry.getEndpointConfig(entry)
+		if err != nil {
+			return err
+		}
+
+		return HandleResponseCode(config.codeNotFound, errorResponseHandler)(r)
+	}
+}
+
 // HandleResponseRequireCode returns a ResponseHandler that checks for a given StatusCode. If
 // the http.Response has a different StatusCode, the provided ResponseHandler will be called
 // to return the appopriate error message.

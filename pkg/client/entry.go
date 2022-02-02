@@ -78,7 +78,7 @@ func Read[E Entry](client *Client, entry E) (E, error) {
 			BuildRequestAuthenticate(client),
 		),
 		ComposeResponseHandler(
-			HandleResponseCode(http.StatusNotFound, HandleResponseJSONMessagesCustomError(ErrorNotFound)),
+			HandleResponseEntryNotFound(entry, HandleResponseJSONMessagesCustomError(ErrorNotFound)),
 			HandleResponseRequireCode(http.StatusOK, HandleResponseJSONMessagesError()),
 			HandleResponseEntry(readEntry),
 		),
