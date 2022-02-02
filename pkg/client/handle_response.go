@@ -18,6 +18,7 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"net/http"
+	"reflect"
 
 	"github.com/splunk/go-sdk/pkg/messages"
 )
@@ -148,38 +149,69 @@ func HandleResponseRequireCode(code int, errorResponseHandler ResponseHandler) R
 
 // HandleResponseEntries returns a ResponseHandler that parses the http.Response Body
 // into the list of Entry reference provided.
-func HandleResponseEntries[E Entry](entries *[]E) ResponseHandler {
+func HandleResponseEntries(entries interface{}) ResponseHandler {
 	return func(r *http.Response) error {
-		entriesResponse := struct{
-			Entries []E `json:"entry"`
-		}{}
+		entriesPtrV := reflect.ValueOf(entries)
+		if entriesPtrV.Kind() != reflect.Ptr {
+			return wrapError(ErrorPtr, nil, "attempted to read entries to non-pointer")
+		}
+
+		entriesV := reflect.Indirect(entriesPtrV)
+		if entriesV.Kind() != reflect.Slice {
+			return wrapError(ErrorSlice, nil, "attempted to read entries to non-slice")
+		}
+
+		responseT := reflect.StructOf([]reflect.StructField{
+			{
+				Name: "Entry",
+				Type: entriesV.Type(),
+			},
+		})
+
+		entriesResponsePtrV := reflect.New(responseT)
+		entriesResponsePtrI := entriesResponsePtrV.Interface()
 
 		d := json.NewDecoder(r.Body)
-		if err := d.Decode(&entriesResponse); err != nil {
+		if err := d.Decode(entriesResponsePtrI); err != nil {
 			return wrapError(ErrorResponseBody, err, "unable to decide JSON: %s", err)
 		}
 
-		*entries = entriesResponse.Entries
-	
+		entriesResponseV := reflect.Indirect(entriesResponsePtrV)
+		responseEntriesFieldV := entriesResponseV.FieldByName("Entry")
+
+		entriesV.Set(responseEntriesFieldV)
+
 		return nil
 	}
 }
 
 // HandleResponseEntry returns a responseHaResponseHandlerndler that parses the http.Response Body
 // into the given Entry.
-func HandleResponseEntry[E Entry](entry *E) ResponseHandler {
+func HandleResponseEntry(entry interface{}) ResponseHandler {
 	return func(r *http.Response) error {
-		entries := make([]E, 0)
+		entryPtrV := reflect.ValueOf(entry)
+		if entryPtrV.Kind() != reflect.Ptr {
+			return wrapError(ErrorPtr, nil, "attempted to read entry to non-pointer")
+		}
 
-		if err := HandleResponseEntries(&entries)(r); err != nil {
+		entryV := reflect.Indirect(entryPtrV)
+		entryT := entryV.Type()
+
+		entriesT := reflect.SliceOf(entryT)
+		entriesPtrV := reflect.New(entriesT)
+		entriesPtrI := entriesPtrV.Interface()
+
+		if err := HandleResponseEntries(entriesPtrI)(r); err != nil {
 			return err
 		}
 
-		if len(entries) != 1 {
-			return wrapError(ErrorResponseBody, nil, "expected exactly 1 entry, got %d", len(entries))
+		entriesV := reflect.Indirect(entriesPtrV)
+
+		if entriesV.Len() != 1 {
+			return wrapError(ErrorResponseBody, nil, "expected exactly 1 entry, got %d", entriesV.Len())
 		}
 
-		*entry = entries[0]
+		entryV.Set(entriesV.Index(0))
 
 		return nil
 	}

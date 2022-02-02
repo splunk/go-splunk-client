@@ -45,8 +45,8 @@ func main() {
 		log.Fatalf("unable to create user: %s", err)
 	}
 
-	createdUser, err := client.Read(c, entry.User{Title: "newuser"})
-	if err != nil {
+	createdUser := entry.User{Title: "newuser"}
+	if err := client.Read(c, &createdUser); err != nil {
 		log.Fatalf("unable to read user: %s", err)
 	}
 	fmt.Printf("read user: %s\n", createdUser.Title)
@@ -62,7 +62,8 @@ func main() {
 		log.Fatalf("unable to delete user: %s", err)
 	}
 
-	listedUsers, err := client.List(c, entry.User{})
+	listedUsers := []entry.User{}
+	err := client.List(c, &listedUsers)
 	if err != nil {
 		log.Fatalf("unable to list users: %s", err)
 	}

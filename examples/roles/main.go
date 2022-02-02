@@ -44,8 +44,8 @@ func main() {
 		log.Fatalf("unable to create role: %s", err)
 	}
 
-	createdRole, err := client.Read(c, entry.Role{Title: "new_role"})
-	if err != nil {
+	createdRole := entry.Role{Title: "new_role"}
+	if err := client.Read(c, &createdRole); err != nil {
 		log.Fatalf("unable to read role: %s", err)
 	}
 	fmt.Printf("created role: %#v\n", createdRole)
