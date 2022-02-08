@@ -126,7 +126,7 @@ func (e Endpoint) getEndpointConfig(i endpointConfigGetter) (endpointConfig, err
 
 		switch configParts[0] {
 		default:
-			return newEndpointConfig, wrapError(ErrorEndpoint, nil, "Endpoint tag has unknown option: %q", configParts[0])
+			return endpointConfig{}, wrapError(ErrorEndpoint, nil, "Endpoint tag has unknown option: %q", configParts[0])
 		case "notfound":
 			newEndpointConfig.codeNotFound = int(configPartCode)
 		}
