@@ -16,39 +16,14 @@ package client
 
 import "testing"
 
-func TestEndpoint_endpoint(t *testing.T) {
+func TestEndpoint_getEndpointConfig(t *testing.T) {
 	tests := []struct {
-		name          string
-		input         interface{}
-		wantError     bool
-		wantErrorCode ErrorCode
-		wantEndpoint  string
+		name               string
+		input              endpointConfigGetter
+		wantError          bool
+		wantErrorCode      ErrorCode
+		wantEndpointConfig endpointConfig
 	}{
-		{
-			"non-struct",
-			"this string is not a struct",
-			true,
-			ErrorEndpoint,
-			"",
-		},
-		{
-			"struct has no field named Endpoint",
-			struct {
-				path Endpoint `endpoint:"test/endpoint"`
-			}{},
-			true,
-			ErrorEndpoint,
-			"",
-		},
-		{
-			"Endpoint field isn't Endpoint type",
-			struct {
-				Endpoint string `endpoint:"test/endpoint"`
-			}{},
-			true,
-			ErrorEndpoint,
-			"",
-		},
 		{
 			"Endpoint field missing service tag",
 			struct {
@@ -56,27 +31,42 @@ func TestEndpoint_endpoint(t *testing.T) {
 			}{},
 			true,
 			ErrorEndpoint,
-			"",
+			endpointConfig{},
 		},
 		{
-			"everything in place",
+			"path only",
 			struct {
 				Endpoint `endpoint:"test/endpoint"`
 			}{},
 			false,
 			ErrorUndefined,
-			"test/endpoint",
+			endpointConfig{
+				path:         "test/endpoint",
+				codeNotFound: 404,
+			},
+		},
+		{
+			"path and notfound",
+			struct {
+				Endpoint `endpoint:"test/endpoint,notfound:400"`
+			}{},
+			false,
+			ErrorUndefined,
+			endpointConfig{
+				path:         "test/endpoint",
+				codeNotFound: 400,
+			},
 		},
 	}
 
 	s := Endpoint{}
 	for _, test := range tests {
-		gotEndpoint, err := s.endpointPath(test.input)
+		gotEndpointConfig, err := s.getEndpointConfig(test.input)
 
 		testError(test.name, err, test.wantError, test.wantErrorCode, t)
 
-		if gotEndpoint != test.wantEndpoint {
-			t.Errorf("%s got %s, want %s", test.name, gotEndpoint, test.wantEndpoint)
+		if gotEndpointConfig != test.wantEndpointConfig {
+			t.Errorf("%s getEndpointConfig got:\n%#v, want\n%#v", test.name, gotEndpointConfig, test.wantEndpointConfig)
 		}
 	}
 }

@@ -41,12 +41,9 @@ func entryPath(entry Entry) (string, error) {
 	return paths.Join(servicePath, entry.TitleValue()), nil
 }
 
-// Create performs a Create action for the given Entry. It returns
-// the Entry that was created.
-func Create[E Entry](client *Client, entry E) (E, error) {
-	createdEntry := new(E)
-
-	if err := client.RequestAndHandle(
+// Create performs a Create action for the given Entry.
+func Create(client *Client, entry Entry) error {
+	return client.RequestAndHandle(
 		ComposeRequestBuilder(
 			BuildRequestMethod(http.MethodPost),
 			BuildRequestServiceURL(client, entry),
@@ -56,13 +53,8 @@ func Create[E Entry](client *Client, entry E) (E, error) {
 		),
 		ComposeResponseHandler(
 			HandleResponseRequireCode(http.StatusCreated, HandleResponseJSONMessagesError()),
-			HandleResponseEntry(createdEntry),
 		),
-	); err !=  nil {
-		return *new(E), err
-	}
-
-	return *createdEntry, nil
+	)
 }
 
 // Read performs a Read action for the given Entry. It returns
@@ -78,7 +70,7 @@ func Read[E Entry](client *Client, entry E) (E, error) {
 			BuildRequestAuthenticate(client),
 		),
 		ComposeResponseHandler(
-			HandleResponseCode(http.StatusNotFound, HandleResponseJSONMessagesCustomError(ErrorNotFound)),
+			HandleResponseEntryNotFound(entry, HandleResponseJSONMessagesCustomError(ErrorNotFound)),
 			HandleResponseRequireCode(http.StatusOK, HandleResponseJSONMessagesError()),
 			HandleResponseEntry(readEntry),
 		),
@@ -89,12 +81,9 @@ func Read[E Entry](client *Client, entry E) (E, error) {
 	return *readEntry, nil
 }
 
-// Update performs an Update action for the given Entry. It
-// returns the Entry that resulted from the update.
-func Update[E Entry](client *Client, entry E) (E, error) {
-	updatedEntry := new(E)
-
-	if err := client.RequestAndHandle(
+// Update performs an Update action for the given Entry.
+func Update(client *Client, entry Entry) error {
+	return client.RequestAndHandle(
 		ComposeRequestBuilder(
 			BuildRequestMethod(http.MethodPost),
 			BuildRequestEntryURLWithTitle(client, entry),
@@ -104,21 +93,13 @@ func Update[E Entry](client *Client, entry E) (E, error) {
 		),
 		ComposeResponseHandler(
 			HandleResponseRequireCode(http.StatusOK, HandleResponseJSONMessagesError()),
-			HandleResponseEntry(updatedEntry),
 		),
-	); err !=  nil {
-		return *new(E), err
-	}
-
-	return *updatedEntry, nil
+	)
 }
 
-// Delete performs a Delete action for the given Entry. It
-// returns a list of the remaining Entry items after the deletion.
-func Delete[E Entry](client *Client, entry E) ([]E, error) {
-	remainingEntries := make([]E, 0)
-
-	if err := client.RequestAndHandle(
+// Delete performs a Delete action for the given Entry.
+func Delete(client *Client, entry Entry) error {
+	return client.RequestAndHandle(
 		ComposeRequestBuilder(
 			BuildRequestMethod(http.MethodDelete),
 			BuildRequestEntryURLWithTitle(client, entry),
@@ -127,13 +108,8 @@ func Delete[E Entry](client *Client, entry E) ([]E, error) {
 		),
 		ComposeResponseHandler(
 			HandleResponseRequireCode(http.StatusOK, HandleResponseJSONMessagesError()),
-			HandleResponseEntries(&remainingEntries),
 		),
-	); err != nil {
-		return nil, err
-	}
-
-	return remainingEntries, nil
+	)
 }
 
 // List returns a list of the given type of Entry by performing a List

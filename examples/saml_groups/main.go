@@ -34,30 +34,28 @@ func main() {
 		TLSInsecureSkipVerify: true,
 	}
 
-	if err := client.Create(c, entry.Role{
-		Title: "new_role",
-		RoleContent: entry.RoleContent{
-			SrchDiskQuota: attributes.NewInt(1),
-			Capabilities:  attributes.NewStrings("search"),
+	err := client.Create(c, entry.SAMLGroup{
+		Title: "new_saml_group",
+		SAMLGroupContent: entry.SAMLGroupContent{
+			Roles: attributes.NewStrings("admin"),
 		},
-	}); err != nil {
-		log.Fatalf("unable to create role: %s", err)
-	}
-
-	createdRole, err := client.Read(c, entry.Role{Title: "new_role"})
+	})
 	if err != nil {
-		log.Fatalf("unable to read role: %s", err)
-	}
-	fmt.Printf("created role: %#v\n", createdRole)
-
-	// here we explicitly set SrchDiskQuota to 0
-	updateRole := entry.Role{Title: "new_role"}
-	updateRole.SrchDiskQuota.Set(0)
-	if err := client.Update(c, updateRole); err != nil {
-		log.Fatalf("unable to update role: %s", err)
+		log.Fatalf("unable to create new SAML group: %s", err)
 	}
 
-	if err := client.Delete(c, createdRole); err != nil {
-		log.Fatalf("unable to delete role: %s", err)
+	readSAMLGroup, err := client.Read(c, entry.SAMLGroup{Title: "new_saml_group"})
+	if err != nil {
+		if clientErr, ok := err.(client.Error); ok {
+			if clientErr.Code == client.ErrorNotFound {
+				log.Fatalf("SAML group not found: %s", clientErr)
+			}
+		}
+		log.Fatalf("unable to read SAML group: %s", err)
+	}
+	fmt.Printf("read SAML group: %#v\n", readSAMLGroup)
+
+	if err := client.Delete(c, entry.SAMLGroup{Title: "new_saml_group"}); err != nil {
+		log.Fatalf("unable to delete SAML group: %s", err)
 	}
 }

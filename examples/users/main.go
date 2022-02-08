@@ -34,46 +34,32 @@ func main() {
 		TLSInsecureSkipVerify: true,
 	}
 
-	createdUser, err := client.Create(c, entry.User{
+	if err := client.Create(c, entry.User{
 		Title: "newuser",
 		UserContent: entry.UserContent{
 			Password: attributes.NewString("changedit"),
 			RealName: attributes.NewString("New User"),
 			Roles:    attributes.NewStrings("user"),
 		},
-	})
-	if err != nil {
+	}); err != nil {
 		log.Fatalf("unable to create user: %s", err)
 	}
-	fmt.Printf("created user: %s\n", createdUser.Title)
-	fmt.Printf("  real name: %s\n", createdUser.RealName)
-	fmt.Printf("  roles: %s\n", createdUser.Roles)
 
-	readUser, err := client.Read(c, entry.User{Title: "newuser"})
+	createdUser, err := client.Read(c, entry.User{Title: "newuser"})
 	if err != nil {
 		log.Fatalf("unable to read user: %s", err)
 	}
-	fmt.Printf("read user: %s\n", readUser.Title)
-	fmt.Printf("  real name: %s\n", readUser.RealName)
-	fmt.Printf("  roles: %s\n", readUser.Roles)
+	fmt.Printf("read user: %s\n", createdUser.Title)
+	fmt.Printf("  real name: %s\n", createdUser.RealName)
+	fmt.Printf("  roles: %s\n", createdUser.Roles)
 
 	createdUser.RealName = attributes.NewString("Updated User")
-	updatedUser, err := client.Update(c, createdUser)
-	if err != nil {
+	if err := client.Update(c, createdUser); err != nil {
 		log.Fatalf("unable to update user: %s", err)
 	}
-	fmt.Printf("updated user: %s\n", updatedUser.Title)
-	fmt.Printf("  real name: %s\n", updatedUser.RealName)
-	fmt.Printf("  roles: %s\n", updatedUser.Roles)
 
-	remainingUsers, err := client.Delete(c, createdUser)
-	if err != nil {
+	if err := client.Delete(c, createdUser); err != nil {
 		log.Fatalf("unable to delete user: %s", err)
-	}
-	for _, remainingUser := range remainingUsers {
-		fmt.Printf("remaining user: %s\n", remainingUser.Title)
-		fmt.Printf("  real name: %s\n", remainingUser.RealName)
-		fmt.Printf("  roles: %s\n", remainingUser.Roles)
 	}
 
 	listedUsers, err := client.List(c, entry.User{})

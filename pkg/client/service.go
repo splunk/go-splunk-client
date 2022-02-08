@@ -22,7 +22,7 @@ import "github.com/splunk/go-sdk/pkg/internal/paths"
 // anonymous struct members.
 type Service interface {
 	NamespacePather
-	endpointPath(interface{}) (string, error)
+	endpointConfigGetter
 }
 
 // servicePath returns the path for a given service, including the namespace and
@@ -33,10 +33,10 @@ func servicePath(s Service) (string, error) {
 		return "", err
 	}
 
-	endpointPath, err := s.endpointPath(s)
+	config, err := s.getEndpointConfig(s)
 	if err != nil {
 		return "", err
 	}
 
-	return paths.Join(nsPath, endpointPath), nil
+	return paths.Join(nsPath, config.path), nil
 }
