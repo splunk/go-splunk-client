@@ -113,10 +113,10 @@ func (e Endpoint) getEndpointConfig(i endpointConfigGetter) (endpointConfig, err
 		codeNotFound: 404,
 	}
 
-	for _, configPart := range tagParts[1:] {
-		configParts := strings.Split(configPart, ":")
+	for _, tagPart := range tagParts[1:] {
+		configParts := strings.Split(tagPart, ":")
 		if len(configParts) != 2 {
-			return endpointConfig{}, wrapError(ErrorEndpoint, nil, "Endpoint tag has invalid configuration: %q", configPart)
+			return endpointConfig{}, wrapError(ErrorEndpoint, nil, "Endpoint tag has invalid configuration: %q", tagPart)
 		}
 
 		configPartCode, err := strconv.ParseInt(configParts[1], 10, 0)
