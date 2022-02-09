@@ -16,6 +16,7 @@ package client
 
 import (
 	"net/http"
+	"reflect"
 
 	"github.com/splunk/go-sdk/pkg/internal/paths"
 )
@@ -57,12 +58,10 @@ func Create(client *Client, entry Entry) error {
 	)
 }
 
-// Read performs a Read action for the given Entry. It returns
-// the Entry that was read.
-func Read[E Entry](client *Client, entry E) (E, error) {
-	readEntry := new(E)
-
-	if err := client.RequestAndHandle(
+// Read performs a Read action for the given Entry. It modifies entry in-place,
+// so entry must be a pointer.
+func Read(client *Client, entry Entry) error {
+	return client.RequestAndHandle(
 		ComposeRequestBuilder(
 			BuildRequestMethod(http.MethodGet),
 			BuildRequestEntryURLWithTitle(client, entry),
@@ -72,13 +71,9 @@ func Read[E Entry](client *Client, entry E) (E, error) {
 		ComposeResponseHandler(
 			HandleResponseEntryNotFound(entry, HandleResponseJSONMessagesCustomError(ErrorNotFound)),
 			HandleResponseRequireCode(http.StatusOK, HandleResponseJSONMessagesError()),
-			HandleResponseEntry(readEntry),
+			HandleResponseEntry(entry),
 		),
-	); err != nil {
-		return *new(E), err
-	}
-
-	return *readEntry, nil
+	)
 }
 
 // Update performs an Update action for the given Entry.
@@ -113,25 +108,36 @@ func Delete(client *Client, entry Entry) error {
 }
 
 // List returns a list of the given type of Entry by performing a List
-// action for its Entry URL, which may or may not have a value for its
-// Title.
-func List[E Entry](client *Client, entry E) ([]E, error) {
-	listedEntries := make([]E, 0)
+// action for its Entry URL.
+func List(client *Client, entries interface{}) error {
+	entriesPtrV := reflect.ValueOf(entries)
+	if entriesPtrV.Kind() != reflect.Ptr {
+		return wrapError(ErrorPtr, nil, "List attempted on on-pointer value")
+	}
 
-	if err := client.RequestAndHandle(
+	entriesV := reflect.Indirect(entriesPtrV)
+	if entriesV.Kind() != reflect.Slice {
+		return wrapError(ErrorSlice, nil, "List attempted on non-slice value")
+	}
+	entryT := entriesV.Type().Elem()
+	entryPtrV := reflect.New(entryT)
+	entryPtrI := entryPtrV.Interface()
+	entryPtrEntry, ok := entryPtrI.(Entry)
+	if !ok {
+		entryI := reflect.Indirect(entryPtrV).Interface()
+		return wrapError(ErrorSlice, nil, "List attempted on slice of non-Entry type %T", entryI)
+	}
+
+	return client.RequestAndHandle(
 		ComposeRequestBuilder(
 			BuildRequestMethod(http.MethodGet),
-			BuildRequestEntryURL(client, entry),
+			BuildRequestEntryURL(client, entryPtrEntry),
 			BuildRequestOutputModeJSON(),
 			BuildRequestAuthenticate(client),
 		),
 		ComposeResponseHandler(
 			HandleResponseRequireCode(http.StatusOK, HandleResponseJSONMessagesError()),
-			HandleResponseEntries(&listedEntries),
+			HandleResponseEntries(entries),
 		),
-	); err != nil {
-		return nil, err
-	}
-
-	return listedEntries, nil
+	)
 }

@@ -67,6 +67,13 @@ const (
 
 	// ErrorNotFound indicates an attempt was made against an object that count not be found.
 	ErrorNotFound
+
+	// ErrorPtr indicates an operation requiring a pointer was passed a non-pointer.
+	ErrorPtr
+
+	// ErrorSlice indicates an operation requiring a slice was passed a non-slice, or a slice
+	// of the wrong type.
+	ErrorSlice
 )
 
 // Error represents an encountered error. It adheres to the "error" interface,

@@ -44,8 +44,8 @@ func main() {
 		log.Fatalf("unable to create new SAML group: %s", err)
 	}
 
-	readSAMLGroup, err := client.Read(c, entry.SAMLGroup{Title: "new_saml_group"})
-	if err != nil {
+	readSAMLGroup := entry.SAMLGroup{Title: "new_saml_group"}
+	if err := client.Read(c, &readSAMLGroup); err != nil {
 		if clientErr, ok := err.(client.Error); ok {
 			if clientErr.Code == client.ErrorNotFound {
 				log.Fatalf("SAML group not found: %s", clientErr)
