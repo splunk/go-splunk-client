@@ -105,3 +105,48 @@ func TestNamespace_NamespacePath(t *testing.T) {
 		}
 	}
 }
+
+func TestNamespace_namespaceForID(t *testing.T) {
+	tests := []struct {
+		name          string
+		inputId       string
+		wantNamespace Namespace
+		wantError     bool
+	}{
+		{
+			"global",
+			"https://localhost:8089/services/authentication/users/testuser",
+			Namespace{},
+			false,
+		},
+		{
+			"namespace",
+			"https://localhost:8089/servicesNS/admin/search/authentication/users/testuser",
+			Namespace{
+				User: "admin",
+				App:  "search",
+			},
+			false,
+		},
+		{
+			"servicesNS in wrong location",
+			// testuser thrown out, only "roles" remains, which can't be parsed into user/app
+			"https://localhost:8089/servicesNS/roles/testuser",
+			Namespace{},
+			true,
+		},
+	}
+
+	for _, test := range tests {
+		gotNamespace, err := namespaceForID(test.inputId)
+		gotError := err != nil
+
+		if gotError != test.wantError {
+			t.Errorf("%s namespaceForID returned error? %v (%s)", test.name, gotError, err)
+		}
+
+		if gotNamespace != test.wantNamespace {
+			t.Errorf("%s namespaceForID got\n%#v, want\n%#v", test.name, gotNamespace, test.wantNamespace)
+		}
+	}
+}
