@@ -173,7 +173,7 @@ func HandleResponseEntries(entries interface{}) ResponseHandler {
 
 		d := json.NewDecoder(r.Body)
 		if err := d.Decode(entriesResponsePtrI); err != nil {
-			return wrapError(ErrorResponseBody, err, "unable to decide JSON: %s", err)
+			return wrapError(ErrorResponseBody, err, "unable to decode JSON: %s", err)
 		}
 
 		entriesResponseV := reflect.Indirect(entriesResponsePtrV)
