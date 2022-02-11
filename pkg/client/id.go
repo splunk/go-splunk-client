@@ -16,6 +16,12 @@ package client
 
 import "strings"
 
+// IDPartsGetter is the interface that describes types that can be parsed into the appropriate
+// ID components.
+type IDPartsGetter interface {
+	GetIDParts() (user string, app string, endpoint string, title string, err error)
+}
+
 // ID is the URL ID of a Splunk object.
 type ID string
 
