@@ -33,6 +33,10 @@ type SAMLGroup struct {
 	client.Title     `json:"name" url:"name"`
 	SAMLGroupContent `json:"content"`
 
+	// Read-only fields are populated by results returned by the Splunk API, but
+	// are not settable by Create or Update operations.
+	client.ID `json:"id" url:"-"`
+
 	// The below fields don't have values, and only exist to provide context to
 	// the Splunk API.
 	client.GlobalNamespace

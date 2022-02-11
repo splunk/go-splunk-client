@@ -27,6 +27,7 @@ import (
 type Entry interface {
 	Service
 	Titler
+	IDPartsGetter
 	ContentGetter
 }
 

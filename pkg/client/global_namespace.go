@@ -23,3 +23,13 @@ type GlobalNamespace struct{}
 func (c GlobalNamespace) NamespacePath() (string, error) {
 	return Namespace{}.NamespacePath()
 }
+
+// SetNamespace is a required method for the NamespacePather interface, but for a GlobalNamespace
+// doesn't actually do anything other than check that user and app are empty.
+func (c *GlobalNamespace) SetNamespace(user string, app string) error {
+	if user != "" || app != "" {
+		return wrapError(ErrorNamespace, nil, "attempted to set non-empty namespace on a GlobalNamespace")
+	}
+
+	return nil
+}

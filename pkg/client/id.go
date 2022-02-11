@@ -25,6 +25,7 @@ type IDPartsGetter interface {
 // ID is the URL ID of a Splunk object.
 type ID string
 
+func NewID
 // GetNamespaceUserApp returns the parsed User and App from the ID. It returns an error
 // if unable to parse the ID int
 func (id ID) GetIDParts() (user string, app string, endpoint string, title string, err error) {

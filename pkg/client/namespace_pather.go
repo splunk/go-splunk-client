@@ -19,3 +19,7 @@ type NamespacePather interface {
 	// NamespacePath returns the namespace path, or an error if it is unable to be determined.
 	NamespacePath() (string, error)
 }
+
+type NamespaceSetter interface {
+	SetNamespace(user string, app string) error
+}

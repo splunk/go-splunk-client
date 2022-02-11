@@ -179,13 +179,36 @@ func HandleResponseEntries(entries interface{}) ResponseHandler {
 		entriesResponseV := reflect.Indirect(entriesResponsePtrV)
 		responseEntriesFieldV := entriesResponseV.FieldByName("Entry")
 
+		// iterate through each returned entry and set the namespace from the returned id
+		for i := 0; i < responseEntriesFieldV.Len(); i++ {
+			responseEntryPtrI := responseEntriesFieldV.Index(i).Addr().Interface()
+			responseEntry, ok := responseEntryPtrI.(Entry)
+			if !ok {
+				// TODO fix ErrorCode
+				return wrapError(ErrorUndefined, nil, "attempted to read entries to non-Entry type")
+			}
+
+			user, app, _, _, err := responseEntry.GetIDParts()
+			if err != nil {
+				return err
+			}
+
+			responseNamespaceSetter, ok := responseEntryPtrI.(NamespaceSetter)
+			if !ok {
+				return wrapError(ErrorNamespace, nil, "attempted to set Namespace of non-NamespaceSetter type")
+			}
+
+			if err := responseNamespaceSetter.SetNamespace(user, app); err != nil {
+				return err
+			}
+		}
 		entriesV.Set(responseEntriesFieldV)
 
 		return nil
 	}
 }
 
-// HandleResponseEntry returns a responseHaResponseHandlerndler that parses the http.Response Body
+// HandleResponseEntry returns a ResponseHandler that parses the http.Response Body
 // into the given Entry.
 func HandleResponseEntry(entry interface{}) ResponseHandler {
 	return func(r *http.Response) error {
