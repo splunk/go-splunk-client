@@ -30,6 +30,14 @@ type Entry interface {
 	ContentGetter
 }
 
+// EntryLister is the interface that describes types that satisfy both the Entry and IDOptApplyer
+// interfaces. This interface is a superset of Entry as IDOptApplyer requires a pointer, but Entry
+// does not.
+type EntryLister interface {
+	Entry
+	IDOptApplyer
+}
+
 // entryPath returns the path for the given CRUDLer. If the Entry has an
 // empty Title, a valid path will be returned with the Title component being empty,
 // because an Entry's path doesn't require a non-empty Title to be valid.
@@ -39,7 +47,7 @@ func entryPath(entry Entry) (string, error) {
 		return "", err
 	}
 
-	return paths.Join(servicePath, entry.TitleValue()), nil
+	return paths.Join(servicePath, entry.Title()), nil
 }
 
 // Create performs a Create action for the given Entry.
@@ -108,8 +116,8 @@ func Delete(client *Client, entry Entry) error {
 }
 
 // List returns a list of the given type of Entry by performing a List
-// action for its Entry URL.
-func List(client *Client, entries interface{}) error {
+// action for an ID with the given ID Field Options applied.
+func List(client *Client, entries interface{}, idFieldOpts ...IDOpt) error {
 	entriesPtrV := reflect.ValueOf(entries)
 	if entriesPtrV.Kind() != reflect.Ptr {
 		return wrapError(ErrorPtr, nil, "List attempted on on-pointer value")
@@ -122,11 +130,13 @@ func List(client *Client, entries interface{}) error {
 	entryT := entriesV.Type().Elem()
 	entryPtrV := reflect.New(entryT)
 	entryPtrI := entryPtrV.Interface()
-	entryPtrEntry, ok := entryPtrI.(Entry)
+	entryPtrEntry, ok := entryPtrI.(EntryLister)
 	if !ok {
 		entryI := reflect.Indirect(entryPtrV).Interface()
-		return wrapError(ErrorSlice, nil, "List attempted on slice of non-Entry type %T", entryI)
+		return wrapError(ErrorSlice, nil, "List attempted on slice of non-EntryLister type %T", entryI)
 	}
+
+	entryPtrEntry.ApplyIDOpt(idFieldOpts...)
 
 	return client.RequestAndHandle(
 		ComposeRequestBuilder(

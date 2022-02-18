@@ -30,12 +30,11 @@ type SAMLGroupContent struct {
 
 // SAMLGroup defines a SAML group mapping.
 type SAMLGroup struct {
-	client.Title     `json:"name" url:"name"`
+	client.ID
 	SAMLGroupContent `json:"content"`
 
 	// The below fields don't have values, and only exist to provide context to
 	// the Splunk API.
-	client.GlobalNamespace
 	// This endpoint returns a 400 if unable to find the given SAML Group.
 	client.Endpoint `endpoint:"admin/SAML-groups,notfound:400"`
 }

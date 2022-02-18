@@ -35,7 +35,11 @@ func main() {
 	}
 
 	if err := client.Create(c, entry.User{
-		Title: "newuser",
+		ID: client.ID{
+			IDFields: client.IDFields{
+				Title: "newuser",
+			},
+		},
 		UserContent: entry.UserContent{
 			Password: attributes.NewString("changedit"),
 			RealName: attributes.NewString("New User"),
@@ -45,11 +49,18 @@ func main() {
 		log.Fatalf("unable to create user: %s", err)
 	}
 
-	createdUser := entry.User{Title: "newuser"}
+	createdUser := entry.User{
+		ID: client.ID{
+			IDFields: client.IDFields{
+				Title: "newuser",
+			},
+		},
+	}
+
 	if err := client.Read(c, &createdUser); err != nil {
 		log.Fatalf("unable to read user: %s", err)
 	}
-	fmt.Printf("read user: %s\n", createdUser.Title)
+	fmt.Printf("read user: %s\n", createdUser.ID)
 	fmt.Printf("  real name: %s\n", createdUser.RealName)
 	fmt.Printf("  roles: %s\n", createdUser.Roles)
 
@@ -68,7 +79,7 @@ func main() {
 		log.Fatalf("unable to list users: %s", err)
 	}
 	for _, listedUser := range listedUsers {
-		fmt.Printf("listed user: %s\n", listedUser.Title)
+		fmt.Printf("listed user: %s\n", listedUser.ID)
 		fmt.Printf("  real name: %s\n", listedUser.RealName)
 		fmt.Printf("  roles: %s\n", listedUser.Roles)
 	}
