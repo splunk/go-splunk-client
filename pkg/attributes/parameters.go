@@ -15,6 +15,9 @@
 package attributes
 
 import (
+	"encoding/json"
+	"fmt"
+	"reflect"
 	"sort"
 	"strings"
 )
@@ -106,4 +109,31 @@ func (p Parameters) namedParametersCollection() NamedParametersCollection {
 	}
 
 	return newCollection
+}
+
+// UnmarshalJSON implements custom JSON unmarshaling which assumes the content being unmarshaled is a simple map of strings
+// to a single value (string, bool, float, int). It returns an error if a value other than these types is encountered.
+func (p *Parameters) UnmarshalJSON(data []byte) error {
+	interfaceMap := map[string]interface{}{}
+	if err := json.Unmarshal(data, &interfaceMap); err != nil {
+		return err
+	}
+
+	if len(interfaceMap) == 0 {
+		return nil
+	}
+
+	newP := Parameters{}
+	for key, value := range interfaceMap {
+		switch reflect.TypeOf(value).Kind() {
+		default:
+			return fmt.Errorf("unable to unmarshal unhandled type %T into Parameters for key %s", value, key)
+		case reflect.String, reflect.Bool, reflect.Float32, reflect.Float64, reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			newP[key] = fmt.Sprintf("%v", value)
+		}
+	}
+
+	*p = newP
+
+	return nil
 }

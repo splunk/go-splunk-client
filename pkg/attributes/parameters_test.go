@@ -261,3 +261,42 @@ func TestParameters_namedParametersCollection(t *testing.T) {
 		}
 	}
 }
+
+func TestParameters_UnmarshalJSON(t *testing.T) {
+	tests := jsonUnmarshalTestCases{
+		{
+			name:        "empty",
+			inputString: `{}`,
+			want:        Parameters(nil),
+		},
+		{
+			name:        "invalid type (list)",
+			inputString: `{"param":[]}`,
+			want:        Parameters(nil),
+			wantError:   true,
+		},
+		{
+			name:        "invalid type (dict)",
+			inputString: `{"param":{}}`,
+			want:        Parameters(nil),
+			wantError:   true,
+		},
+		{
+			name: "valid",
+			inputString: `{
+				"stringField": "string value",
+				"boolField":   true,
+				"intField":    1,
+				"floatField":  1.234
+			}`,
+			want: Parameters{
+				"stringField": "string value",
+				"boolField":   "true",
+				"intField":    "1",
+				"floatField":  "1.234",
+			},
+		},
+	}
+
+	tests.test(t)
+}
