@@ -17,6 +17,7 @@ package attributes
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"reflect"
 	"sort"
 	"strings"
@@ -140,6 +141,17 @@ func (p *Parameters) UnmarshalJSON(data []byte) error {
 	}
 
 	*p = newP
+
+	return nil
+}
+
+// EncodeValues implements custom encoding into url.Values.
+func (p Parameters) EncodeValues(key string, v *url.Values) error {
+	for paramKey, paramValue := range p {
+		valueKey := strings.Join([]string{key, paramKey}, ".")
+
+		v.Set(valueKey, paramValue)
+	}
 
 	return nil
 }

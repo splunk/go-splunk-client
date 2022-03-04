@@ -360,3 +360,44 @@ func TestHasParameters_UnmarshalJSON(t *testing.T) {
 
 	tests.test(t)
 }
+
+func TestParameters_EncodeValues(t *testing.T) {
+	type testType struct {
+		Name   string     `url:"name,omitempty"`
+		Params Parameters `url:"params"`
+	}
+
+	tests := queryValuesTestCases{
+		{
+			name:  "empty",
+			input: testType{},
+			want:  map[string][]string{},
+		},
+		{
+			name: "no param values",
+			input: testType{
+				Name: "testName",
+			},
+			want: map[string][]string{
+				"name": {"testName"},
+			},
+		},
+		{
+			name: "param values",
+			input: testType{
+				Name: "testName",
+				Params: Parameters{
+					"fieldA":        "valueA",
+					"fieldA.fieldB": "valueB",
+				},
+			},
+			want: map[string][]string{
+				"name":                 {"testName"},
+				"params.fieldA":        {"valueA"},
+				"params.fieldA.fieldB": {"valueB"},
+			},
+		},
+	}
+
+	tests.test(t)
+}
