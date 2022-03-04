@@ -201,3 +201,63 @@ func TestParameters_dottedParameterNameParts(t *testing.T) {
 		}
 	}
 }
+
+func TestParameters_namedParametersCollection(t *testing.T) {
+	tests := []struct {
+		name  string
+		input Parameters
+		want  NamedParametersCollection
+	}{
+		{
+			"nil",
+			nil,
+			nil,
+		},
+		{
+			"empty",
+			Parameters{},
+			nil,
+		},
+		{
+			"populated",
+			Parameters{
+				"fieldA":        "fieldValueA",
+				"fieldA.paramA": "paramValueA",
+				"fieldB":        "fieldValueB",
+				"fieldB.paramB": "paramValueB",
+				// field0 should get sorted to the top of the Collection
+				"field0.param0": "paramValue0",
+			},
+			NamedParametersCollection{
+				{
+					Name: "field0",
+					Parameters: Parameters{
+						"param0": "paramValue0",
+					},
+				},
+				{
+					Name:   "fieldA",
+					Status: "fieldValueA",
+					Parameters: Parameters{
+						"paramA": "paramValueA",
+					},
+				},
+				{
+					Name:   "fieldB",
+					Status: "fieldValueB",
+					Parameters: Parameters{
+						"paramB": "paramValueB",
+					},
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		got := test.input.namedParametersCollection()
+
+		if !reflect.DeepEqual(got, test.want) {
+			t.Errorf("%s namedParametersCollection() got\n%#v, want\n%#v", test.name, got, test.want)
+		}
+	}
+}

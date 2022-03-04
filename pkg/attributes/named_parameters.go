@@ -38,3 +38,6 @@ func (params NamedParameters) StatusBool() (value bool, ok bool) {
 
 	return
 }
+
+// NamedParametersCollection is a collection of NamedParameters.
+type NamedParametersCollection []NamedParameters

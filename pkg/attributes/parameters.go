@@ -94,3 +94,16 @@ func (p Parameters) dottedNames() []string {
 
 	return foundNames
 }
+
+// namedParametersCollection returns a NamedParametersCollection containing a NamedParameters object
+// for each top-level name of Parameters.
+func (p Parameters) namedParametersCollection() NamedParametersCollection {
+	names := p.dottedNames()
+	var newCollection NamedParametersCollection
+
+	for _, name := range names {
+		newCollection = append(newCollection, p.namedParametersWithDottedName(name))
+	}
+
+	return newCollection
+}
