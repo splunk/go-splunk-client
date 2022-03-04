@@ -137,3 +137,50 @@ func (p *Parameters) UnmarshalJSON(data []byte) error {
 
 	return nil
 }
+
+// UnmarshalJSONForParameters unmarshals JSON data into the given dest interface. dest must be a pointer
+// to a struct, and any struct fields with the "parameters" tag must be of the Parameters type.
+//
+// This method exists to enable unmarshaling of the same level of a JSON document to a struct and also
+// to Parameters fields of the same struct.
+func UnmarshalJSONForParameters(data []byte, dest interface{}) error {
+	destVPtr := reflect.ValueOf(dest)
+	if destVPtr.Kind() != reflect.Ptr {
+		return fmt.Errorf("attempted UnmarshalJSONForParameters on non-pointer type: %T", dest)
+	}
+
+	destV := destVPtr.Elem()
+	destT := destV.Type()
+
+	if destT.Kind() != reflect.Struct {
+		return fmt.Errorf("attempted UnmarshalJSONForParameters on non-struct type: %T", dest)
+	}
+
+	for i := 0; i < destT.NumField(); i++ {
+		fieldF := destT.Field(i)
+		if !fieldF.IsExported() {
+			continue
+		}
+
+		fieldTag := fieldF.Tag.Get("parameters")
+		if fieldTag == "" {
+			continue
+		}
+
+		allParams := make(Parameters)
+		if fieldF.Type != reflect.TypeOf(allParams) {
+			return fmt.Errorf("attempted UnmarshalJSONForParameters on non-Parameters type %T for field %s", destV.Field(i).Interface(), fieldF.Name)
+		}
+
+		if err := json.Unmarshal(data, &allParams); err != nil {
+			return err
+		}
+
+		newParams := allParams.withDottedName(fieldTag)
+		newParamsV := reflect.ValueOf(newParams)
+
+		destV.Field(i).Set(newParamsV)
+	}
+
+	return nil
+}

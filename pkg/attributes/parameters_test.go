@@ -15,6 +15,7 @@
 package attributes
 
 import (
+	"encoding/json"
 	"reflect"
 	"testing"
 )
@@ -294,6 +295,65 @@ func TestParameters_UnmarshalJSON(t *testing.T) {
 				"boolField":   "true",
 				"intField":    "1",
 				"floatField":  "1.234",
+			},
+		},
+	}
+
+	tests.test(t)
+}
+
+// testTypeWithParameters is a type used to test custom unmarshaling of Parameters fields.
+type testTypeWithParameters struct {
+	Name     string     `json:"name"`
+	Args     Parameters `parameters:"args"`
+	Dispatch Parameters `parameters:"dispatch"`
+}
+
+// UnmarshalJSON implements custom unmarshaling for the test type.
+func (valueWithParameters *testTypeWithParameters) UnmarshalJSON(data []byte) error {
+	// to permit unmarshaling of the non-Parameter fields as normal, we have to create a new
+	// type identical to the type we're actually unmarshaling, as this new type won't also
+	// have the UnmarshalJSON override method. without this new type attempting to unmarshal
+	// the rest of the type would result in infinite recursion.
+	//
+	// this can probably be handled directly in UnmarshalJSONForParameters with generics once
+	// go 1.18 is released.
+	type hasParametersAlias testTypeWithParameters
+	var aliasedValueWithParameters hasParametersAlias
+
+	// first unmarshal the data into the aliased type, to get the standard unmarshaling treatment.
+	if err := json.Unmarshal(data, &aliasedValueWithParameters); err != nil {
+		return err
+	}
+
+	// then unmarshal the data into the aliased type using the custom ForParameters method.
+	if err := UnmarshalJSONForParameters(data, &aliasedValueWithParameters); err != nil {
+		return err
+	}
+
+	*valueWithParameters = testTypeWithParameters(aliasedValueWithParameters)
+
+	return nil
+}
+
+func TestHasParameters_UnmarshalJSON(t *testing.T) {
+	tests := jsonUnmarshalTestCases{
+		{
+			name:        "empty",
+			inputString: `{}`,
+			want:        testTypeWithParameters{},
+		},
+		{
+			name: "valid",
+			inputString: `{
+				"name": "Test Name",
+				"args.argA": "argValueA",
+				"dispatch.dispatchA": "dispatchValueA"
+			}`,
+			want: testTypeWithParameters{
+				Name:     "Test Name",
+				Args:     Parameters{"argA": "argValueA"},
+				Dispatch: Parameters{"dispatchA": "dispatchValueA"},
 			},
 		},
 	}
