@@ -17,6 +17,7 @@ package attributes
 import (
 	"encoding/json"
 	"net/url"
+	"strconv"
 )
 
 // String is a string that can be explicitly set to be empty.
@@ -37,6 +38,19 @@ func NewString(v string) String {
 func (s *String) Set(v string) {
 	s.value = v
 	s.explicit = true
+}
+
+// Bool returns a boolean value for the String, attempting to parse it from boolean-like values such as "true", "false",
+// "1", "0". If the String value can not be parsed, or is not explicitly set, ok will be false.
+func (c String) Bool() (value bool, ok bool) {
+	if !c.Ok() {
+		return
+	}
+
+	value, err := strconv.ParseBool(c.value)
+	ok = err == nil
+
+	return
 }
 
 // UnmarshalJSON implements custom JSON unmarshaling of a plain string

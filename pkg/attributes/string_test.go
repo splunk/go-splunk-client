@@ -19,6 +19,73 @@ import (
 	"testing"
 )
 
+func TestString_Bool(t *testing.T) {
+	tests := []struct {
+		input     String
+		wantValue bool
+		wantOk    bool
+	}{
+		{
+			String{},
+			false,
+			false,
+		},
+		{
+			NewString(""),
+			false,
+			true,
+		},
+		{
+			NewString("nonsense"),
+			false,
+			false,
+		},
+		{
+			NewString("-1"),
+			false,
+			false,
+		},
+		{
+			NewString("0"),
+			false,
+			true,
+		},
+		{
+			NewString("1"),
+			true,
+			true,
+		},
+		{
+			NewString("f"),
+			false,
+			true,
+		},
+		{
+			NewString("false"),
+			false,
+			true,
+		},
+		{
+			NewString("t"),
+			true,
+			true,
+		},
+		{
+			NewString("true"),
+			true,
+			true,
+		},
+	}
+
+	for _, test := range tests {
+		gotValue, gotOk := test.input.Bool()
+
+		if (gotValue != test.wantValue) && (gotOk != test.wantOk) {
+			t.Errorf("%q StatusBool got\n%#v, want\n%#v", test.input, []bool{gotValue, gotOk}, []bool{test.wantValue, test.wantOk})
+		}
+	}
+}
+
 func TestString_UnmarshalJSON(t *testing.T) {
 	tests := jsonUnmarshalTestCases{
 		{
