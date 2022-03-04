@@ -54,27 +54,27 @@ func TestStrings_UnmarshalJSON(t *testing.T) {
 func TestStrings_EncodeValues(t *testing.T) {
 	tests := queryValuesTestCases{
 		{
-			"zero value",
-			struct{ Value Strings }{},
-			url.Values{},
+			name:  "zero value",
+			input: struct{ Value Strings }{},
+			want:  url.Values{},
 		},
 		{
-			"explicitly empty",
-			struct{ Value Strings }{
+			name: "explicitly empty",
+			input: struct{ Value Strings }{
 				Strings{
 					explicit: true,
 				},
 			},
-			url.Values{"Value": []string{""}},
+			want: url.Values{"Value": []string{""}},
 		},
 		{
-			"implicit values",
-			struct{ Value Strings }{
+			name: "implicit values",
+			input: struct{ Value Strings }{
 				Strings{
 					values: []string{"one", "two"},
 				},
 			},
-			url.Values{"Value": []string{"one", "two"}},
+			want: url.Values{"Value": []string{"one", "two"}},
 		},
 	}
 

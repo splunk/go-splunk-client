@@ -44,19 +44,19 @@ func TestBool_UnmarshalJSON(t *testing.T) {
 func TestBool_EncodeValues(t *testing.T) {
 	tests := queryValuesTestCases{
 		{
-			"implicit zero",
-			struct{ Value Bool }{},
-			url.Values{},
+			name:  "implicit zero",
+			input: struct{ Value Bool }{},
+			want:  url.Values{},
 		},
 		{
-			"explicit zero",
-			struct{ Value Bool }{Bool{explicit: true}},
-			url.Values{"Value": []string{"false"}},
+			name:  "explicit zero",
+			input: struct{ Value Bool }{Bool{explicit: true}},
+			want:  url.Values{"Value": []string{"false"}},
 		},
 		{
-			"non-zero",
-			struct{ Value Bool }{Value: Bool{value: true}},
-			url.Values{"Value": []string{"true"}},
+			name:  "non-zero",
+			input: struct{ Value Bool }{Value: Bool{value: true}},
+			want:  url.Values{"Value": []string{"true"}},
 		},
 	}
 

@@ -24,16 +24,19 @@ import (
 
 // queryValuesTestCase defines a test case for query.Values.
 type queryValuesTestCase struct {
-	name  string
-	input interface{}
-	want  url.Values
+	name      string
+	input     interface{}
+	want      url.Values
+	wantError bool
 }
 
 // test runs the test.
 func (test queryValuesTestCase) test(t *testing.T) {
 	got, err := query.Values(test.input)
-	if err != nil {
-		t.Fatalf("%s unexpected query.Values error: %s", test.name, err)
+	gotError := err != nil
+
+	if gotError != test.wantError {
+		t.Errorf("%s query.Values returned error? %v: %s", test.name, gotError, err)
 	}
 
 	if !reflect.DeepEqual(got, test.want) {
