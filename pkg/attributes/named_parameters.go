@@ -14,7 +14,12 @@
 
 package attributes
 
-import "strconv"
+import (
+	"encoding/json"
+	"fmt"
+	"reflect"
+	"strconv"
+)
 
 // NamedParameters represent a set of Parameters that are associated with an overall Name.
 type NamedParameters struct {
@@ -53,4 +58,55 @@ func (collection NamedParametersCollection) EnabledNames() []string {
 	}
 
 	return enabled
+}
+
+// UnmarshalJSONForNamedParametersCollections unmarshals JSON data into the given dest interface. dest must be
+// a pointer to a struct, and any struct fields with the "named_parameters_collection" tag must be of the
+// NamedParametersCollection type.
+//
+// This method exists to enable unmarshaling of the same level of a JSON document to a struct and also
+// to NamedParametersCollection fields of the same struct.
+func UnmarshalJSONForNamedParametersCollections(data []byte, dest interface{}) error {
+	destVPtr := reflect.ValueOf(dest)
+	if destVPtr.Kind() != reflect.Ptr {
+		return fmt.Errorf("attempted UnmarshalJSONForNamedParametersCollection on non-pointer type: %T", dest)
+	}
+
+	destV := destVPtr.Elem()
+	destT := destV.Type()
+
+	if destT.Kind() != reflect.Struct {
+		return fmt.Errorf("attempted UnmarshalJSONForNamedParametersCollection on non-struct type: %T", dest)
+	}
+
+	for i := 0; i < destT.NumField(); i++ {
+		fieldF := destT.Field(i)
+		if !fieldF.IsExported() {
+			continue
+		}
+
+		fieldTag := fieldF.Tag.Get("named_parameters_collection")
+		if fieldTag == "" {
+			continue
+		}
+
+		var collection NamedParametersCollection
+		if fieldF.Type != reflect.TypeOf(collection) {
+			return fmt.Errorf("attempted UnmarshalJSONForNamedParametersCollection on non-NamedParametersCollection type %T for field %s", destV.Field(i).Interface(), fieldF.Name)
+		}
+
+		var allParams Parameters
+		if err := json.Unmarshal(data, &allParams); err != nil {
+			return err
+		}
+
+		newParams := allParams.withDottedName(fieldTag)
+
+		newCollection := newParams.namedParametersCollection()
+		newCollectionV := reflect.ValueOf(newCollection)
+
+		destV.Field(i).Set(newCollectionV)
+	}
+
+	return nil
 }

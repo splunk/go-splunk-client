@@ -15,6 +15,7 @@
 package attributes
 
 import (
+	"encoding/json"
 	"reflect"
 	"testing"
 )
@@ -130,4 +131,76 @@ func TestNamedParametersCollection_EnabledNames(t *testing.T) {
 			t.Errorf("%s EnabledNames() got\n%#v, want\n%#v", test.name, got, test.want)
 		}
 	}
+}
+
+// testTypeWithNamedParametersCollection is a type used to test custom unmarshaling of NamedParametersCollection fields..
+type testTypeWithNamedParametersCollection struct {
+	Name    string                    `json:"name"`
+	Options NamedParametersCollection `named_parameters_collection:"options"`
+}
+
+// UnmarshalJSON implements custom unmarshaling for the test type.
+func (valueWithCollections *testTypeWithNamedParametersCollection) UnmarshalJSON(data []byte) error {
+	// to permit unmarshaling of the non-Parameter fields as normal, we have to create a new
+	// type identical to the type we're actually unmarshaling, as this new type won't also
+	// have the UnmarshalJSON override method. without this new type attempting to unmarshal
+	// the rest of the type would result in infinite recursion.
+	//
+	// this can probably be handled directly in UnmarshalJSONForNamedParametersCollection with
+	// generics once go 1.18 is released.
+	type testTypeWithNamedParametersCollectionAlias testTypeWithNamedParametersCollection
+	var aliasedValueWithCollections testTypeWithNamedParametersCollectionAlias
+
+	if err := json.Unmarshal(data, &aliasedValueWithCollections); err != nil {
+		return err
+	}
+
+	if err := UnmarshalJSONForNamedParametersCollections(data, &aliasedValueWithCollections); err != nil {
+		return err
+	}
+
+	*valueWithCollections = testTypeWithNamedParametersCollection(aliasedValueWithCollections)
+
+	return nil
+}
+
+func TestNamedParametersCollection_UnmarshalJSON(t *testing.T) {
+	tests := jsonUnmarshalTestCases{
+		{
+			name:        "empty",
+			inputString: `{}`,
+			want:        testTypeWithNamedParametersCollection{},
+			wantError:   false,
+		},
+		{
+			name: "working",
+			inputString: `{
+				"name":"working",
+				"options.disabledOption.description":"this option is not enabled",
+				"options.enabledOption":"true",
+				"options.enabledOption.description":"this option is enabled"
+			}`,
+			want: testTypeWithNamedParametersCollection{
+				Name: "working",
+				Options: NamedParametersCollection{
+					{
+						Name: "disabledOption",
+						Parameters: Parameters{
+							"description": "this option is not enabled",
+						},
+					},
+					{
+						Name:   "enabledOption",
+						Status: "true",
+						Parameters: Parameters{
+							"description": "this option is enabled",
+						},
+					},
+				},
+			},
+			wantError: false,
+		},
+	}
+
+	tests.test(t)
 }
