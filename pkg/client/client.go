@@ -79,6 +79,15 @@ func (c *Client) EntryURL(e Entry) (*url.URL, error) {
 	return c.urlForPath(entryPath)
 }
 
+func (c *Client) EntryACLUrl(e EntryAccessController) (*url.URL, error) {
+	entryACLpath, err := entryACLPath(e)
+	if err != nil {
+		return nil, err
+	}
+
+	return c.urlForPath(entryACLpath)
+}
+
 // httpClientPrep prepares the Client's http.Client.
 func (c *Client) httpClientPrep() error {
 	c.mu.Lock()

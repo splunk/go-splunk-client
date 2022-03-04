@@ -29,6 +29,7 @@ type ContentGetter interface {
 // properly adhere to the Contenter type.
 //
 // Example:
+//
 //   type SomeTypeContent struct {
 //       Data string
 //       // Content is an anonymous field, satisfies the ContentGetter interface

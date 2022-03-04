@@ -1,0 +1,136 @@
+// Copyright 2022 Splunk, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package attributes
+
+import (
+	"encoding/json"
+	"fmt"
+	"net/url"
+	"reflect"
+	"strings"
+)
+
+// type DottedParameters interface {
+// 	DottedParameterName() string
+// }
+
+func DottedParametersUnmarshalJSON(data []byte, params interface{}, name string) error {
+	dataMap := map[string]interface{}{}
+	if err := json.Unmarshal(data, &dataMap); err != nil {
+		return err
+	}
+
+	newValues := map[string]string{}
+	for key, value := range dataMap {
+		keyParts := strings.Split(key, ".")
+		if len(keyParts) >= 2 {
+			keyName := keyParts[0]
+			if keyName == name {
+				param := strings.Join(keyParts[1:], ".")
+
+				valueT := reflect.TypeOf(value)
+				if valueT == nil {
+					return fmt.Errorf("unable to handle nil-value for DottedParameters for key %s", key)
+				}
+
+				switch valueT.Kind() {
+				default:
+					return fmt.Errorf("unable to handle value type %T for DottedParameters for key %s", value, key)
+				case reflect.String, reflect.Bool, reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64, reflect.Float32, reflect.Float64:
+					newValues[param] = fmt.Sprintf("%v", value)
+				}
+			}
+		}
+	}
+
+	if len(newValues) == 0 {
+		return nil
+	}
+
+	paramsVPtr := reflect.ValueOf(params)
+	if paramsVPtr.Kind() != reflect.Ptr {
+		return fmt.Errorf("attempted DottedParametersUnmarshalJSON of non-pointer type %T", params)
+	}
+	paramsV := paramsVPtr.Elem()
+	paramsT := paramsV.Type()
+	if paramsT.Kind() != reflect.Map {
+		return fmt.Errorf("attempted DottedParametersUnmarshalJSON of non-map type %T", params)
+	}
+	if paramsT.Key().Kind() != reflect.String {
+		return fmt.Errorf("attempted DottedParametersUnmarshalJSON of non-string key map type %T", params)
+	}
+	if paramsT.Elem().Kind() != reflect.String {
+		return fmt.Errorf("attempted DottedParametersUnmarshalJSON of non-string value map type %T", params)
+	}
+
+	paramsV.Set(reflect.ValueOf(newValues))
+
+	return nil
+}
+
+// func HasDottedParametersUnmarshalJSON(data []byte, params interface{}) error {
+// 	paramsVPtr := reflect.ValueOf(params)
+// 	if paramsVPtr.Kind() != reflect.Ptr {
+// 		return fmt.Errorf("attempted HasDottedParametersUnmarshalJSON of non-pointer type %T", params)
+// 	}
+
+// 	paramsV := paramsVPtr.Elem()
+// 	if paramsV.Kind() != reflect.Struct {
+// 		return fmt.Errorf("attempted HasDottedParametersUnmarshalJSON of non-struct type %T", params)
+// 	}
+
+// 	paramsT := paramsV.Type()
+// 	for i := 0; i < paramsT.NumField(); i++ {
+// 		field := paramsT.Field(i)
+// 		if !field.IsExported() {
+// 			continue
+// 		}
+
+// 		tag := field.Tag("dottedparameters")
+// 		if tag != "" {
+// 			fieldV := paramsV.Field(i)
+// 			fieldT := fieldV.Type()
+// 			newFieldVPtr := reflect.New(fieldT)
+// 		}
+// 	}
+// }
+
+func DottedParametersEncodeValues(key string, v *url.Values, params interface{}) error {
+	paramsV := reflect.ValueOf(params)
+	if paramsV.Kind() == reflect.Ptr {
+		paramsV = paramsV.Elem()
+	}
+
+	paramsT := paramsV.Type()
+	if paramsT.Kind() != reflect.Map {
+		return fmt.Errorf("attempted DottedParametersEncodeValues of non-map type %T", params)
+	}
+	if paramsT.Key().Kind() != reflect.String {
+		return fmt.Errorf("attempted DottedParametersEncodeValues of non-string key map type %T", params)
+	}
+	if paramsT.Elem().Kind() != reflect.String {
+		return fmt.Errorf("attempted DottedParametersEncodeValues of non-string value map type %T", params)
+	}
+
+	for _, keyV := range paramsV.MapKeys() {
+		mapKey := keyV.Interface().(string)
+		mapValue := paramsV.MapIndex(keyV).Interface().(string)
+
+		urlKey := fmt.Sprintf("%s.%s", key, mapKey)
+		v.Add(urlKey, mapValue)
+	}
+
+	return nil
+}

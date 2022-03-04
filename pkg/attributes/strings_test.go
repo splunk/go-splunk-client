@@ -22,14 +22,14 @@ import (
 func TestStrings_UnmarshalJSON(t *testing.T) {
 	tests := jsonUnmarshalTestCases{
 		{
-			"absent",
-			"{}",
-			struct{ Values Strings }{},
+			name:        "absent",
+			inputString: "{}",
+			want:        struct{ Values Strings }{},
 		},
 		{
-			"empty list",
-			`{"values":[]}`,
-			struct{ Values Strings }{
+			name:        "empty list",
+			inputString: `{"values":[]}`,
+			want: struct{ Values Strings }{
 				Strings{
 					values:   []string{},
 					explicit: true,
@@ -37,9 +37,9 @@ func TestStrings_UnmarshalJSON(t *testing.T) {
 			},
 		},
 		{
-			"populated list",
-			`{"values":["one","two"]}`,
-			struct{ Values Strings }{
+			name:        "populated list",
+			inputString: `{"values":["one","two"]}`,
+			want: struct{ Values Strings }{
 				Strings{
 					values:   []string{"one", "two"},
 					explicit: true,

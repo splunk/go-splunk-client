@@ -22,19 +22,19 @@ import (
 func TestString_UnmarshalJSON(t *testing.T) {
 	tests := jsonUnmarshalTestCases{
 		{
-			"empty",
-			`{}`,
-			struct{ Value String }{},
+			name:        "empty",
+			inputString: `{}`,
+			want:        struct{ Value String }{},
 		},
 		{
-			"empty",
-			`{"value":""}`,
-			struct{ Value String }{String{explicit: true}},
+			name:        "empty",
+			inputString: `{"value":""}`,
+			want:        struct{ Value String }{String{explicit: true}},
 		},
 		{
-			"non-empty",
-			`{"value":"this string is not empty"}`,
-			struct{ Value String }{String{value: "this string is not empty", explicit: true}},
+			name:        "non-empty",
+			inputString: `{"value":"this string is not empty"}`,
+			want:        struct{ Value String }{String{value: "this string is not empty", explicit: true}},
 		},
 	}
 

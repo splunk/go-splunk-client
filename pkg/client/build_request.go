@@ -159,6 +159,25 @@ func BuildRequestEntryURLWithTitle(c *Client, entry Entry) RequestBuilder {
 	}
 }
 
+func BuildRequestEntryACLURL(c *Client, entry EntryAccessController) RequestBuilder {
+	return func(r *http.Request) error {
+		url, err := c.EntryACLUrl(entry)
+		if err != nil {
+			return err
+		}
+
+		r.URL = url
+
+		return nil
+	}
+}
+
+func BuildRequestAccessControllerBodyValues(entry AccessController) RequestBuilder {
+	return func(r *http.Request) error {
+		return BuildRequestBodyValues(entry.ACLValues())(r)
+	}
+}
+
 // BuildRequestAuthenticate returns a RequestBuilder that authenticates a request for a given Client.
 func BuildRequestAuthenticate(c *Client) RequestBuilder {
 	return func(r *http.Request) error {

@@ -42,7 +42,7 @@ func main() {
 		},
 		RoleContent: entry.RoleContent{
 			SrchDiskQuota: attributes.NewInt(1),
-			Capabilities:  attributes.NewStrings("search"),
+			Capabilities:  attributes.NewStrings("search", "rtsearch"),
 		},
 	}); err != nil {
 		log.Fatalf("unable to create role: %s", err)
@@ -56,6 +56,7 @@ func main() {
 	if err := client.Read(c, &createdRole); err != nil {
 		log.Fatalf("unable to read role: %s", err)
 	}
+	fmt.Printf("capabilities: %v\n", createdRole.Capabilities)
 	fmt.Printf("created role: %#v\n", createdRole)
 
 	// here we explicitly set SrchDiskQuota to 0
@@ -67,9 +68,15 @@ func main() {
 		},
 	}
 	updateRole.SrchDiskQuota.Set(0)
+	updateRole.Capabilities.Set()
 	if err := client.Update(c, updateRole); err != nil {
 		log.Fatalf("unable to update role: %s", err)
 	}
+
+	if err := client.Read(c, &createdRole); err != nil {
+		log.Fatalf("unable to read role: %s", err)
+	}
+	fmt.Printf("capabilities: %v\n", createdRole.Capabilities)
 
 	if err := client.Delete(c, createdRole); err != nil {
 		log.Fatalf("unable to delete role: %s", err)

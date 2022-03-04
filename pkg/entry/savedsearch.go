@@ -160,64 +160,80 @@ func (actions SavedSearchActions) EncodeValues(key string, v *url.Values) error 
 	return nil
 }
 
+// type SavedSearchArgs map[string]string
+
+// func (args SavedSearchArgs) DottedParameterName() string {
+// 	return "args"
+// }
+
+// func (args *SavedSearchArgs) UnmarshalJSON(data []byte) error {
+// 	return attributes.DottedParametersUnmarshalJSON(data, args, "args")
+// }
+
+// func (args SavedSearchArgs) EncodeValues(key string, v *url.Values) error {
+// 	return attributes.DottedParametersEncodeValues(key, v, args)
+// }
+
 // SavedSearchContent defines the content of a Savedsearch object.
 type SavedSearchContent struct {
 	// Read/Write
-	AlertDigestMode                   attributes.Bool   `json:"alert.digest_mode"                     url:"alert.digest_mode"`
-	AlertExpires                      attributes.Int    `json:"alert.expires"                         url:"alert.expires"`
-	AlertSeverity                     attributes.String `json:"alert.severity"                        url:"alert.severity"`
-	AlertSuppress                     attributes.Bool   `json:"alert.suppress"                        url:"alert.suppress"`
-	AlertSuppressFields               attributes.String `json:"alert.suppress.fields"                 url:"alert.suppress.fields"`
-	AlertSuppressGroupName            attributes.String `json:"alert.suppress.group_name"             url:"alert.suppress.group_name"`
-	AlertSuppressPeriod               attributes.Int    `json:"alert.suppress.period"                 url:"alert.suppress.period"`
-	AlertTrack                        attributes.String `json:"alert.track"                           url:"alert.track"`
-	AlertComparator                   attributes.String `json:"alert_comparator"                      url:"alert_comparator"`
-	AlertCondition                    attributes.String `json:"alert_condition"                       url:"alert_condition"`
-	AlertThreshold                    attributes.Int    `json:"alert_threshold"                       url:"alert_threshold"`
-	AlertType                         attributes.String `json:"alert_type"                            url:"alert_type"`
-	AllowSkew                         attributes.String `json:"allow_skew"                            url:"allow_skew"`
-	AutoSummarize                     attributes.Bool   `json:"auto_summarize"                        url:"auto_summarize"`
-	AutoSummarizeCommand              attributes.String `json:"auto_summarize.command"                url:"auto_summarize.command"`
-	AutoSummarizeCronSchedule         attributes.String `json:"auto_summarize.cron_schedule"          url:"auto_summarize.cron_schedule"`
-	AutoSummarizeDispatchEarliestTime attributes.String `json:"auto_summarize.dispatch.earliest_time" url:"auto_summarize.dispatch.earliest_time"`
-	AutoSummarizeDispatchLatestTime   attributes.String `json:"auto_summarize.dispatch.latest_time"   url:"auto_summarize.dispatch.latest_time"`
-	AutoSummarizeDispatchTimeFormat   attributes.String `json:"auto_summarize.dispatch.time_format"   url:"auto_summarize.dispatch.time_format"`
-	AutoSummarizeDispatchTtl          attributes.String `json:"auto_summarize.dispatch.ttl"           url:"auto_summarize.dispatch.ttl"`
-	AutoSummarizeMaxConcurrent        attributes.Int    `json:"auto_summarize.max_concurrent"         url:"auto_summarize.max_concurrent"`
-	AutoSummarizeMaxDisabledBuckets   attributes.Int    `json:"auto_summarize.max_disabled_buckets"   url:"auto_summarize.max_disabled_buckets"`
-	AutoSummarizeMaxSummaryRatio      attributes.Int    `json:"auto_summarize.max_summary_ratio"      url:"auto_summarize.max_summary_ratio"`
-	AutoSummarizeMaxSummarySize       attributes.Int    `json:"auto_summarize.max_summary_size"       url:"auto_summarize.max_summary_size"`
-	AutoSummarizeMaxTime              attributes.Int    `json:"auto_summarize.max_time"               url:"auto_summarize.max_time"`
-	AutoSummarizeSuspendPeriod        attributes.String `json:"auto_summarize.suspend_period"         url:"auto_summarize.suspend_period"`
-	AutoSummarizeTimespan             attributes.String `json:"auto_summarize.timespan"               url:"auto_summarize.timespan"`
-	CronSchedule                      attributes.String `json:"cron_schedule"                         url:"cron_schedule"`
-	Description                       attributes.String `json:"description"                           url:"description"`
-	Disabled                          attributes.Bool   `json:"disabled"                              url:"disabled"`
-	DispatchAs                        attributes.String `json:"dispatchAs"                            url:"dispatchAs"`
-	Displayview                       attributes.String `json:"displayview"                           url:"displayview"`
-	DurableBackfillType               attributes.String `json:"durable.backfill_type"                 url:"durable.backfill_type"`
-	DurableLagTime                    attributes.Int    `json:"durable.lag_time"                      url:"durable.lag_time"`
-	DurableMaxBackfillIntervals       attributes.Int    `json:"durable.max_backfill_intervals"        url:"durable.max_backfill_intervals"`
-	DurableTrackTimeType              attributes.String `json:"durable.track_time_type"               url:"durable.track_time_type"`
-	IsScheduled                       attributes.Bool   `json:"is_scheduled"                          url:"is_scheduled"`
-	IsVisible                         attributes.Bool   `json:"is_visible"                            url:"is_visible"`
-	MaxConcurrent                     attributes.Int    `json:"max_concurrent"                        url:"max_concurrent"`
-	Name                              attributes.String `json:"name"                                  url:"name"`
-	NextScheduledTime                 attributes.String `json:"next_scheduled_time"                   url:"next_scheduled_time"`
-	QualifiedSearch                   attributes.String `json:"qualifiedSearch"                       url:"qualifiedSearch"`
-	RealtimeSchedule                  attributes.Bool   `json:"realtime_schedule"                     url:"realtime_schedule"`
-	RequestUiDispatchApp              attributes.String `json:"request.ui_dispatch_app"               url:"request.ui_dispatch_app"`
-	RequestUiDispatchView             attributes.String `json:"request.ui_dispatch_view"              url:"request.ui_dispatch_view"`
-	RestartOnSearchpeerAdd            attributes.Bool   `json:"restart_on_searchpeer_add"             url:"restart_on_searchpeer_add"`
-	RunNTimes                         attributes.Int    `json:"run_n_times"                           url:"run_n_times"`
-	RunOnStartup                      attributes.Bool   `json:"run_on_startup"                        url:"run_on_startup"`
-	SchedulePriority                  attributes.String `json:"schedule_priority"                     url:"schedule_priority"`
-	ScheduleWindow                    attributes.String `json:"schedule_window"                       url:"schedule_window"`
-	Search                            attributes.String `json:"search"                                url:"search"`
-	Vsid                              attributes.String `json:"vsid"                                  url:"vsid"`
-	WorkloadPool                      attributes.String `json:"workload_pool"                         url:"workload_pool"`
+	// AlertDigestMode                   attributes.Bool   `json:"alert.digest_mode"                     url:"alert.digest_mode"`
+	// AlertExpires                      attributes.String `json:"alert.expires"                         url:"alert.expires"`
+	// AlertSeverity                     attributes.String `json:"alert.severity"                        url:"alert.severity"`
+	// AlertSuppress                     attributes.Bool   `json:"alert.suppress"                        url:"alert.suppress"`
+	// AlertSuppressFields               attributes.String `json:"alert.suppress.fields"                 url:"alert.suppress.fields"`
+	// AlertSuppressGroupName            attributes.String `json:"alert.suppress.group_name"             url:"alert.suppress.group_name"`
+	// AlertSuppressPeriod               attributes.Int    `json:"alert.suppress.period"                 url:"alert.suppress.period"`
+	// AlertTrack                        attributes.String `json:"alert.track"                           url:"alert.track"`
+	// AlertComparator                   attributes.String `json:"alert_comparator"                      url:"alert_comparator"`
+	// AlertCondition                    attributes.String `json:"alert_condition"                       url:"alert_condition"`
+	// AlertThreshold                    attributes.Int    `json:"alert_threshold"                       url:"alert_threshold"`
+	// AlertType                         attributes.String `json:"alert_type"                            url:"alert_type"`
+	// AllowSkew                         attributes.String `json:"allow_skew"                            url:"allow_skew"`
+	// AutoSummarize                     attributes.Bool   `json:"auto_summarize"                        url:"auto_summarize"`
+	// AutoSummarizeCommand              attributes.String `json:"auto_summarize.command"                url:"auto_summarize.command"`
+	// AutoSummarizeCronSchedule         attributes.String `json:"auto_summarize.cron_schedule"          url:"auto_summarize.cron_schedule"`
+	// AutoSummarizeDispatchEarliestTime attributes.String `json:"auto_summarize.dispatch.earliest_time" url:"auto_summarize.dispatch.earliest_time"`
+	// AutoSummarizeDispatchLatestTime   attributes.String `json:"auto_summarize.dispatch.latest_time"   url:"auto_summarize.dispatch.latest_time"`
+	// AutoSummarizeDispatchTimeFormat   attributes.String `json:"auto_summarize.dispatch.time_format"   url:"auto_summarize.dispatch.time_format"`
+	// AutoSummarizeDispatchTtl          attributes.String `json:"auto_summarize.dispatch.ttl"           url:"auto_summarize.dispatch.ttl"`
+	// AutoSummarizeMaxConcurrent        attributes.Int    `json:"auto_summarize.max_concurrent"         url:"auto_summarize.max_concurrent"`
+	// AutoSummarizeMaxDisabledBuckets   attributes.Int    `json:"auto_summarize.max_disabled_buckets"   url:"auto_summarize.max_disabled_buckets"`
+	// AutoSummarizeMaxSummaryRatio      attributes.Int    `json:"auto_summarize.max_summary_ratio"      url:"auto_summarize.max_summary_ratio"`
+	// AutoSummarizeMaxSummarySize       attributes.Int    `json:"auto_summarize.max_summary_size"       url:"auto_summarize.max_summary_size"`
+	// AutoSummarizeMaxTime              attributes.Int    `json:"auto_summarize.max_time"               url:"auto_summarize.max_time"`
+	// AutoSummarizeSuspendPeriod        attributes.String `json:"auto_summarize.suspend_period"         url:"auto_summarize.suspend_period"`
+	// AutoSummarizeTimespan             attributes.String `json:"auto_summarize.timespan"               url:"auto_summarize.timespan"`
+	// CronSchedule                      attributes.String `json:"cron_schedule"                         url:"cron_schedule"`
+	// Description                       attributes.String `json:"description"                           url:"description"`
+	// Disabled                          attributes.Bool   `json:"disabled"                              url:"disabled"`
+	// DispatchAs                        attributes.String `json:"dispatchAs"                            url:"dispatchAs"`
+	// Displayview                       attributes.String `json:"displayview"                           url:"displayview"`
+	// DurableBackfillType               attributes.String `json:"durable.backfill_type"                 url:"durable.backfill_type"`
+	// DurableLagTime                    attributes.Int    `json:"durable.lag_time"                      url:"durable.lag_time"`
+	// DurableMaxBackfillIntervals       attributes.Int    `json:"durable.max_backfill_intervals"        url:"durable.max_backfill_intervals"`
+	// DurableTrackTimeType              attributes.String `json:"durable.track_time_type"               url:"durable.track_time_type"`
+	// IsScheduled                       attributes.Bool   `json:"is_scheduled"                          url:"is_scheduled"`
+	// IsVisible                         attributes.Bool   `json:"is_visible"                            url:"is_visible"`
+	// MaxConcurrent                     attributes.Int    `json:"max_concurrent"                        url:"max_concurrent"`
+	// Name                              attributes.String `json:"name"                                  url:"name"`
+	// NextScheduledTime                 attributes.String `json:"next_scheduled_time"                   url:"next_scheduled_time"`
+	// QualifiedSearch                   attributes.String `json:"qualifiedSearch"                       url:"qualifiedSearch"`
+	// RealtimeSchedule                  attributes.Bool   `json:"realtime_schedule"                     url:"realtime_schedule"`
+	// RequestUiDispatchApp              attributes.String `json:"request.ui_dispatch_app"               url:"request.ui_dispatch_app"`
+	// RequestUiDispatchView             attributes.String `json:"request.ui_dispatch_view"              url:"request.ui_dispatch_view"`
+	// RestartOnSearchpeerAdd            attributes.Bool   `json:"restart_on_searchpeer_add"             url:"restart_on_searchpeer_add"`
+	// RunNTimes                         attributes.Int    `json:"run_n_times"                           url:"run_n_times"`
+	// RunOnStartup                      attributes.Bool   `json:"run_on_startup"                        url:"run_on_startup"`
+	// SchedulePriority                  attributes.String `json:"schedule_priority"                     url:"schedule_priority"`
+	// ScheduleWindow                    attributes.String `json:"schedule_window"                       url:"schedule_window"`
+	Search attributes.String `json:"search"                                url:"search"`
+	// Vsid                              attributes.String `json:"vsid"                                  url:"vsid"`
+	// WorkloadPool                      attributes.String `json:"workload_pool"                         url:"workload_pool"`
 
-	Actions SavedSearchActions `json:"-"` // Actions not unmarshalled as part of SavedSearchContent
+	Actions SavedSearchActions `json:"-"` // not unmarshalled as part of SavedSearchContent
+	// Args    SavedSearchArgs    `dottedparam:"args" json:"-" url:"args"`
+	// Dispatch* attributes.String `json:"dispatch.*" url:"dispatch.*"`
 
 	// The below fields don't have values, and only exist to provide context to
 	// the Splunk API.
@@ -227,6 +243,7 @@ type SavedSearchContent struct {
 // SavedSearch defines a Splunk savedsearch.
 type SavedSearch struct {
 	client.ID
+	client.ACL         `json:"acl" url:"-"`
 	SavedSearchContent `json:"content"`
 
 	// The below fields don't have values, and only exist to provide context to
@@ -235,39 +252,45 @@ type SavedSearch struct {
 }
 
 // UnmarshalJSON implements custom JSON umarshaling for SavedSearch.
-func (search *SavedSearch) UnmarshalJSON(data []byte) error {
-	// SavedSearch has nested object SavedSearchActions, but the API returns the configurations
-	// for them as dotted attribute names directly under "content". The returned JSON has content
-	// like this:
-	//
-	//	"action.email":true,
-	//	"action.email.allow_empty_attachment":"1",
-	//	"action.email.allowedDomainList":"",
-	//	...
-	//	"search":"index=_internal",
-	//
-	// All of the "action.<name>" fields are handled by custom unmarshaling of SavedSearchActions,
-	// while the rest is handled by standard unmarshaling.
+// func (search *SavedSearch) UnmarshalJSON(data []byte) error {
+// 	// SavedSearch has nested object SavedSearchActions, but the API returns the configurations
+// 	// for them as dotted attribute names directly under "content". The returned JSON has content
+// 	// like this:
+// 	//
+// 	//	"action.email":true,
+// 	//	"action.email.allow_empty_attachment":"1",
+// 	//	"action.email.allowedDomainList":"",
+// 	//	...
+// 	//	"search":"index=_internal",
+// 	//
+// 	// All of the "action.<name>" fields are handled by custom unmarshaling of SavedSearchActions,
+// 	// while the rest is handled by standard unmarshaling.
 
-	// first unmarshal a type idential to SavedSearch, but with standard unmarshaling.
-	type ss SavedSearch
-	newSS := ss{}
-	if err := json.Unmarshal(data, &newSS); err != nil {
-		return fmt.Errorf("newSS: %s", err)
-	}
+// 	// first unmarshal a type idential to SavedSearch, but with standard unmarshaling.
+// 	type ss SavedSearch
+// 	newSS := ss{}
+// 	if err := json.Unmarshal(data, &newSS); err != nil {
+// 		return fmt.Errorf("newSS: %s", err)
+// 	}
 
-	// then unmarshal a custom type that only handles SavedSearchActions
-	newActions := struct {
-		Actions SavedSearchActions `json:"content"`
-	}{}
-	if err := json.Unmarshal(data, &newActions); err != nil {
-		return fmt.Errorf("newActions: %s", err)
-	}
+// 	// then unmarshal a custom type that only handles SavedSearchActions
+// 	newActions := struct {
+// 		Actions SavedSearchActions `json:"content"`
+// 	}{}
+// 	if err := json.Unmarshal(data, &newActions); err != nil {
+// 		return fmt.Errorf("newActions: %s", err)
+// 	}
+// 	newSS.Actions = newActions.Actions
 
-	// add the custom unmarshaled SavedSearchActions to the vanilla unmarshaled value
-	newSS.Actions = newActions.Actions
+// 	newArgs := struct {
+// 		Args SavedSearchArgs `json:"content"`
+// 	}{}
+// 	if err := json.Unmarshal(data, &newArgs); err != nil {
+// 		return fmt.Errorf("newArgs: %s", err)
+// 	}
+// 	newSS.Args = newArgs.Args
 
-	*search = SavedSearch(newSS)
+// 	*search = SavedSearch(newSS)
 
-	return nil
-}
+// 	return nil
+// }

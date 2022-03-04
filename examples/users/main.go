@@ -52,13 +52,19 @@ func main() {
 	createdUser := entry.User{
 		ID: client.ID{
 			IDFields: client.IDFields{
-				Title: "newuser",
+				Title: "newuser2",
 			},
 		},
 	}
 
 	if err := client.Read(c, &createdUser); err != nil {
-		log.Fatalf("unable to read user: %s", err)
+		if clientErr, ok := err.(client.Error); ok {
+			if clientErr.Code == client.ErrorNotFound {
+				fmt.Printf("not found, try something else, dummy!\n")
+			}
+		} else {
+			log.Fatalf("unable to read user: %s", err)
+		}
 	}
 	fmt.Printf("read user: %s\n", createdUser.ID)
 	fmt.Printf("  real name: %s\n", createdUser.RealName)
@@ -66,6 +72,7 @@ func main() {
 
 	createdUser.RealName = attributes.NewString("Updated User")
 	if err := client.Update(c, createdUser); err != nil {
+
 		log.Fatalf("unable to update user: %s", err)
 	}
 

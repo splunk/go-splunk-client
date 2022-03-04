@@ -1,0 +1,157 @@
+// Copyright 2022 Splunk, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package attributes
+
+import (
+	"net/url"
+	"reflect"
+	"testing"
+)
+
+type testDottedParameters map[string]string
+
+// func (params testDottedParameters) DottedParameterName() string {
+// 	return "testparam"
+// }
+
+type hasDottedParameters struct {
+	Args     testDottedParameters `dottedparameters:"args"`
+	Dispatch testDottedParameters `dottedparameters:"dispatch"`
+}
+
+func TestDottedParametersUnmarshalJSON(t *testing.T) {
+	tests := []struct {
+		name                 string
+		input                string
+		wantError            bool
+		wantDottedParameters testDottedParameters
+	}{
+		{
+			"empty, empty map",
+			`{}`,
+			false,
+			testDottedParameters{},
+		},
+		{
+			"unrelated params",
+			`{
+				"otherparam.field":"other field value"
+			 }`,
+			false,
+			testDottedParameters{},
+		},
+		{
+			"valid params",
+			`{
+				"testparam.stringfield":"string value",
+				"testparam.boolfield":true,
+				"testparam.intfield":1,
+				"testparam.floatfield":1.234
+			 }`,
+			false,
+			testDottedParameters{
+				"stringfield": "string value",
+				"boolfield":   "true",
+				"intfield":    "1",
+				"floatfield":  "1.234",
+			},
+		},
+		{
+			"null param",
+			`{
+				"testparam.invalidfield": null
+			 }`,
+			true,
+			testDottedParameters{},
+		},
+		{
+			"list param",
+			`{
+				"testparam.invalidfield": []
+			 }`,
+			true,
+			testDottedParameters{},
+		},
+		{
+			"dict param",
+			`{
+				"testparam.invalidfield": {}
+			 }`,
+			true,
+			testDottedParameters{},
+		},
+	}
+
+	for _, test := range tests {
+		gotDottedParameters := testDottedParameters{}
+		err := DottedParametersUnmarshalJSON([]byte(test.input), &gotDottedParameters, "testparam")
+		gotError := err != nil
+
+		if gotError != test.wantError {
+			t.Errorf("%s DottedParametersUnmarshalJSON returned error? %v (%s)", test.name, gotError, err)
+		}
+
+		if !reflect.DeepEqual(gotDottedParameters, test.wantDottedParameters) {
+			t.Errorf("%s DottedParametersUnmarshalJSON got\n%#v, want\n%#v", test.name, gotDottedParameters, test.wantDottedParameters)
+		}
+	}
+}
+
+func TestDottedParametersEncodeValues(t *testing.T) {
+	tests := []struct {
+		name       string
+		input      testDottedParameters
+		wantError  bool
+		wantValues url.Values
+	}{
+		{
+			"nil",
+			testDottedParameters(nil),
+			false,
+			url.Values{},
+		},
+		{
+			"empty",
+			testDottedParameters{},
+			false,
+			url.Values{},
+		},
+		{
+			"with params",
+			testDottedParameters{
+				"param1": "value1",
+			},
+			false,
+			url.Values{
+				// "testparam" comes from the first argument to DottedParametersEncodeValues while running the test
+				"testparam.param1": []string{"value1"},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		gotValues := url.Values{}
+		err := DottedParametersEncodeValues("testparam", &gotValues, test.input)
+		gotError := err != nil
+
+		if gotError != test.wantError {
+			t.Errorf("%s TestDottedParametersEncodeValues returned error? %v (%s)", test.name, gotError, err)
+		}
+
+		if !reflect.DeepEqual(gotValues, test.wantValues) {
+			t.Errorf("%s TestDottedParametersEncodeValues got\n%#v, want\n%#v", test.name, gotValues, test.wantValues)
+		}
+	}
+}

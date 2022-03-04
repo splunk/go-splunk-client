@@ -77,6 +77,9 @@ const (
 
 	// ErrorID indicates an error was encountered related to an object's ID.
 	ErrorID
+
+	// ErrorACL indicates an error was encountered related to an object's ACL.
+	ErrorACL
 )
 
 // Error represents an encountered error. It adheres to the "error" interface,

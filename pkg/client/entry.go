@@ -151,3 +151,18 @@ func List(client *Client, entries interface{}, idFieldOpts ...IDOpt) error {
 		),
 	)
 }
+
+func UpdateACL(client *Client, entry EntryAccessController) error {
+	return client.RequestAndHandle(
+		ComposeRequestBuilder(
+			BuildRequestMethod(http.MethodPost),
+			BuildRequestEntryACLURL(client, entry),
+			BuildRequestAccessControllerBodyValues(entry),
+			BuildRequestOutputModeJSON(),
+			BuildRequestAuthenticate(client),
+		),
+		ComposeResponseHandler(
+			HandleResponseRequireCode(http.StatusOK, HandleResponseJSONMessagesError()),
+		),
+	)
+}
