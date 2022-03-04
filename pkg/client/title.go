@@ -14,23 +14,8 @@
 
 package client
 
-// Title represents the title of an object in Splunk.
-type Title string
-
-// TitleValue returns the string value of the Title.
-func (t Title) TitleValue() string {
-	return string(t)
-}
-
-// HasTitle returns a boolean indicating if the Title value is non-empty.
-func (t Title) HasTitle() bool {
-	return t != ""
-}
-
 // Titler defines methods that a type must implement to be a titled object.
 type Titler interface {
 	// Title returns the string representation of the object's Title.
-	TitleValue() string
-	// HasTitle returns a boolean indicating if there is a non-empty Title.
-	HasTitle() bool
+	Title() string
 }

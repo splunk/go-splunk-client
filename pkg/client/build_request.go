@@ -115,7 +115,7 @@ func BuildRequestOutputModeJSON() RequestBuilder {
 // for a given Titler. It checks that the Title is not empty.
 func BuildRequestBodyValuesWithTitle(t Titler) RequestBuilder {
 	return func(r *http.Request) error {
-		if !t.HasTitle() {
+		if t.Title() == "" {
 			return wrapError(ErrorMissingTitle, nil, "attempted to set request body values of Titler with an empty Title value")
 		}
 
@@ -151,7 +151,7 @@ func BuildRequestEntryURL(c *Client, entry Entry) RequestBuilder {
 // for a given Entry, but also checks that the Collection's Title is not empty.
 func BuildRequestEntryURLWithTitle(c *Client, entry Entry) RequestBuilder {
 	return func(r *http.Request) error {
-		if !entry.HasTitle() {
+		if entry.Title() == "" {
 			return wrapError(ErrorMissingTitle, nil, "attempted to get URLWithTitle of Entry with empty Title")
 		}
 

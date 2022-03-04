@@ -53,11 +53,10 @@ type RoleContent struct {
 
 // Role defines a Splunk role.
 type Role struct {
-	client.Title `json:"name" url:"name"`
-	RoleContent  `json:"content"`
+	client.ID
+	RoleContent `json:"content"`
 
 	// The below fields don't have values, and only exist to provide context to
 	// the Splunk API.
-	client.GlobalNamespace `url:"-"`
-	client.Endpoint        `endpoint:"authorization/roles"`
+	client.Endpoint `endpoint:"authorization/roles"`
 }

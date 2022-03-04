@@ -74,6 +74,9 @@ const (
 	// ErrorSlice indicates an operation requiring a slice was passed a non-slice, or a slice
 	// of the wrong type.
 	ErrorSlice
+
+	// ErrorID indicates an error was encountered related to an object's ID.
+	ErrorID
 )
 
 // Error represents an encountered error. It adheres to the "error" interface,

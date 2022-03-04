@@ -42,11 +42,10 @@ type UserContent struct {
 
 // User defines a Splunk user.
 type User struct {
-	client.Title `json:"name" url:"name"`
-	UserContent  `json:"content"`
+	client.ID
+	UserContent `json:"content"`
 
 	// The below fields don't have values, and only exist to provide context to
 	// the Splunk API.
-	client.GlobalNamespace
 	client.Endpoint `endpoint:"authentication/users"`
 }
