@@ -20,6 +20,72 @@ import (
 	"testing"
 )
 
+func TestNamedParameters_EncodeValues(t *testing.T) {
+	type testType struct {
+		Description string          `url:"description,omitempty"`
+		Action      NamedParameters `url:"actions"`
+	}
+
+	tests := queryValuesTestCases{
+		{
+			name:      "empty",
+			input:     testType{},
+			want:      map[string][]string{},
+			wantError: true,
+		},
+		{
+			name: "description only",
+			input: testType{
+				Description: "testDescription",
+			},
+			want: map[string][]string{
+				"description": {"testDescription"},
+			},
+			wantError: true,
+		},
+		{
+			name: "no status",
+			input: testType{
+				Description: "testDescription",
+				Action: NamedParameters{
+					Name: "email",
+					Parameters: Parameters{
+						"to":      "whocares@example.com",
+						"subject": "10 tricks your Splunk admin doesn't want you to know!",
+					},
+				},
+			},
+			want: map[string][]string{
+				"description":           {"testDescription"},
+				"actions.email.to":      {"whocares@example.com"},
+				"actions.email.subject": {"10 tricks your Splunk admin doesn't want you to know!"},
+			},
+		},
+		{
+			name: "email action",
+			input: testType{
+				Description: "testDescription",
+				Action: NamedParameters{
+					Name:   "email",
+					Status: NewString("true"),
+					Parameters: Parameters{
+						"to":      "whocares@example.com",
+						"subject": "10 tricks your Splunk admin doesn't want you to know!",
+					},
+				},
+			},
+			want: map[string][]string{
+				"description":           {"testDescription"},
+				"actions.email":         {"true"},
+				"actions.email.to":      {"whocares@example.com"},
+				"actions.email.subject": {"10 tricks your Splunk admin doesn't want you to know!"},
+			},
+		},
+	}
+
+	tests.test(t)
+}
+
 func TestNamedParametersCollection_EnabledNames(t *testing.T) {
 	tests := []struct {
 		name  string

@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"net/url"
 	"reflect"
+	"strings"
 )
 
 // NamedParameters represent a set of Parameters that are associated with an overall Name.
@@ -33,6 +34,25 @@ type NamedParameters struct {
 	Status String
 
 	Parameters Parameters
+}
+
+// EncodeValues implements custom encoding into url.Values.
+func (params NamedParameters) EncodeValues(key string, v *url.Values) error {
+	if params.Name == "" {
+		return fmt.Errorf("attempted to encode NamedParameters with empty Name")
+	}
+
+	paramKey := strings.Join([]string{key, params.Name}, ".")
+
+	if err := params.Status.EncodeValues(paramKey, v); err != nil {
+		return err
+	}
+
+	if err := params.Parameters.EncodeValues(paramKey, v); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // NamedParametersCollection is a collection of NamedParameters.
