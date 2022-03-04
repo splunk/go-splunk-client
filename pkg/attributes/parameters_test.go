@@ -158,3 +158,46 @@ func TestParameters_namedParametersWithDottedName(t *testing.T) {
 		}
 	}
 }
+
+func TestParameters_dottedParameterNameParts(t *testing.T) {
+	tests := []struct {
+		name  string
+		input Parameters
+		want  []string
+	}{
+		{
+			"nil",
+			nil,
+			nil,
+		},
+		{
+			"empty",
+			Parameters{},
+			nil,
+		},
+		{
+			"populated",
+			Parameters{
+				"fieldA":               "fieldAValue",
+				"fieldA.paramA":        "paramAValue",
+				"fieldA.paramA.paramB": "paramBValue",
+				"fieldB":               "fieldBValue",
+				// field0 should get sorted to the top of the list
+				"field0": "field",
+			},
+			[]string{
+				"field0",
+				"fieldA",
+				"fieldB",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		got := test.input.dottedNames()
+
+		if !reflect.DeepEqual(got, test.want) {
+			t.Errorf("%s dottedNames() got\n%#v, want\n%#v", test.name, got, test.want)
+		}
+	}
+}

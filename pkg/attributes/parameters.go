@@ -14,7 +14,10 @@
 
 package attributes
 
-import "strings"
+import (
+	"sort"
+	"strings"
+)
 
 // dottedParameterNameParts parses a dotted parameter name and returns the first segment as name,
 // and the remaining segments as paramName. If there are not multiple segments, name will be empty.
@@ -71,4 +74,23 @@ func (p Parameters) namedParametersWithDottedName(name string) NamedParameters {
 		Status:     p[name],
 		Parameters: p.withDottedName(name),
 	}
+}
+
+// dottedNames returns the list of top-level names of fields in Parameters.
+func (p Parameters) dottedNames() []string {
+	foundNamesMap := map[string]bool{}
+	var foundNames []string
+
+	for key := range p {
+		fieldName, _ := dottedParameterNameParts(key)
+
+		if _, ok := foundNamesMap[fieldName]; !ok {
+			foundNames = append(foundNames, fieldName)
+		}
+		foundNamesMap[fieldName] = true
+	}
+
+	sort.Strings(foundNames)
+
+	return foundNames
 }
