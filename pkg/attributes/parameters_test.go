@@ -143,7 +143,7 @@ func TestParameters_namedParametersWithDottedName(t *testing.T) {
 			"testname",
 			NamedParameters{
 				Name:   "testname",
-				Status: "testname value",
+				Status: NewString("testname value"),
 				Parameters: Parameters{
 					"field": "testname field value",
 				},
@@ -238,14 +238,14 @@ func TestParameters_namedParametersCollection(t *testing.T) {
 				},
 				{
 					Name:   "fieldA",
-					Status: "fieldValueA",
+					Status: NewString("fieldValueA"),
 					Parameters: Parameters{
 						"paramA": "paramValueA",
 					},
 				},
 				{
 					Name:   "fieldB",
-					Status: "fieldValueB",
+					Status: NewString("fieldValueB"),
 					Parameters: Parameters{
 						"paramB": "paramValueB",
 					},

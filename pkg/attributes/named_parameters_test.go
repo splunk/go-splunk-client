@@ -20,68 +20,6 @@ import (
 	"testing"
 )
 
-func TestNamedParameters_StatusBool(t *testing.T) {
-	tests := []struct {
-		input     string
-		wantValue bool
-		wantOk    bool
-	}{
-		{
-			"",
-			false,
-			false,
-		},
-		{
-			"nonsense",
-			false,
-			false,
-		},
-		{
-			"-1",
-			false,
-			false,
-		},
-		{
-			"0",
-			false,
-			true,
-		},
-		{
-			"1",
-			true,
-			true,
-		},
-		{
-			"f",
-			false,
-			true,
-		},
-		{
-			"false",
-			false,
-			true,
-		},
-		{
-			"t",
-			true,
-			true,
-		},
-		{
-			"true",
-			true,
-			true,
-		},
-	}
-
-	for _, test := range tests {
-		gotValue, gotOk := NamedParameters{Status: test.input}.StatusBool()
-
-		if (gotValue != test.wantValue) && (gotOk != test.wantOk) {
-			t.Errorf("%q StatusBool got\n%#v, want\n%#v", test.input, []bool{gotValue, gotOk}, []bool{test.wantValue, test.wantOk})
-		}
-	}
-}
-
 func TestNamedParametersCollection_EnabledNames(t *testing.T) {
 	tests := []struct {
 		name  string
@@ -106,15 +44,15 @@ func TestNamedParametersCollection_EnabledNames(t *testing.T) {
 				},
 				{
 					Name:   "explicitlyDisabledField",
-					Status: "false",
+					Status: NewString("false"),
 				},
 				{
 					Name:   "explicitlyEnabledBoolField",
-					Status: "true",
+					Status: NewString("true"),
 				},
 				{
 					Name:   "explicitlyEnabledNumberField",
-					Status: "1",
+					Status: NewString("1"),
 				},
 			},
 			[]string{
@@ -191,7 +129,7 @@ func TestNamedParametersCollection_UnmarshalJSON(t *testing.T) {
 					},
 					{
 						Name:   "enabledOption",
-						Status: "true",
+						Status: NewString("true"),
 						Parameters: Parameters{
 							"description": "this option is enabled",
 						},

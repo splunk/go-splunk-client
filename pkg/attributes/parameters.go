@@ -72,11 +72,17 @@ func (p Parameters) withDottedName(name string) Parameters {
 //   Parameters{"email":"true","email.to":"whoever@example.com"}.namedParametersWithDottedName("email")
 //   # NamedParameters{Name: "email", Status: "true", Parameters{"to": "whoever@example.com"}}
 func (p Parameters) namedParametersWithDottedName(name string) NamedParameters {
-	return NamedParameters{
+	newParams := NamedParameters{
 		Name:       name,
-		Status:     p[name],
 		Parameters: p.withDottedName(name),
 	}
+
+	// Status only set explicitly if there was a <name> key is present in Parameters
+	if statusValue, ok := p[name]; ok {
+		newParams.Status = NewString(statusValue)
+	}
+
+	return newParams
 }
 
 // dottedNames returns the list of top-level names of fields in Parameters.

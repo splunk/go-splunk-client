@@ -17,8 +17,8 @@ package attributes
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"reflect"
-	"strconv"
 )
 
 // NamedParameters represent a set of Parameters that are associated with an overall Name.
@@ -30,18 +30,9 @@ type NamedParameters struct {
 	// Status is the string representation of a NamedParameters' status. This is typically
 	// true/false or 0/1, and is the value associated directly with the name segment, such as
 	// email=true.
-	Status string
+	Status String
 
 	Parameters Parameters
-}
-
-// StatusBool returns a boolean value for the Status field, attempting to parse it from boolean-like
-// values such as "true", "false", "1", "0". If the Status value can not be parsed, ok will be false.
-func (params NamedParameters) StatusBool() (value bool, ok bool) {
-	value, err := strconv.ParseBool(params.Status)
-	ok = err == nil
-
-	return
 }
 
 // NamedParametersCollection is a collection of NamedParameters.
@@ -52,7 +43,7 @@ func (collection NamedParametersCollection) EnabledNames() []string {
 	var enabled []string
 
 	for _, params := range collection {
-		if isEnabled, ok := params.StatusBool(); ok && isEnabled {
+		if isEnabled, ok := params.Status.Bool(); ok && isEnabled {
 			enabled = append(enabled, params.Name)
 		}
 	}
