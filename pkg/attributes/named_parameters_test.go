@@ -208,3 +208,86 @@ func TestNamedParametersCollection_UnmarshalJSON(t *testing.T) {
 
 	tests.test(t)
 }
+
+func TestNamedParametersCollect_EncodeValues(t *testing.T) {
+	type testType struct {
+		Description string                    `url:"description,omitempty"`
+		Actions     NamedParametersCollection `named_parameters_collection:"actions" url:"actions"`
+	}
+
+	tests := queryValuesTestCases{
+		{
+			name:  "empty",
+			input: testType{},
+			want:  map[string][]string{},
+		},
+		{
+			name: "description only",
+			input: testType{
+				Description: "testDescription",
+			},
+			want: map[string][]string{
+				"description": {"testDescription"},
+			},
+		},
+		{
+			name: "with status",
+			input: testType{
+				Description: "testDescription",
+				Actions: NamedParametersCollection{
+					{
+						Name:   "email",
+						Status: NewString("false"),
+					},
+				},
+			},
+			want: map[string][]string{
+				"description":   {"testDescription"},
+				"actions.email": {"false"},
+			},
+		},
+		{
+			name: "with fields",
+			input: testType{
+				Description: "testDescription",
+				Actions: NamedParametersCollection{
+					{
+						Name:   "email",
+						Status: NewString("true"),
+						Parameters: Parameters{
+							"to": "whocares@example.com",
+						},
+					},
+				},
+			},
+			want: map[string][]string{
+				"description":      {"testDescription"},
+				"actions.email":    {"true"},
+				"actions.email.to": {"whocares@example.com"},
+			},
+		},
+		{
+			name: "with empty fields",
+			input: testType{
+				Description: "testDescription",
+				Actions: NamedParametersCollection{
+					{
+						Name: "email",
+						Parameters: map[string]string{
+							"to": "whocares@example.com",
+							// this allows clearing the subject field
+							"subject": "",
+						},
+					},
+				},
+			},
+			want: map[string][]string{
+				"description":           {"testDescription"},
+				"actions.email.to":      {"whocares@example.com"},
+				"actions.email.subject": {""},
+			},
+		},
+	}
+
+	tests.test(t)
+}

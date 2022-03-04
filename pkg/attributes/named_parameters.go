@@ -71,6 +71,17 @@ func (collection NamedParametersCollection) EnabledNames() []string {
 	return enabled
 }
 
+// EncodeValues implements custom encoding to url.Values.
+func (collection NamedParametersCollection) EncodeValues(key string, v *url.Values) error {
+	for _, namedParameters := range collection {
+		if err := namedParameters.EncodeValues(key, v); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 // UnmarshalJSONForNamedParametersCollections unmarshals JSON data into the given dest interface. dest must be
 // a pointer to a struct, and any struct fields with the "named_parameters_collection" tag must be of the
 // NamedParametersCollection type.
