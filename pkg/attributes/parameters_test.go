@@ -110,3 +110,51 @@ func TestParameters_withDottedName(t *testing.T) {
 		}
 	}
 }
+
+func TestParameters_namedParametersWithDottedName(t *testing.T) {
+	tests := []struct {
+		name        string
+		inputParams Parameters
+		inputName   string
+		want        NamedParameters
+	}{
+		{
+			"empty",
+			Parameters{},
+			"testname",
+			NamedParameters{Name: "testname"},
+		},
+		{
+			"no matches",
+			Parameters{
+				"unmatched":       "unmatched value",
+				"unmatched.field": "unmatched field value",
+			},
+			"testname",
+			NamedParameters{Name: "testname"},
+		},
+		{
+			"matches",
+			Parameters{
+				"testname":       "testname value",
+				"testname.field": "testname field value",
+			},
+			"testname",
+			NamedParameters{
+				Name:   "testname",
+				Status: "testname value",
+				Parameters: Parameters{
+					"field": "testname field value",
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		got := test.inputParams.namedParametersWithDottedName(test.inputName)
+
+		if !reflect.DeepEqual(got, test.want) {
+			t.Errorf("%s namedParametersWithDottedName got\n%#v, want\n%#v", test.name, got, test.want)
+		}
+	}
+}

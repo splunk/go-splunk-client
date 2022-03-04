@@ -59,3 +59,16 @@ func (p Parameters) withDottedName(name string) Parameters {
 
 	return newParameters
 }
+
+// namedParametersWithDottedName returns a NamedParameters with the given name and Status and Parameter values
+// as calculated from the input Parameters.
+//
+//   Parameters{"email":"true","email.to":"whoever@example.com"}.namedParametersWithDottedName("email")
+//   # NamedParameters{Name: "email", Status: "true", Parameters{"to": "whoever@example.com"}}
+func (p Parameters) namedParametersWithDottedName(name string) NamedParameters {
+	return NamedParameters{
+		Name:       name,
+		Status:     p[name],
+		Parameters: p.withDottedName(name),
+	}
+}
