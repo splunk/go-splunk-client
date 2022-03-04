@@ -41,3 +41,16 @@ func (params NamedParameters) StatusBool() (value bool, ok bool) {
 
 // NamedParametersCollection is a collection of NamedParameters.
 type NamedParametersCollection []NamedParameters
+
+// EnabledNames returns a list of Names of the member NamedParameters that have a true Status value.
+func (collection NamedParametersCollection) EnabledNames() []string {
+	var enabled []string
+
+	for _, params := range collection {
+		if isEnabled, ok := params.StatusBool(); ok && isEnabled {
+			enabled = append(enabled, params.Name)
+		}
+	}
+
+	return enabled
+}

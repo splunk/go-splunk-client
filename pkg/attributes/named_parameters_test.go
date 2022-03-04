@@ -14,7 +14,10 @@
 
 package attributes
 
-import "testing"
+import (
+	"reflect"
+	"testing"
+)
 
 func TestNamedParameters_StatusBool(t *testing.T) {
 	tests := []struct {
@@ -74,6 +77,57 @@ func TestNamedParameters_StatusBool(t *testing.T) {
 
 		if (gotValue != test.wantValue) && (gotOk != test.wantOk) {
 			t.Errorf("%q StatusBool got\n%#v, want\n%#v", test.input, []bool{gotValue, gotOk}, []bool{test.wantValue, test.wantOk})
+		}
+	}
+}
+
+func TestNamedParametersCollection_EnabledNames(t *testing.T) {
+	tests := []struct {
+		name  string
+		input NamedParametersCollection
+		want  []string
+	}{
+		{
+			"nil",
+			nil,
+			nil,
+		},
+		{
+			"empty",
+			NamedParametersCollection{},
+			nil,
+		},
+		{
+			"some enabled",
+			NamedParametersCollection{
+				{
+					Name: "implicitlyDisabledField",
+				},
+				{
+					Name:   "explicitlyDisabledField",
+					Status: "false",
+				},
+				{
+					Name:   "explicitlyEnabledBoolField",
+					Status: "true",
+				},
+				{
+					Name:   "explicitlyEnabledNumberField",
+					Status: "1",
+				},
+			},
+			[]string{
+				"explicitlyEnabledBoolField",
+				"explicitlyEnabledNumberField",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		got := test.input.EnabledNames()
+
+		if !reflect.DeepEqual(got, test.want) {
+			t.Errorf("%s EnabledNames() got\n%#v, want\n%#v", test.name, got, test.want)
 		}
 	}
 }
