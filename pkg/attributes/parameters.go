@@ -31,3 +31,31 @@ func dottedParameterNameParts(fullFieldName string) (name string, paramName stri
 
 	return parts[0], strings.Join(parts[1:], ".")
 }
+
+// Parameters is a map of parameter names to string values.
+type Parameters map[string]string
+
+// withDottedName returns a new Parameters object containing the nested parameters
+// for the given name. The new Parameters name field will have this name prefix removed.
+//
+// For example:
+//
+//   Parameters{"action.email": "true", "action.email.to": "whoever@example.com"}.withDottedName("action")
+//   # Parameters{"email": "true", "email.to": "whoever@example.com"}
+func (p Parameters) withDottedName(name string) Parameters {
+	var newParameters Parameters
+
+	for key, value := range p {
+		fieldName, fieldParamName := dottedParameterNameParts(key)
+
+		if fieldName == name && fieldParamName != "" {
+			if newParameters == nil {
+				newParameters = Parameters{}
+			}
+
+			newParameters[fieldParamName] = value
+		}
+	}
+
+	return newParameters
+}

@@ -14,7 +14,10 @@
 
 package attributes
 
-import "testing"
+import (
+	"reflect"
+	"testing"
+)
 
 func Test_dottedParameterNameParts(t *testing.T) {
 	tests := []struct {
@@ -54,6 +57,56 @@ func Test_dottedParameterNameParts(t *testing.T) {
 
 		if (gotName != test.wantName) || (gotParamName != test.wantParamName) {
 			t.Errorf("%s Test_dottedParameterNameParts() got\n(%q, %q), want\n(%q, %q)", test.name, gotName, gotParamName, test.wantName, test.wantParamName)
+		}
+	}
+}
+
+func TestParameters_withDottedName(t *testing.T) {
+	tests := []struct {
+		name        string
+		inputParams Parameters
+		inputName   string
+		wantParams  Parameters
+	}{
+		{
+			"nil",
+			Parameters(nil),
+			"paramName",
+			Parameters(nil),
+		},
+		{
+			"empty",
+			Parameters{},
+			"paramName",
+			Parameters(nil),
+		},
+		{
+			"no nested parameters",
+			Parameters{
+				"paramName": "paramValue",
+			},
+			"paramName",
+			Parameters(nil),
+		},
+		{
+			"nested parameters",
+			Parameters{
+				"paramName.partA":       "valueA",
+				"paramName.partA.partB": "valueB",
+			},
+			"paramName",
+			Parameters{
+				"partA":       "valueA",
+				"partA.partB": "valueB",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		gotParams := test.inputParams.withDottedName(test.inputName)
+
+		if !reflect.DeepEqual(gotParams, test.wantParams) {
+			t.Errorf("%s withDottedName got\n%#v, want\n%#v", test.name, gotParams, test.wantParams)
 		}
 	}
 }
