@@ -22,19 +22,19 @@ import (
 func TestBool_UnmarshalJSON(t *testing.T) {
 	tests := jsonUnmarshalTestCases{
 		{
-			"empty",
-			`{}`,
-			struct{ Value Bool }{},
+			name:        "empty",
+			inputString: `{}`,
+			want:        struct{ Value Bool }{},
 		},
 		{
-			"zero",
-			`{"value":false}`,
-			struct{ Value Bool }{Bool{explicit: true}},
+			name:        "zero",
+			inputString: `{"value":false}`,
+			want:        struct{ Value Bool }{Bool{explicit: true}},
 		},
 		{
-			"non-zero",
-			`{"value":true}`,
-			struct{ Value Bool }{Bool{value: true, explicit: true}},
+			name:        "non-zero",
+			inputString: `{"value":true}`,
+			want:        struct{ Value Bool }{Bool{value: true, explicit: true}},
 		},
 	}
 
