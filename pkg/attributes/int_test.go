@@ -22,19 +22,19 @@ import (
 func TestInt_UnmarshalJSON(t *testing.T) {
 	tests := jsonUnmarshalTestCases{
 		{
-			"empty",
-			`{}`,
-			struct{ Value Int }{},
+			name:        "empty",
+			inputString: `{}`,
+			want:        struct{ Value Int }{},
 		},
 		{
-			"zero",
-			`{"value":0}`,
-			struct{ Value Int }{Int{explicit: true}},
+			name:        "zero",
+			inputString: `{"value":0}`,
+			want:        struct{ Value Int }{Int{explicit: true}},
 		},
 		{
-			"non-zero",
-			`{"value":1}`,
-			struct{ Value Int }{Int{value: 1, explicit: true}},
+			name:        "non-zero",
+			inputString: `{"value":1}`,
+			want:        struct{ Value Int }{Int{value: 1, explicit: true}},
 		},
 	}
 
@@ -44,19 +44,19 @@ func TestInt_UnmarshalJSON(t *testing.T) {
 func TestInt_EncodeValues(t *testing.T) {
 	tests := queryValuesTestCases{
 		{
-			"implicit zero",
-			struct{ Value Int }{},
-			url.Values{},
+			name:  "implicit zero",
+			input: struct{ Value Int }{},
+			want:  url.Values{},
 		},
 		{
-			"explicit zero",
-			struct{ Value Int }{Int{explicit: true}},
-			url.Values{"Value": []string{"0"}},
+			name:  "explicit zero",
+			input: struct{ Value Int }{Int{explicit: true}},
+			want:  url.Values{"Value": []string{"0"}},
 		},
 		{
-			"non-zero",
-			struct{ Value Int }{Value: Int{value: 1}},
-			url.Values{"Value": []string{"1"}},
+			name:  "non-zero",
+			input: struct{ Value Int }{Value: Int{value: 1}},
+			want:  url.Values{"Value": []string{"1"}},
 		},
 	}
 

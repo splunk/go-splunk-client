@@ -25,12 +25,16 @@ type jsonUnmarshalTestCase struct {
 	name        string
 	inputString string
 	want        interface{}
+	wantError   bool
 }
 
 // test runs the test case.
 func (test jsonUnmarshalTestCase) test(t *testing.T) {
 	// create a new pointer to a zero value of test.want
 	gotT := reflect.TypeOf(test.want)
+	if gotT == nil {
+		t.Fatalf("%s attempted with nil want type", test.name)
+	}
 	gotV := reflect.New(gotT)
 	gotP := gotV.Interface()
 
@@ -42,8 +46,9 @@ func (test jsonUnmarshalTestCase) test(t *testing.T) {
 	wantP := wantV.Interface()
 
 	err := json.Unmarshal([]byte(test.inputString), gotP)
-	if err != nil {
-		t.Fatalf("%s json.Unmarshal error: %s", test.name, err)
+	gotError := err != nil
+	if gotError != test.wantError {
+		t.Fatalf("%s json.Unmarshal returned error? %v (%s)", test.name, gotError, err)
 	}
 
 	if !reflect.DeepEqual(gotP, wantP) {
