@@ -21,7 +21,7 @@ import (
 	"net/url"
 	"sync"
 
-	"github.com/splunk/go-sdk/pkg/internal/paths"
+	"github.com/splunk/go-splunk-client/pkg/internal/paths"
 	"golang.org/x/net/publicsuffix"
 )
 

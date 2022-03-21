@@ -14,7 +14,7 @@
 
 package client
 
-import "github.com/splunk/go-sdk/pkg/internal/paths"
+import "github.com/splunk/go-splunk-client/pkg/internal/paths"
 
 // Service is the interface that describes types that constitute a REST API servce.
 // Such types must implement the nsPather interface, and the endpoint method, which

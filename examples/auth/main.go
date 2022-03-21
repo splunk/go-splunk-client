@@ -19,8 +19,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/splunk/go-sdk/pkg/authenticators"
-	"github.com/splunk/go-sdk/pkg/client"
+	"github.com/splunk/go-splunk-client/pkg/authenticators"
+	"github.com/splunk/go-splunk-client/pkg/client"
 )
 
 func main() {

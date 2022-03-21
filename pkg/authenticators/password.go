@@ -18,7 +18,7 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/splunk/go-sdk/pkg/client"
+	"github.com/splunk/go-splunk-client/pkg/client"
 )
 
 // Password defines password authentication to Splunk.

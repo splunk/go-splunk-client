@@ -18,7 +18,7 @@ import (
 	"net/http"
 	"reflect"
 
-	"github.com/splunk/go-sdk/pkg/internal/paths"
+	"github.com/splunk/go-splunk-client/pkg/internal/paths"
 )
 
 // Entry is the interface that describes types that are support Create, Read, Update,
