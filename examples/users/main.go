@@ -18,10 +18,10 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/splunk/go-sdk/pkg/attributes"
-	"github.com/splunk/go-sdk/pkg/authenticators"
-	"github.com/splunk/go-sdk/pkg/client"
-	"github.com/splunk/go-sdk/pkg/entry"
+	"github.com/splunk/go-splunk-client/pkg/attributes"
+	"github.com/splunk/go-splunk-client/pkg/authenticators"
+	"github.com/splunk/go-splunk-client/pkg/client"
+	"github.com/splunk/go-splunk-client/pkg/entry"
 )
 
 func main() {

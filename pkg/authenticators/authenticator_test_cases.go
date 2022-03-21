@@ -18,8 +18,8 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/splunk/go-sdk/pkg/client"
-	"github.com/splunk/go-sdk/pkg/internal/checks"
+	"github.com/splunk/go-splunk-client/pkg/client"
+	"github.com/splunk/go-splunk-client/pkg/internal/checks"
 )
 
 // AuthenticatorTestCase defines a test against a specific Authenticator and Client.

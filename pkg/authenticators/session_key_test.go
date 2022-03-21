@@ -17,7 +17,7 @@ package authenticators
 import (
 	"testing"
 
-	"github.com/splunk/go-sdk/pkg/internal/checks"
+	"github.com/splunk/go-splunk-client/pkg/internal/checks"
 )
 
 func TestSessionKey_AuthenticateRequest(t *testing.T) {

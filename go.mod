@@ -1,4 +1,4 @@
-module github.com/splunk/go-sdk
+module github.com/splunk/go-splunk-client
 
 go 1.17
 

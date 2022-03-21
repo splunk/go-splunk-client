@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/splunk/go-sdk/pkg/client"
+	"github.com/splunk/go-splunk-client/pkg/client"
 )
 
 // SessionKey provides authentication to Splunk via a session key.

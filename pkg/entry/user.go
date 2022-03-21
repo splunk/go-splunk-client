@@ -15,8 +15,8 @@
 package entry
 
 import (
-	"github.com/splunk/go-sdk/pkg/attributes"
-	"github.com/splunk/go-sdk/pkg/client"
+	"github.com/splunk/go-splunk-client/pkg/attributes"
+	"github.com/splunk/go-splunk-client/pkg/client"
 )
 
 // UserContent defines the content of a User object.

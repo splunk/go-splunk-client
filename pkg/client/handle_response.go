@@ -20,7 +20,7 @@ import (
 	"net/http"
 	"reflect"
 
-	"github.com/splunk/go-sdk/pkg/messages"
+	"github.com/splunk/go-splunk-client/pkg/messages"
 )
 
 // ResponseHandler defines a function that performs an action on an http.Response.
