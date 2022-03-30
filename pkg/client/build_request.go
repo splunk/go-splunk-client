@@ -21,7 +21,19 @@ import (
 	"strings"
 
 	"github.com/google/go-querystring/query"
+	"github.com/splunk/go-splunk-client/pkg/service"
 )
+
+// defaultStatusCodes set the expected StatusCodes for most CRUD operations. If
+// a given type doesn't override them, responses will be checked against these
+// codes.
+var defaultStatusCodes = service.StatusCodes{
+	Created:  http.StatusCreated,
+	Read:     http.StatusOK,
+	Updated:  http.StatusOK,
+	Deleted:  http.StatusOK,
+	NotFound: http.StatusNotFound,
+}
 
 // RequestBuilder defines a function that performs an operation on an http.Request.
 type RequestBuilder func(*http.Request) error
@@ -62,7 +74,7 @@ func BuildRequestMethod(method string) RequestBuilder {
 
 // BuildRequestServiceURL returns a RequestBuilder that sets the URL to the ServiceURL
 // for a given Service.
-func BuildRequestServiceURL(c *Client, service Service) RequestBuilder {
+func BuildRequestServiceURL(c *Client, service interface{}) RequestBuilder {
 	return func(r *http.Request) error {
 		u, err := c.ServiceURL(service)
 		if err != nil {
@@ -111,18 +123,6 @@ func BuildRequestOutputModeJSON() RequestBuilder {
 	}
 }
 
-// BuildRequestBodyValuesWithTitle returns a RequestBuilder that sets the Body to the encoded url.Values
-// for a given Titler. It checks that the Title is not empty.
-func BuildRequestBodyValuesWithTitle(t Titler) RequestBuilder {
-	return func(r *http.Request) error {
-		if t.Title() == "" {
-			return wrapError(ErrorMissingTitle, nil, "attempted to set request body values of Titler with an empty Title value")
-		}
-
-		return BuildRequestBodyValues(t)(r)
-	}
-}
-
 // BuildRequestBodyValuesContent returns a RequestBuilder that sets the Body to the encoded url.Values
 // for a given ContentGetter. The interface returned by c.GetContent(c) will be used to for the resulting
 // values.
@@ -134,7 +134,7 @@ func BuildRequestBodyValuesContent(c ContentGetter) RequestBuilder {
 
 // BuildRequestCollectionURL returns a RequestBuilder that sets the URL to the EntryURL
 // for a given Entry.
-func BuildRequestEntryURL(c *Client, entry Entry) RequestBuilder {
+func BuildRequestEntryURL(c *Client, entry interface{}) RequestBuilder {
 	return func(r *http.Request) error {
 		u, err := c.EntryURL(entry)
 		if err != nil {
@@ -147,21 +147,20 @@ func BuildRequestEntryURL(c *Client, entry Entry) RequestBuilder {
 	}
 }
 
-// BuildRequestEntryURLWithTitle returns a RequestBuilder that sets the URL to the EntryURL
-// for a given Entry, but also checks that the Collection's Title is not empty.
-func BuildRequestEntryURLWithTitle(c *Client, entry Entry) RequestBuilder {
-	return func(r *http.Request) error {
-		if entry.Title() == "" {
-			return wrapError(ErrorMissingTitle, nil, "attempted to get URLWithTitle of Entry with empty Title")
-		}
-
-		return BuildRequestEntryURL(c, entry)(r)
-	}
-}
-
 // BuildRequestAuthenticate returns a RequestBuilder that authenticates a request for a given Client.
 func BuildRequestAuthenticate(c *Client) RequestBuilder {
 	return func(r *http.Request) error {
 		return c.Authenticator.AuthenticateRequest(c, r)
+	}
+}
+
+// BuildRequestGetServiceStatusCodes updates codes for the given entry. It returns a RequestBuilder
+// that returns the error (if any) returned by service.ServiceStatusCodes.
+func BuildRequestGetServiceStatusCodes(entry Entry, codes *service.StatusCodes) RequestBuilder {
+	newCodes, err := service.ServiceStatusCodes(entry, defaultStatusCodes)
+	*codes = newCodes
+
+	return func(r *http.Request) error {
+		return err
 	}
 }
