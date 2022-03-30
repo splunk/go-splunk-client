@@ -14,32 +14,41 @@
 
 package client
 
-import "strings"
+import (
+	"encoding/json"
+	"net/url"
+
+	"github.com/splunk/go-splunk-client/pkg/internal/paths"
+)
 
 // ID represents a Splunk object ID URL for a specific object.
 type ID struct {
-	IDFields IDFields `json:"id"`
+	Namespace Namespace
+
+	// Title is the ID's title component. It is the name of the Splunk object.
+	Title string
 }
 
-// ParseIDURL returns a new ID by parsing an ID URL.
-func ParseIDURL(idURL string) (ID, error) {
-	fields, err := ParseIDFields(idURL)
+// parseID returns a new ID by parsing the ID URL string.
+func parseID(idURL string) (ID, error) {
+	newNS, remnants, err := parseNamespace(idURL)
 	if err != nil {
 		return ID{}, err
 	}
 
-	newID := ID{IDFields: fields}
-
-	if newID.String() != idURL {
-		return ID{}, wrapError(ErrorID, nil, "parsed ID string value (%s) doesn't match given URL (%s). This should be reported as a bug.", newID.String(), idURL)
+	if len(remnants) < 1 {
+		return ID{}, wrapError(ErrorID, nil, "client: parseNamespace didn't return a remnant for ID.Title")
 	}
 
-	return ID{IDFields: fields}, nil
+	return ID{
+		Namespace: newNS,
+		Title:     remnants[len(remnants)-1],
+	}, nil
 }
 
-// SetIDFromURL sets the ID's value to match what is parsed from the given ID URL.
-func (id *ID) SetIDFromURL(idURL string) error {
-	newID, err := ParseIDURL(idURL)
+// Parse sets the ID's value to match what is parsed from the given ID URL.
+func (id *ID) Parse(idURL string) error {
+	newID, err := parseID(idURL)
 	if err != nil {
 		return err
 	}
@@ -49,69 +58,46 @@ func (id *ID) SetIDFromURL(idURL string) error {
 	return nil
 }
 
-// NamespacePath returns the namespace path for the given ID, or an error if the path could not be
-// determined by parsing the ID. Even if an error is returned, the invalid calculated path will be returned.
-func (id ID) NamespacePath() (string, error) {
-	var path string
+// GetServicePath implements custom GetServicePath encoding. It returns its Namespace's
+// service path.
+func (id ID) GetServicePath(path string) (string, error) {
+	return id.Namespace.GetServicePath(path)
+}
 
-	// absence of both user/app indicates global context
-	if (id.IDFields.User == "") && (id.IDFields.App == "") {
-		path = "services"
-	} else {
-		path = strings.Join([]string{"servicesNS", id.IDFields.User, id.IDFields.App}, "/")
+// GetEntryPath implements custom GetEntryPath encoding. It returns the url-encoded
+// value of the ID's Title with the service path preceding it.
+func (id ID) GetEntryPath(path string) (string, error) {
+	servicePath, err := id.GetServicePath(path)
+	if err != nil {
+		return "", err
 	}
 
-	return path, id.IDFields.validate()
+	return paths.Join(servicePath, url.PathEscape(id.Title)), nil
 }
 
-// Title returns the title value of an ID.
-func (id ID) Title() string {
-	return id.IDFields.Title
-}
-
-// String returns a string representation of the ID. If ID.Title is empty the resulting string
-// will have a trailing slash. The string representation of an ID should not be assumed to be
-// valid, as the NamespacePath component is not error checked here.
-func (id ID) String() string {
-	nsPath, _ := id.NamespacePath()
-
-	return strings.Join(
-		[]string{
-			id.IDFields.baseURL,
-			nsPath,
-			id.IDFields.endpoint,
-			id.IDFields.Title,
-		},
-		"/",
-	)
-}
-
-// IDOpt is a function that performs an operation on an ID object.
-type IDOpt func(*ID)
-
-// IDOptApplyer is the interface that describes types that implement ApplyIDOpt.
-type IDOptApplyer interface {
-	ApplyIDOpt(...IDOpt)
-}
-
-// ApplyIDOpt applies the given IDOpt functions.
-func (id *ID) ApplyIDOpt(opts ...IDOpt) {
-	for _, opt := range opts {
-		opt(id)
+// UnmarshalJSON implements custom JSON unmarshaling for IDFields.
+func (id *ID) UnmarshalJSON(data []byte) error {
+	idString := ""
+	if err := json.Unmarshal(data, &idString); err != nil {
+		return wrapError(ErrorID, err, "client: unable to unmarshal %q as string", data)
 	}
+
+	if err := id.Parse(idString); err != nil {
+		return err
+	}
+
+	return nil
 }
 
-// SetTitle returns an IDOpt that sets Title on an ID object.
-func SetTitle(title string) IDOpt {
-	return func(id *ID) {
-		id.IDFields.Title = title
+// EncodeValues implements custom url.Query encoding of ID. It adds a field "name" for the ID's
+// Title. If the Title value is empty, it returns an error, as there are no scenarios where an ID
+// object is expected to be POSTed with an empty Title.
+func (id ID) EncodeValues(key string, v *url.Values) error {
+	if id.Title == "" {
+		return wrapError(ErrorID, nil, "client: attempted EncodeValues on ID with empty Title")
 	}
-}
 
-// SetNamespace returns an IDOpt that sets User and App on an ID object.
-func SetNamespace(user string, app string) IDOpt {
-	return func(id *ID) {
-		id.IDFields.User = user
-		id.IDFields.App = app
-	}
+	v.Add("name", id.Title)
+
+	return nil
 }
