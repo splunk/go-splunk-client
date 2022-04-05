@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package messages provides the Messages and Message type to represent messages
+// returned by the Splunk REST API.
 package messages
 
 import (
