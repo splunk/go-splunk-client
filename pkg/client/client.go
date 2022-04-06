@@ -23,6 +23,7 @@ import (
 	"sync"
 
 	"github.com/splunk/go-splunk-client/pkg/internal/paths"
+	"github.com/splunk/go-splunk-client/pkg/service"
 	"golang.org/x/net/publicsuffix"
 )
 
@@ -61,8 +62,8 @@ func (c *Client) urlForPath(path ...string) (*url.URL, error) {
 }
 
 // ServiceURL returns a url.URL for a Service, relative to the Client's URL.
-func (c *Client) ServiceURL(s Service) (*url.URL, error) {
-	servicePath, err := servicePath(s)
+func (c *Client) ServiceURL(s interface{}) (*url.URL, error) {
+	servicePath, err := service.ServicePath(s)
 	if err != nil {
 		return nil, err
 	}
@@ -71,8 +72,8 @@ func (c *Client) ServiceURL(s Service) (*url.URL, error) {
 }
 
 // EntryURL returns a url.URL for an Entry, relative to the Client's URL.
-func (c *Client) EntryURL(e Entry) (*url.URL, error) {
-	entryPath, err := entryPath(e)
+func (c *Client) EntryURL(e interface{}) (*url.URL, error) {
+	entryPath, err := service.EntryPath(e)
 	if err != nil {
 		return nil, err
 	}

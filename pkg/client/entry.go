@@ -18,50 +18,32 @@ import (
 	"net/http"
 	"reflect"
 
-	"github.com/splunk/go-splunk-client/pkg/internal/paths"
+	"github.com/splunk/go-splunk-client/pkg/deepset"
+	"github.com/splunk/go-splunk-client/pkg/service"
 )
 
 // Entry is the interface that describes types that are support Create, Read, Update,
 // Delete, List operations. Types that satisfy this interface meet the Service, Titler,
 // and ContentGetter interfaces.
 type Entry interface {
-	Service
-	Titler
 	ContentGetter
-}
-
-// EntryLister is the interface that describes types that satisfy both the Entry and IDOptApplyer
-// interfaces. This interface is a superset of Entry as IDOptApplyer requires a pointer, but Entry
-// does not.
-type EntryLister interface {
-	Entry
-	IDOptApplyer
-}
-
-// entryPath returns the path for the given CRUDLer. If the Entry has an
-// empty Title, a valid path will be returned with the Title component being empty,
-// because an Entry's path doesn't require a non-empty Title to be valid.
-func entryPath(entry Entry) (string, error) {
-	servicePath, err := servicePath(entry)
-	if err != nil {
-		return "", err
-	}
-
-	return paths.Join(servicePath, entry.Title()), nil
 }
 
 // Create performs a Create action for the given Entry.
 func Create(client *Client, entry Entry) error {
+	var codes service.StatusCodes
+
 	return client.RequestAndHandle(
 		ComposeRequestBuilder(
+			BuildRequestGetServiceStatusCodes(entry, &codes),
 			BuildRequestMethod(http.MethodPost),
 			BuildRequestServiceURL(client, entry),
 			BuildRequestOutputModeJSON(),
-			BuildRequestBodyValuesWithTitle(entry),
+			BuildRequestBodyValues(entry),
 			BuildRequestAuthenticate(client),
 		),
 		ComposeResponseHandler(
-			HandleResponseRequireCode(http.StatusCreated, HandleResponseJSONMessagesError()),
+			HandleResponseRequireCode(codes.Created, HandleResponseJSONMessagesError()),
 		),
 	)
 }
@@ -69,16 +51,19 @@ func Create(client *Client, entry Entry) error {
 // Read performs a Read action for the given Entry. It modifies entry in-place,
 // so entry must be a pointer.
 func Read(client *Client, entry Entry) error {
+	var codes service.StatusCodes
+
 	return client.RequestAndHandle(
 		ComposeRequestBuilder(
+			BuildRequestGetServiceStatusCodes(entry, &codes),
 			BuildRequestMethod(http.MethodGet),
-			BuildRequestEntryURLWithTitle(client, entry),
+			BuildRequestEntryURL(client, entry),
 			BuildRequestOutputModeJSON(),
 			BuildRequestAuthenticate(client),
 		),
 		ComposeResponseHandler(
-			HandleResponseEntryNotFound(entry, HandleResponseJSONMessagesCustomError(ErrorNotFound)),
-			HandleResponseRequireCode(http.StatusOK, HandleResponseJSONMessagesError()),
+			HandleResponseCode(codes.NotFound, HandleResponseJSONMessagesCustomError(ErrorNotFound)),
+			HandleResponseRequireCode(codes.Read, HandleResponseJSONMessagesError()),
 			HandleResponseEntry(entry),
 		),
 	)
@@ -86,62 +71,64 @@ func Read(client *Client, entry Entry) error {
 
 // Update performs an Update action for the given Entry.
 func Update(client *Client, entry Entry) error {
+	var codes service.StatusCodes
+
 	return client.RequestAndHandle(
 		ComposeRequestBuilder(
+			BuildRequestGetServiceStatusCodes(entry, &codes),
 			BuildRequestMethod(http.MethodPost),
-			BuildRequestEntryURLWithTitle(client, entry),
+			BuildRequestEntryURL(client, entry),
 			BuildRequestOutputModeJSON(),
 			BuildRequestBodyValuesContent(entry),
 			BuildRequestAuthenticate(client),
 		),
 		ComposeResponseHandler(
-			HandleResponseRequireCode(http.StatusOK, HandleResponseJSONMessagesError()),
+			HandleResponseRequireCode(codes.Updated, HandleResponseJSONMessagesError()),
 		),
 	)
 }
 
 // Delete performs a Delete action for the given Entry.
 func Delete(client *Client, entry Entry) error {
+	var codes service.StatusCodes
+
 	return client.RequestAndHandle(
 		ComposeRequestBuilder(
+			BuildRequestGetServiceStatusCodes(entry, &codes),
 			BuildRequestMethod(http.MethodDelete),
-			BuildRequestEntryURLWithTitle(client, entry),
+			BuildRequestEntryURL(client, entry),
 			BuildRequestOutputModeJSON(),
 			BuildRequestAuthenticate(client),
 		),
 		ComposeResponseHandler(
-			HandleResponseRequireCode(http.StatusOK, HandleResponseJSONMessagesError()),
+			HandleResponseRequireCode(codes.Deleted, HandleResponseJSONMessagesError()),
 		),
 	)
 }
 
-// List returns a list of the given type of Entry by performing a List
-// action for an ID with the given ID Field Options applied.
-func List(client *Client, entries interface{}, idFieldOpts ...IDOpt) error {
+func listModified(client *Client, entries interface{}, modifier interface{}) error {
 	entriesPtrV := reflect.ValueOf(entries)
 	if entriesPtrV.Kind() != reflect.Ptr {
-		return wrapError(ErrorPtr, nil, "List attempted on on-pointer value")
+		return wrapError(ErrorPtr, nil, "client: List attempted on on-pointer value")
 	}
 
 	entriesV := reflect.Indirect(entriesPtrV)
 	if entriesV.Kind() != reflect.Slice {
-		return wrapError(ErrorSlice, nil, "List attempted on non-slice value")
+		return wrapError(ErrorSlice, nil, "client: List attempted on non-slice value")
 	}
 	entryT := entriesV.Type().Elem()
-	entryPtrV := reflect.New(entryT)
-	entryPtrI := entryPtrV.Interface()
-	entryPtrEntry, ok := entryPtrI.(EntryLister)
-	if !ok {
-		entryI := reflect.Indirect(entryPtrV).Interface()
-		return wrapError(ErrorSlice, nil, "List attempted on slice of non-EntryLister type %T", entryI)
-	}
+	entryI := reflect.New(entryT).Interface()
 
-	entryPtrEntry.ApplyIDOpt(idFieldOpts...)
+	if modifier != nil {
+		if err := deepset.Set(entryI, modifier); err != nil {
+			return err
+		}
+	}
 
 	return client.RequestAndHandle(
 		ComposeRequestBuilder(
 			BuildRequestMethod(http.MethodGet),
-			BuildRequestEntryURL(client, entryPtrEntry),
+			BuildRequestEntryURL(client, entryI),
 			BuildRequestOutputModeJSON(),
 			BuildRequestAuthenticate(client),
 		),
@@ -150,4 +137,19 @@ func List(client *Client, entries interface{}, idFieldOpts ...IDOpt) error {
 			HandleResponseEntries(entries),
 		),
 	)
+}
+
+// ListNamespace populates entries in place for a Namespace.
+func ListNamespace(client *Client, entries interface{}, ns Namespace) error {
+	return listModified(client, entries, ns)
+}
+
+// ListNamespace populates entries in place for an ID.
+func ListID(client *Client, entries interface{}, id ID) error {
+	return listModified(client, entries, id)
+}
+
+// ListNamespace populates entries in place without any ID or Namespace context.
+func List(client *Client, entries interface{}) error {
+	return listModified(client, entries, nil)
 }

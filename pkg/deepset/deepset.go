@@ -12,10 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package client
-
-// NamespacePather is the interface that describes types that implement the nsPath method.
-type NamespacePather interface {
-	// NamespacePath returns the namespace path, or an error if it is unable to be determined.
-	NamespacePath() (string, error)
-}
+// Package deepset provides functionality to set a value of a given type on
+// a value of any time that is or contains a value of the same type.
+package deepset

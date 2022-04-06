@@ -38,9 +38,8 @@ type Password struct {
 	// a SessionKey.
 	mu sync.Mutex
 
-	// Fields below this point have no values, and only define how to interact with
-	// the REST API.
-	client.Endpoint `endpoint:"auth/login"`
+	// empty Namespace used to satisfy service.ServicePathGetter
+	_ client.Namespace `service:"auth/login"`
 }
 
 // loginResponse represents the response returned from auth/login.
@@ -92,10 +91,4 @@ func (p *Password) AuthenticateRequest(c *client.Client, r *http.Request) error 
 	}
 
 	return p.SessionKey.AuthenticateRequest(c, r)
-}
-
-// NamespacePath returns the namespace path for an empty ID, as auth/login can not have
-// a non-empty namespace.
-func (p *Password) NamespacePath() (string, error) {
-	return client.ID{}.NamespacePath()
 }

@@ -17,6 +17,7 @@ package entry
 import (
 	"github.com/splunk/go-splunk-client/pkg/attributes"
 	"github.com/splunk/go-splunk-client/pkg/client"
+	"github.com/splunk/go-splunk-client/pkg/service"
 )
 
 // SAMLGroupContent defines the content for a SAMLGroup.
@@ -30,11 +31,9 @@ type SAMLGroupContent struct {
 
 // SAMLGroup defines a SAML group mapping.
 type SAMLGroup struct {
-	client.ID
+	ID               client.ID `service:"admin/SAML-groups"`
 	SAMLGroupContent `json:"content"`
 
-	// The below fields don't have values, and only exist to provide context to
-	// the Splunk API.
 	// This endpoint returns a 400 if unable to find the given SAML Group.
-	client.Endpoint `endpoint:"admin/SAML-groups,notfound:400"`
+	_ service.StatusCodes `service:"NotFound=400"`
 }

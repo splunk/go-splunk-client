@@ -36,9 +36,7 @@ func main() {
 
 	if err := client.Create(c, entry.Role{
 		ID: client.ID{
-			IDFields: client.IDFields{
-				Title: "new_role",
-			},
+			Title: "new_role",
 		},
 		RoleContent: entry.RoleContent{
 			SrchDiskQuota: attributes.NewInt(1),
@@ -49,7 +47,7 @@ func main() {
 	}
 
 	createdRole := entry.Role{}
-	if err := createdRole.SetIDFromURL("https://localhost:8089/services/authorization/roles/new_role"); err != nil {
+	if err := createdRole.ID.Parse("https://localhost:8089/services/authorization/roles/new_role"); err != nil {
 		log.Fatalf("unable to set ID from URL: %s", err)
 	}
 
@@ -60,11 +58,7 @@ func main() {
 
 	// here we explicitly set SrchDiskQuota to 0
 	updateRole := entry.Role{
-		ID: client.ID{
-			IDFields: client.IDFields{
-				Title: "new_role",
-			},
-		},
+		ID: client.ID{Title: "new_role"},
 	}
 	updateRole.SrchDiskQuota.Set(0)
 	if err := client.Update(c, updateRole); err != nil {

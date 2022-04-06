@@ -12,23 +12,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package client
+package deepset_test
 
-import "testing"
+import (
+	"fmt"
 
-// testError performs a test against a given error. wantCode is only tested if err
-// is not nil.
-func testError(name string, err error, wantError bool, wantCode ErrorCode, t *testing.T) {
-	gotError := err != nil
+	"github.com/splunk/go-splunk-client/pkg/deepset"
+)
 
-	if gotError != wantError {
-		t.Errorf("%s returned error? %v", name, wantError)
-	}
+type Namespace struct {
+	User string
+	App  string
+}
 
-	if gotError {
-		clientErr := err.(Error)
-		if clientErr.Code != wantCode {
-			t.Errorf("%s returned error code %d, want %d", name, clientErr.Code, wantCode)
-		}
-	}
+type ID struct {
+	Title     string
+	Namespace Namespace
+}
+
+type View struct {
+	ID      ID
+	Content string
+}
+
+func Example_set() {
+	myView := View{}
+
+	// returned error ignored here
+	_ = deepset.Set(&myView, Namespace{User: "admin", App: "search"})
+
+	fmt.Printf("ID User: %s, App: %s", myView.ID.Namespace.User, myView.ID.Namespace.App)
+	// Output: ID User: admin, App: search
 }

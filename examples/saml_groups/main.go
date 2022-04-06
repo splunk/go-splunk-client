@@ -36,9 +36,7 @@ func main() {
 
 	err := client.Create(c, entry.SAMLGroup{
 		ID: client.ID{
-			IDFields: client.IDFields{
-				Title: "new_saml_group",
-			},
+			Title: "new_saml_group",
 		},
 		SAMLGroupContent: entry.SAMLGroupContent{
 			Roles: attributes.NewStrings("admin"),
@@ -50,9 +48,7 @@ func main() {
 
 	readSAMLGroup := entry.SAMLGroup{
 		ID: client.ID{
-			IDFields: client.IDFields{
-				Title: "new_saml_group",
-			},
+			Title: "new_saml_group",
 		},
 	}
 	if err := client.Read(c, &readSAMLGroup); err != nil {
@@ -67,9 +63,7 @@ func main() {
 
 	if err := client.Delete(c, entry.SAMLGroup{
 		ID: client.ID{
-			IDFields: client.IDFields{
-				Title: "new_saml_group",
-			},
+			Title: "new_saml_group",
 		},
 	}); err != nil {
 		log.Fatalf("unable to delete SAML group: %s", err)

@@ -36,9 +36,7 @@ func main() {
 
 	if err := client.Create(c, entry.User{
 		ID: client.ID{
-			IDFields: client.IDFields{
-				Title: "newuser",
-			},
+			Title: "newuser",
 		},
 		UserContent: entry.UserContent{
 			Password: attributes.NewString("changedit"),
@@ -51,9 +49,7 @@ func main() {
 
 	createdUser := entry.User{
 		ID: client.ID{
-			IDFields: client.IDFields{
-				Title: "newuser",
-			},
+			Title: "newuser",
 		},
 	}
 
