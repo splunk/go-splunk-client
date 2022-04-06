@@ -21,6 +21,7 @@ import (
 	"strings"
 
 	"github.com/google/go-querystring/query"
+	"github.com/splunk/go-splunk-client/pkg/selective"
 	"github.com/splunk/go-splunk-client/pkg/service"
 )
 
@@ -123,12 +124,16 @@ func BuildRequestOutputModeJSON() RequestBuilder {
 	}
 }
 
-// BuildRequestBodyValuesContent returns a RequestBuilder that sets the Body to the encoded url.Values
-// for a given ContentGetter. The interface returned by c.GetContent(c) will be used to for the resulting
-// values.
-func BuildRequestBodyValuesContent(c ContentGetter) RequestBuilder {
+// BuildRequestBodyValuesSelective returns a RequestBuilder that sets the Body to the encoded url.Values
+// for a given interface and selective tag.
+func BuildRequestBodyValuesSelective(c interface{}, tag string) RequestBuilder {
 	return func(r *http.Request) error {
-		return BuildRequestBodyValues(c.GetContent(c))(r)
+		selected, err := selective.Encode(c, tag)
+		if err != nil {
+			return err
+		}
+
+		return BuildRequestBodyValues(selected)(r)
 	}
 }
 
@@ -156,7 +161,7 @@ func BuildRequestAuthenticate(c *Client) RequestBuilder {
 
 // BuildRequestGetServiceStatusCodes updates codes for the given entry. It returns a RequestBuilder
 // that returns the error (if any) returned by service.ServiceStatusCodes.
-func BuildRequestGetServiceStatusCodes(entry Entry, codes *service.StatusCodes) RequestBuilder {
+func BuildRequestGetServiceStatusCodes(entry interface{}, codes *service.StatusCodes) RequestBuilder {
 	newCodes, err := service.ServiceStatusCodes(entry, defaultStatusCodes)
 	*codes = newCodes
 
