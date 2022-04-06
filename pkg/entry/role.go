@@ -45,14 +45,10 @@ type RoleContent struct {
 	ImportedSrchIndexesDefault attributes.Strings `json:"imported_srchIndexesDefault" url:"-"`
 	ImportedSrchJobsQuota      attributes.Int     `json:"imported_srchJobsQuota"      url:"-"`
 	ImportedSrchTimeWin        attributes.Int     `json:"imported_srchTimeWin"        url:"-"`
-
-	// The below fields don't have values, and only exist to provide context to
-	// the Splunk API.
-	client.Content
 }
 
 // Role defines a Splunk role.
 type Role struct {
-	ID          client.ID `service:"authorization/roles"`
+	ID          client.ID `selective:"create" service:"authorization/roles"`
 	RoleContent `json:"content"`
 }

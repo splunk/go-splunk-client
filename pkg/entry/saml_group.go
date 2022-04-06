@@ -23,15 +23,11 @@ import (
 // SAMLGroupContent defines the content for a SAMLGroup.
 type SAMLGroupContent struct {
 	Roles attributes.Strings `json:"roles" url:"roles"`
-
-	// The below fields don't have values, and only exist to provide context to
-	// the Splunk API.
-	client.Content
 }
 
 // SAMLGroup defines a SAML group mapping.
 type SAMLGroup struct {
-	ID               client.ID `service:"admin/SAML-groups"`
+	ID               client.ID `selective:"create" service:"admin/SAML-groups"`
 	SAMLGroupContent `json:"content"`
 
 	// This endpoint returns a 400 if unable to find the given SAML Group.
