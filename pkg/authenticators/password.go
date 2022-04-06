@@ -32,7 +32,7 @@ type Password struct {
 
 	// SessionKey holds the SessionKey after initial authentication occurs. Unless
 	// UseBasicAuth is set to true, this SessionKey will be used to authenticate requests.
-	SessionKey
+	SessionKey `url:"-"`
 
 	// mu is used to enable locking to prevent race conditions when checking for and obtaining
 	// a SessionKey.
