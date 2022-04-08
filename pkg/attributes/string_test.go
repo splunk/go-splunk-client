@@ -19,59 +19,63 @@ import (
 	"testing"
 )
 
+type testString struct {
+	Value Explicit[string] `values:",omitempty"`
+}
+
 func TestString_Bool(t *testing.T) {
 	tests := []struct {
-		input     String
+		input     Explicit[string]
 		wantValue bool
 		wantOk    bool
 	}{
 		{
-			String{},
+			Explicit[string]{},
 			false,
 			false,
 		},
 		{
-			NewString(""),
+			NewExplicit(""),
 			false,
 			true,
 		},
 		{
-			NewString("nonsense"),
+			NewExplicit("nonsense"),
 			false,
 			false,
 		},
 		{
-			NewString("-1"),
+			NewExplicit("-1"),
 			false,
 			false,
 		},
 		{
-			NewString("0"),
+			NewExplicit("0"),
 			false,
 			true,
 		},
 		{
-			NewString("1"),
+			NewExplicit("1"),
 			true,
 			true,
 		},
 		{
-			NewString("f"),
+			NewExplicit("f"),
 			false,
 			true,
 		},
 		{
-			NewString("false"),
+			NewExplicit("false"),
 			false,
 			true,
 		},
 		{
-			NewString("t"),
+			NewExplicit("t"),
 			true,
 			true,
 		},
 		{
-			NewString("true"),
+			NewExplicit("true"),
 			true,
 			true,
 		},
@@ -81,7 +85,7 @@ func TestString_Bool(t *testing.T) {
 		gotValue, gotOk := test.input.Bool()
 
 		if (gotValue != test.wantValue) && (gotOk != test.wantOk) {
-			t.Errorf("%q StatusBool got\n%#v, want\n%#v", test.input, []bool{gotValue, gotOk}, []bool{test.wantValue, test.wantOk})
+			t.Errorf("%q StatusBool got\n%#v, want\n%#v", test.input.Value(), []bool{gotValue, gotOk}, []bool{test.wantValue, test.wantOk})
 		}
 	}
 }
@@ -91,38 +95,38 @@ func TestString_UnmarshalJSON(t *testing.T) {
 		{
 			name:        "empty",
 			inputString: `{}`,
-			want:        struct{ Value String }{},
+			want:        testString{},
 		},
 		{
 			name:        "empty",
 			inputString: `{"value":""}`,
-			want:        struct{ Value String }{String{explicit: true}},
+			want:        testString{Value: NewExplicit("")},
 		},
 		{
 			name:        "non-empty",
 			inputString: `{"value":"this string is not empty"}`,
-			want:        struct{ Value String }{String{value: "this string is not empty", explicit: true}},
+			want:        testString{Value: NewExplicit("this string is not empty")},
 		},
 	}
 
 	tests.test(t)
 }
 
-func TestString_EncodeValues(t *testing.T) {
+func TestString_SetURLValues(t *testing.T) {
 	tests := queryValuesTestCases{
 		{
 			name:  "implicit empty",
-			input: struct{ Value String }{},
+			input: testString{},
 			want:  url.Values{},
 		},
 		{
 			name:  "explicit empty",
-			input: struct{ Value String }{String{explicit: true}},
+			input: testString{Value: NewExplicit("")},
 			want:  url.Values{"Value": []string{""}},
 		},
 		{
 			name:  "non-empty",
-			input: struct{ Value String }{Value: String{value: "this string is not empty"}},
+			input: testString{Value: NewExplicit("this string is not empty")},
 			want:  url.Values{"Value": []string{"this string is not empty"}},
 		},
 	}

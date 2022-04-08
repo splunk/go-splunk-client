@@ -1,4 +1,3 @@
-// Copyright 2022 Splunk, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,7 +21,7 @@ import (
 
 // SAMLGroupContent defines the content for a SAMLGroup.
 type SAMLGroupContent struct {
-	Roles attributes.Strings `json:"roles" url:"roles"`
+	Roles attributes.Explicit[[]string] `json:"roles" values:"roles,omitempty"`
 }
 
 // SAMLGroup defines a SAML group mapping.

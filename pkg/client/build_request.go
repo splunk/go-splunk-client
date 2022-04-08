@@ -20,9 +20,9 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/google/go-querystring/query"
 	"github.com/splunk/go-splunk-client/pkg/selective"
 	"github.com/splunk/go-splunk-client/pkg/service"
+	"github.com/splunk/go-splunk-client/pkg/values"
 )
 
 // defaultStatusCodes set the expected StatusCodes for most CRUD operations. If
@@ -92,7 +92,7 @@ func BuildRequestServiceURL(c *Client, service interface{}) RequestBuilder {
 // a given interface.
 func BuildRequestBodyValues(i interface{}) RequestBuilder {
 	return func(r *http.Request) error {
-		v, err := query.Values(i)
+		v, err := values.Encode(i)
 		if err != nil {
 			return wrapError(ErrorValues, err, err.Error())
 		}

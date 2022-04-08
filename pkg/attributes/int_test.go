@@ -19,43 +19,47 @@ import (
 	"testing"
 )
 
+type testInt struct {
+	Value Explicit[int] `values:",omitempty"`
+}
+
 func TestInt_UnmarshalJSON(t *testing.T) {
 	tests := jsonUnmarshalTestCases{
 		{
 			name:        "empty",
 			inputString: `{}`,
-			want:        struct{ Value Int }{},
+			want:        testInt{},
 		},
 		{
 			name:        "zero",
 			inputString: `{"value":0}`,
-			want:        struct{ Value Int }{Int{explicit: true}},
+			want:        testInt{Value: NewExplicit(0)},
 		},
 		{
 			name:        "non-zero",
 			inputString: `{"value":1}`,
-			want:        struct{ Value Int }{Int{value: 1, explicit: true}},
+			want:        testInt{Value: NewExplicit(1)},
 		},
 	}
 
 	tests.test(t)
 }
 
-func TestInt_EncodeValues(t *testing.T) {
+func TestInt_SetURLValues(t *testing.T) {
 	tests := queryValuesTestCases{
 		{
 			name:  "implicit zero",
-			input: struct{ Value Int }{},
+			input: testInt{},
 			want:  url.Values{},
 		},
 		{
 			name:  "explicit zero",
-			input: struct{ Value Int }{Int{explicit: true}},
+			input: testInt{Value: NewExplicit(0)},
 			want:  url.Values{"Value": []string{"0"}},
 		},
 		{
 			name:  "non-zero",
-			input: struct{ Value Int }{Value: Int{value: 1}},
+			input: testInt{Value: NewExplicit(1)},
 			want:  url.Values{"Value": []string{"1"}},
 		},
 	}

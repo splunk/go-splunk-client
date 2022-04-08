@@ -23,12 +23,12 @@ import (
 
 // Password defines password authentication to Splunk.
 type Password struct {
-	Username string `url:"username"`
-	Password string `url:"password"`
+	Username string `values:"username"`
+	Password string `values:"password"`
 
 	// UseBasicAuth can be set to true if Basic Authentication should always be used,
 	// which causes Username/Password to be passed with each authenticated request.
-	UseBasicAuth bool `url:"-"`
+	UseBasicAuth bool `values:"-"`
 
 	// SessionKey holds the SessionKey after initial authentication occurs. Unless
 	// UseBasicAuth is set to true, this SessionKey will be used to authenticate requests.

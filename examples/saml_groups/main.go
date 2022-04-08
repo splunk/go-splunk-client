@@ -39,7 +39,7 @@ func main() {
 			Title: "new_saml_group",
 		},
 		SAMLGroupContent: entry.SAMLGroupContent{
-			Roles: attributes.NewStrings("admin"),
+			Roles: attributes.NewExplicit([]string{"admin"}),
 		},
 	})
 	if err != nil {

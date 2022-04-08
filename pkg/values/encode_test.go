@@ -241,7 +241,7 @@ func Test_Encode(t *testing.T) {
 			},
 		},
 		{
-			// testCustomValuesSlice implements custom key by implementing the EncodeValues interface
+			// testCustomValuesSlice implements key customization by implementing the ValuesEncoder interface
 			name: "custom values slice",
 			input: testCustomValuesSlice{
 				"value1",

@@ -39,8 +39,8 @@ func main() {
 			Title: "new_role",
 		},
 		RoleContent: entry.RoleContent{
-			SrchDiskQuota: attributes.NewInt(1),
-			Capabilities:  attributes.NewStrings("search"),
+			SrchDiskQuota: attributes.NewExplicit(1),
+			Capabilities:  attributes.NewExplicit([]string{"search"}),
 		},
 	}); err != nil {
 		log.Fatalf("unable to create role: %s", err)

@@ -39,9 +39,9 @@ func main() {
 			Title: "newuser",
 		},
 		UserContent: entry.UserContent{
-			Password: attributes.NewString("changedit"),
-			RealName: attributes.NewString("New User"),
-			Roles:    attributes.NewStrings("user"),
+			Password: attributes.NewExplicit("changedit"),
+			RealName: attributes.NewExplicit("New User"),
+			Roles:    attributes.NewExplicit([]string{"user"}),
 		},
 	}); err != nil {
 		log.Fatalf("unable to create user: %s", err)
@@ -60,7 +60,7 @@ func main() {
 	fmt.Printf("  real name: %s\n", createdUser.RealName)
 	fmt.Printf("  roles: %s\n", createdUser.Roles)
 
-	createdUser.RealName = attributes.NewString("Updated User")
+	createdUser.RealName = attributes.NewExplicit("Updated User")
 	if err := client.Update(c, createdUser); err != nil {
 		log.Fatalf("unable to update user: %s", err)
 	}

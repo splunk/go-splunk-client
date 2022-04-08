@@ -17,31 +17,31 @@ package attributes_test
 import (
 	"fmt"
 
-	"github.com/google/go-querystring/query"
 	"github.com/splunk/go-splunk-client/pkg/attributes"
+	"github.com/splunk/go-splunk-client/pkg/values"
 )
 
-func ExampleStrings() {
+func ExampleExplicit_strings() {
 	type knowledgeObject struct {
-		Name   string             `url:"name"`
-		Values attributes.Strings `url:"values"`
+		Name   string                        `values:"name"`
+		Values attributes.Explicit[[]string] `values:"values,omitempty"`
 	}
 
 	myObject := knowledgeObject{
 		Name: "my_knowledge_object",
 	}
 	// myObjectURLValues will not have a value for Values as it has not been set
-	myObjectURLValues, _ := query.Values(myObject)
+	myObjectURLValues, _ := values.Encode(myObject)
 	fmt.Printf("myObjectURLValues without explicitly set Values: %s\n", myObjectURLValues)
 
-	myObject.Values = attributes.NewStrings()
+	myObject.Values = attributes.NewExplicit([]string{})
 	// myObjectURLValues will have a value of an empty string for Values as it has been explicitly set empty
-	myObjectURLValues, _ = query.Values(myObject)
+	myObjectURLValues, _ = values.Encode(myObject)
 	fmt.Printf("myObjectURLValues with explicitly set (empty) Values: %s\n", myObjectURLValues)
 
-	myObject.Values = attributes.NewStrings("valueA", "valueB", "valueC")
+	myObject.Values = attributes.NewExplicit([]string{"valueA", "valueB", "valueC"})
 	// myObjectURLValues will have multiple values for Values
-	myObjectURLValues, _ = query.Values(myObject)
+	myObjectURLValues, _ = values.Encode(myObject)
 	fmt.Printf("myObjectURLValues with explicitly set (non-empty) Values: %s\n", myObjectURLValues)
 
 	// Output: myObjectURLValues without explicitly set Values: map[name:[my_knowledge_object]]

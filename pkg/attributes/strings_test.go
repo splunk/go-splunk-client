@@ -19,31 +19,29 @@ import (
 	"testing"
 )
 
+type testStrings struct {
+	Values Explicit[[]string] `values:",omitempty"`
+}
+
 func TestStrings_UnmarshalJSON(t *testing.T) {
 	tests := jsonUnmarshalTestCases{
 		{
 			name:        "absent",
 			inputString: "{}",
-			want:        struct{ Values Strings }{},
+			want:        testStrings{},
 		},
 		{
 			name:        "empty list",
 			inputString: `{"values":[]}`,
-			want: struct{ Values Strings }{
-				Strings{
-					values:   []string{},
-					explicit: true,
-				},
+			want: testStrings{
+				Values: NewExplicit([]string{}),
 			},
 		},
 		{
 			name:        "populated list",
 			inputString: `{"values":["one","two"]}`,
-			want: struct{ Values Strings }{
-				Strings{
-					values:   []string{"one", "two"},
-					explicit: true,
-				},
+			want: testStrings{
+				Values: NewExplicit([]string{"one", "two"}),
 			},
 		},
 	}
@@ -51,30 +49,26 @@ func TestStrings_UnmarshalJSON(t *testing.T) {
 	tests.test(t)
 }
 
-func TestStrings_EncodeValues(t *testing.T) {
+func TestStrings_SetURLValues(t *testing.T) {
 	tests := queryValuesTestCases{
 		{
 			name:  "zero value",
-			input: struct{ Value Strings }{},
+			input: testStrings{},
 			want:  url.Values{},
 		},
 		{
 			name: "explicitly empty",
-			input: struct{ Value Strings }{
-				Strings{
-					explicit: true,
-				},
+			input: testStrings{
+				Values: NewExplicit([]string{}),
 			},
-			want: url.Values{"Value": []string{""}},
+			want: url.Values{"Values": []string{""}},
 		},
 		{
 			name: "implicit values",
-			input: struct{ Value Strings }{
-				Strings{
-					values: []string{"one", "two"},
-				},
+			input: testStrings{
+				Values: NewExplicit([]string{"one", "two"}),
 			},
-			want: url.Values{"Value": []string{"one", "two"}},
+			want: url.Values{"Values": []string{"one", "two"}},
 		},
 	}
 
