@@ -16,14 +16,20 @@ package values
 
 import "net/url"
 
-// ValuesEncoder is the interface for types that implement custom encoding to url.Values
+// URLValuesSetter is the interface for types that implement custom encoding to url.Values
 // for a given key.
-type ValuesEncoder interface {
-	EncodeKeyValues(string, *url.Values) error
+type URLValuesSetter interface {
+	SetURLValues(string, *url.Values) error
 }
 
-// KeyEncoder is the interface for types that implement custom key calculation prior
+// URLKeyGetter is the interface for types that implement custom key calculation prior
 // to encoding to url.Values.
-type KeyEncoder interface {
-	EncodeKey(parentKey string, childKeystring string) string
+type URLKeyGetter interface {
+	GetURLKey(parentKey string, childKeystring string) (string, error)
+}
+
+// URLValueGetter is the interface for types that implement custom value calculation
+// prior to encoding to url.Values.
+type URLValueGetter interface {
+	GetURLValue() interface{}
 }
