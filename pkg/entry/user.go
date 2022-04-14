@@ -34,14 +34,10 @@ type UserContent struct {
 	// are not settable by Create or Update operations.
 	Capabilities attributes.Strings `url:"-"`
 	Type         string             `url:"-"`
-
-	// The below fields don't have values, and only exist to provide context to
-	// the Splunk API.
-	client.Content
 }
 
 // User defines a Splunk user.
 type User struct {
-	ID          client.ID `service:"authentication/users"`
+	ID          client.ID `selective:"create" service:"authentication/users"`
 	UserContent `json:"content"`
 }

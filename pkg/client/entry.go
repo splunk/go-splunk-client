@@ -22,15 +22,8 @@ import (
 	"github.com/splunk/go-splunk-client/pkg/service"
 )
 
-// Entry is the interface that describes types that are support Create, Read, Update,
-// Delete, List operations. Types that satisfy this interface meet the Service, Titler,
-// and ContentGetter interfaces.
-type Entry interface {
-	ContentGetter
-}
-
 // Create performs a Create action for the given Entry.
-func Create(client *Client, entry Entry) error {
+func Create(client *Client, entry interface{}) error {
 	var codes service.StatusCodes
 
 	return client.RequestAndHandle(
@@ -39,7 +32,7 @@ func Create(client *Client, entry Entry) error {
 			BuildRequestMethod(http.MethodPost),
 			BuildRequestServiceURL(client, entry),
 			BuildRequestOutputModeJSON(),
-			BuildRequestBodyValues(entry),
+			BuildRequestBodyValuesSelective(entry, "create"),
 			BuildRequestAuthenticate(client),
 		),
 		ComposeResponseHandler(
@@ -50,7 +43,7 @@ func Create(client *Client, entry Entry) error {
 
 // Read performs a Read action for the given Entry. It modifies entry in-place,
 // so entry must be a pointer.
-func Read(client *Client, entry Entry) error {
+func Read(client *Client, entry interface{}) error {
 	var codes service.StatusCodes
 
 	return client.RequestAndHandle(
@@ -70,7 +63,7 @@ func Read(client *Client, entry Entry) error {
 }
 
 // Update performs an Update action for the given Entry.
-func Update(client *Client, entry Entry) error {
+func Update(client *Client, entry interface{}) error {
 	var codes service.StatusCodes
 
 	return client.RequestAndHandle(
@@ -79,7 +72,7 @@ func Update(client *Client, entry Entry) error {
 			BuildRequestMethod(http.MethodPost),
 			BuildRequestEntryURL(client, entry),
 			BuildRequestOutputModeJSON(),
-			BuildRequestBodyValuesContent(entry),
+			BuildRequestBodyValuesSelective(entry, "update"),
 			BuildRequestAuthenticate(client),
 		),
 		ComposeResponseHandler(
@@ -89,7 +82,7 @@ func Update(client *Client, entry Entry) error {
 }
 
 // Delete performs a Delete action for the given Entry.
-func Delete(client *Client, entry Entry) error {
+func Delete(client *Client, entry interface{}) error {
 	var codes service.StatusCodes
 
 	return client.RequestAndHandle(
