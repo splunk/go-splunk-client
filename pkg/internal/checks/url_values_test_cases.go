@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package attributes
+package checks
 
 import (
 	"net/url"
@@ -22,34 +22,34 @@ import (
 	"github.com/splunk/go-splunk-client/pkg/values"
 )
 
-// queryValuesTestCase defines a test case for query.Values.
-type queryValuesTestCase struct {
-	name      string
-	input     interface{}
-	want      url.Values
-	wantError bool
+// QueryValuesTestCase defines a test case for query.Values.
+type QueryValuesTestCase struct {
+	Name      string
+	Input     interface{}
+	Want      url.Values
+	WantError bool
 }
 
-// test runs the test.
-func (test queryValuesTestCase) test(t *testing.T) {
-	got, err := values.Encode(test.input)
+// Test runs the Test.
+func (test QueryValuesTestCase) Test(t *testing.T) {
+	got, err := values.Encode(test.Input)
 	gotError := err != nil
 
-	if gotError != test.wantError {
-		t.Errorf("%s values.Encode returned error? %v: %s", test.name, gotError, err)
+	if gotError != test.WantError {
+		t.Errorf("%s values.Encode returned error? %v: %s", test.Name, gotError, err)
 	}
 
-	if !reflect.DeepEqual(got, test.want) {
-		t.Errorf("%s values.Encode got\n%#v, want\n%#v", test.name, got, test.want)
+	if !reflect.DeepEqual(got, test.Want) {
+		t.Errorf("%s values.Encode got\n%#v, want\n%#v", test.Name, got, test.Want)
 	}
 }
 
-// queryValuesTestCases is a collection of queryValuesTestCase tests.
-type queryValuesTestCases []queryValuesTestCase
+// QueryValuesTestCases is a collection of queryValuesTestCase tests.
+type QueryValuesTestCases []QueryValuesTestCase
 
-// test runs the test defined for each item in the collection.
-func (tests queryValuesTestCases) test(t *testing.T) {
+// Test runs the Test defined for each item in the collection.
+func (tests QueryValuesTestCases) Test(t *testing.T) {
 	for _, test := range tests {
-		test.test(t)
+		test.Test(t)
 	}
 }
