@@ -38,6 +38,6 @@ type UserContent struct {
 
 // User defines a Splunk user.
 type User struct {
-	ID          client.ID `selective:"create" service:"authentication/users"`
-	UserContent `json:"content"`
+	ID      client.ID   `selective:"create" service:"authentication/users"`
+	Content UserContent `json:"content" values:",anonymize"`
 }

@@ -49,6 +49,6 @@ type RoleContent struct {
 
 // Role defines a Splunk role.
 type Role struct {
-	ID          client.ID `selective:"create" service:"authorization/roles"`
-	RoleContent `json:"content"`
+	ID      client.ID   `selective:"create" service:"authorization/roles"`
+	Content RoleContent `json:"content" values:",anonymize"`
 }

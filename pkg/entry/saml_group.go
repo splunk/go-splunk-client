@@ -26,8 +26,8 @@ type SAMLGroupContent struct {
 
 // SAMLGroup defines a SAML group mapping.
 type SAMLGroup struct {
-	ID               client.ID `selective:"create" service:"admin/SAML-groups"`
-	SAMLGroupContent `json:"content"`
+	ID      client.ID        `selective:"create" service:"admin/SAML-groups"`
+	Content SAMLGroupContent `json:"content" values:",anonymize"`
 
 	// This endpoint returns a 400 if unable to find the given SAML Group.
 	_ service.StatusCodes `service:"NotFound=400"`

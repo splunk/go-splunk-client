@@ -38,7 +38,7 @@ func main() {
 		ID: client.ID{
 			Title: "new_saml_group",
 		},
-		SAMLGroupContent: entry.SAMLGroupContent{
+		Content: entry.SAMLGroupContent{
 			Roles: attributes.NewExplicit([]string{"admin"}),
 		},
 	})

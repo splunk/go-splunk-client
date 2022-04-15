@@ -38,7 +38,7 @@ func main() {
 		ID: client.ID{
 			Title: "new_role",
 		},
-		RoleContent: entry.RoleContent{
+		Content: entry.RoleContent{
 			SrchDiskQuota: attributes.NewExplicit(1),
 			Capabilities:  attributes.NewExplicit([]string{"search"}),
 		},
@@ -60,7 +60,7 @@ func main() {
 	updateRole := entry.Role{
 		ID: client.ID{Title: "new_role"},
 	}
-	updateRole.SrchDiskQuota.Set(0)
+	updateRole.Content.SrchDiskQuota.Set(0)
 	if err := client.Update(c, updateRole); err != nil {
 		log.Fatalf("unable to update role: %s", err)
 	}
