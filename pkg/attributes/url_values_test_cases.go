@@ -19,7 +19,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/google/go-querystring/query"
+	"github.com/splunk/go-splunk-client/pkg/values"
 )
 
 // queryValuesTestCase defines a test case for query.Values.
@@ -32,15 +32,15 @@ type queryValuesTestCase struct {
 
 // test runs the test.
 func (test queryValuesTestCase) test(t *testing.T) {
-	got, err := query.Values(test.input)
+	got, err := values.Encode(test.input)
 	gotError := err != nil
 
 	if gotError != test.wantError {
-		t.Errorf("%s query.Values returned error? %v: %s", test.name, gotError, err)
+		t.Errorf("%s values.Encode returned error? %v: %s", test.name, gotError, err)
 	}
 
 	if !reflect.DeepEqual(got, test.want) {
-		t.Errorf("%s query.Values got\n%#v, want\n%#v", test.name, got, test.want)
+		t.Errorf("%s values.Encode got\n%#v, want\n%#v", test.name, got, test.want)
 	}
 }
 

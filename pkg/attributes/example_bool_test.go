@@ -17,26 +17,26 @@ package attributes_test
 import (
 	"fmt"
 
-	"github.com/google/go-querystring/query"
 	"github.com/splunk/go-splunk-client/pkg/attributes"
+	"github.com/splunk/go-splunk-client/pkg/values"
 )
 
-func ExampleBool() {
+func ExampleExplicit_bool() {
 	type knowledgeObject struct {
-		Name     string          `url:"name"`
-		Disabled attributes.Bool `url:"disabled"`
+		Name     string                    `values:"name"`
+		Disabled attributes.Explicit[bool] `values:"disabled,omitempty"`
 	}
 
 	myObject := knowledgeObject{
 		Name: "my_knowledge_object",
 	}
 	// myObjectURLValues will not have a value for Disabled as it has not been set
-	myObjectURLValues, _ := query.Values(myObject)
+	myObjectURLValues, _ := values.Encode(myObject)
 	fmt.Printf("myObjectURLValues without explicitly set Disabled: %s\n", myObjectURLValues)
 
-	myObject.Disabled = attributes.NewBool(false)
+	myObject.Disabled = attributes.NewExplicit(false)
 	// myObjectURLValues will have a value of false for Disabled as it has been set
-	myObjectURLValues, _ = query.Values(myObject)
+	myObjectURLValues, _ = values.Encode(myObject)
 	fmt.Printf("myObjectURLValues with explicitly set Disabled: %s\n", myObjectURLValues)
 	// Output: myObjectURLValues without explicitly set Disabled: map[name:[my_knowledge_object]]
 	// myObjectURLValues with explicitly set Disabled: map[disabled:[false] name:[my_knowledge_object]]

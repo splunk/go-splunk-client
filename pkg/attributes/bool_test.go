@@ -19,44 +19,52 @@ import (
 	"testing"
 )
 
+type testBool struct {
+	Value Explicit[bool] `values:",omitempty"`
+}
+
 func TestBool_UnmarshalJSON(t *testing.T) {
 	tests := jsonUnmarshalTestCases{
 		{
 			name:        "empty",
 			inputString: `{}`,
-			want:        struct{ Value Bool }{},
+			want:        testBool{},
 		},
 		{
 			name:        "zero",
 			inputString: `{"value":false}`,
-			want:        struct{ Value Bool }{Bool{explicit: true}},
+			want:        testBool{Value: NewExplicit(false)},
 		},
 		{
 			name:        "non-zero",
 			inputString: `{"value":true}`,
-			want:        struct{ Value Bool }{Bool{value: true, explicit: true}},
+			want:        testBool{Value: NewExplicit(true)},
 		},
 	}
 
 	tests.test(t)
 }
 
-func TestBool_EncodeValues(t *testing.T) {
+func TestBool_SetURLValues(t *testing.T) {
 	tests := queryValuesTestCases{
 		{
 			name:  "implicit zero",
-			input: struct{ Value Bool }{},
+			input: testBool{},
 			want:  url.Values{},
 		},
 		{
-			name:  "explicit zero",
-			input: struct{ Value Bool }{Bool{explicit: true}},
-			want:  url.Values{"Value": []string{"false"}},
+			name: "explicit zero",
+			input: testBool{
+				Value: NewExplicit(false),
+			},
+			want: url.Values{"Value": []string{"false"}},
 		},
 		{
-			name:  "non-zero",
-			input: struct{ Value Bool }{Value: Bool{value: true}},
-			want:  url.Values{"Value": []string{"true"}},
+			name: "non-zero",
+			input: testBool{
+				Value: NewExplicit(true),
+			},
+			want: url.Values{"Value": []string{"true"}},
 		},
 	}
 

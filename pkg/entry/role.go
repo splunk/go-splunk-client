@@ -21,34 +21,34 @@ import (
 
 // RoleContent defines the Content for a Role.
 type RoleContent struct {
-	Capabilities              attributes.Strings `json:"capabilities"              url:"capabilities"`
-	CumulativeRTSrchJobsQuota attributes.Int     `json:"cumulativeRTSrchJobsQuota" url:"cumulativeRTSrchJobsQuota"`
-	CumulativeSrchJobsQuota   attributes.Int     `json:"cumulativeSrchJobsQuota"   url:"cumulativeSrchJobsQuota"`
-	DefaultApp                attributes.String  `json:"defaultApp"                url:"defaultApp"`
-	ImportedRoles             attributes.Strings `json:"imported_roles"            url:"imported_roles"`
-	RtSrchJobsQuota           attributes.Int     `json:"rtSrchJobsQuota"           url:"rtSrchJobsQuota"`
-	SrchDiskQuota             attributes.Int     `json:"srchDiskQuota"             url:"srchDiskQuota"`
-	SrchFilter                attributes.String  `json:"srchFilter"                url:"srchFilter"`
-	SrchIndexesAllowed        attributes.Strings `json:"srchIndexesAllowed"        url:"srchIndexesAllowed"`
-	SrchIndexesDefault        attributes.Strings `json:"srchIndexesDefault"        url:"srchIndexesDefault"`
-	SrchJobsQuota             attributes.Int     `json:"srchJobsQuota"             url:"srchJobsQuota"`
-	SrchTimeWin               attributes.Int     `json:"srchTimeWin"               url:"srchTimeWin"`
+	Capabilities              attributes.Explicit[[]string] `json:"capabilities"              values:"capabilities,omitempty"`
+	CumulativeRTSrchJobsQuota attributes.Explicit[int]      `json:"cumulativeRTSrchJobsQuota" values:"cumulativeRTSrchJobsQuota,omitempty"`
+	CumulativeSrchJobsQuota   attributes.Explicit[int]      `json:"cumulativeSrchJobsQuota"   values:"cumulativeSrchJobsQuota,omitempty"`
+	DefaultApp                attributes.Explicit[string]   `json:"defaultApp"                values:"defaultApp,omitempty"`
+	RtSrchJobsQuota           attributes.Explicit[int]      `json:"rtSrchJobsQuota"           values:"rtSrchJobsQuota,omitempty"`
+	SrchDiskQuota             attributes.Explicit[int]      `json:"srchDiskQuota"             values:"srchDiskQuota,omitempty"`
+	SrchFilter                attributes.Explicit[string]   `json:"srchFilter"                values:"srchFilter,omitempty"`
+	SrchIndexesAllowed        attributes.Explicit[[]string] `json:"srchIndexesAllowed"        values:"srchIndexesAllowed,omitempty"`
+	SrchIndexesDefault        attributes.Explicit[[]string] `json:"srchIndexesDefault"        values:"srchIndexesDefault,omitempty"`
+	SrchJobsQuota             attributes.Explicit[int]      `json:"srchJobsQuota"             values:"srchJobsQuota,omitempty"`
+	SrchTimeWin               attributes.Explicit[int]      `json:"srchTimeWin"               values:"srchTimeWin,omitempty"`
 
 	// Read-only fields are populated by results returned by the Splunk API, but
 	// are not settable by Create or Update operations.
-	ImportedCapabilities       attributes.Strings `json:"imported_capabilities"       url:"-"`
-	ImportedRtSrchJobsQuota    attributes.Int     `json:"imported_rtSrchJobsQuota"    url:"-"`
-	ImportedRtSrchJObsQuota    attributes.Int     `json:"imported_rtSrchJObsQuota"    url:"-"`
-	ImportedSrchDiskQuota      attributes.Int     `json:"imported_srchDiskQuota"      url:"-"`
-	ImportedSrchFilter         attributes.String  `json:"imported_srchFilter"         url:"-"`
-	ImportedSrchIndexesAllowed attributes.Strings `json:"imported_srchIndexesAllowed" url:"-"`
-	ImportedSrchIndexesDefault attributes.Strings `json:"imported_srchIndexesDefault" url:"-"`
-	ImportedSrchJobsQuota      attributes.Int     `json:"imported_srchJobsQuota"      url:"-"`
-	ImportedSrchTimeWin        attributes.Int     `json:"imported_srchTimeWin"        url:"-"`
+	ImportedCapabilities       attributes.Explicit[[]string] `json:"imported_capabilities"       values:"-"`
+	ImportedRoles              attributes.Explicit[[]string] `json:"imported_roles"              values:"-"`
+	ImportedRtSrchJobsQuota    attributes.Explicit[int]      `json:"imported_rtSrchJobsQuota"    values:"-"`
+	ImportedRtSrchJObsQuota    attributes.Explicit[int]      `json:"imported_rtSrchJObsQuota"    values:"-"`
+	ImportedSrchDiskQuota      attributes.Explicit[int]      `json:"imported_srchDiskQuota"      values:"-"`
+	ImportedSrchFilter         attributes.Explicit[string]   `json:"imported_srchFilter"         values:"-"`
+	ImportedSrchIndexesAllowed attributes.Explicit[[]string] `json:"imported_srchIndexesAllowed" values:"-"`
+	ImportedSrchIndexesDefault attributes.Explicit[[]string] `json:"imported_srchIndexesDefault" values:"-"`
+	ImportedSrchJobsQuota      attributes.Explicit[int]      `json:"imported_srchJobsQuota"      values:"-"`
+	ImportedSrchTimeWin        attributes.Explicit[int]      `json:"imported_srchTimeWin"        values:"-"`
 }
 
 // Role defines a Splunk role.
 type Role struct {
-	ID          client.ID `selective:"create" service:"authorization/roles"`
-	RoleContent `json:"content"`
+	ID      client.ID   `selective:"create" service:"authorization/roles"`
+	Content RoleContent `json:"content" values:",anonymize"`
 }

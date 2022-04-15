@@ -16,3 +16,76 @@
 // including the zero values of their stored types, to enable HTTP requests to
 // account for all intended parameter values.
 package attributes
+
+import (
+	"encoding/json"
+	"fmt"
+	"strconv"
+)
+
+// explicitlyStorableValue defines the types storable by ExplicitValue.
+type explicitlyStorableValue interface {
+	bool | int | string | []string
+}
+
+// Explicit is permits storing a value such that it can be explicitly empty/zero.
+type Explicit[T explicitlyStorableValue] struct {
+	set   bool
+	value T
+}
+
+// GetURLValue implements custom encoding of its url.Values value.
+func (e Explicit[T]) GetURLValue() interface{} {
+	return e.value
+}
+
+// Set explicitly sets the value.
+func (e *Explicit[T]) Set(value T) {
+	e.set = true
+	e.value = value
+}
+
+// NewExplicit returns a new Explicit with its value explicitly set.
+func NewExplicit[T explicitlyStorableValue](value T) (newExplicitValue Explicit[T]) {
+	newExplicitValue.Set(value)
+
+	return
+}
+
+// UnmarshalJSON implements custom JSON unmarshaling. The unmarshaled is explicitly set.
+func (e *Explicit[T]) UnmarshalJSON(data []byte) error {
+	var newValue T
+
+	if err := json.Unmarshal(data, &newValue); err != nil {
+		return err
+	}
+
+	e.Set(newValue)
+
+	return nil
+}
+
+// Bool returns a value indicating the boolean representation of the stored value, and
+// another boolean that will be true only if the value was explicitly set, and it can
+// be parsed by strconv.ParseBool without error.
+func (e Explicit[T]) Bool() (value bool, ok bool) {
+	if !e.set {
+		return
+	}
+
+	strValue := fmt.Sprint(e.value)
+	value, err := strconv.ParseBool(strValue)
+	ok = err == nil
+
+	return
+}
+
+// Value returns the stored value.
+func (e Explicit[T]) Value() T {
+	return e.value
+}
+
+// String returns the defualt string representation of the stored value.
+func (e Explicit[T]) String() string {
+	return fmt.Sprint(e.value)
+}

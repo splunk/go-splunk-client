@@ -20,26 +20,22 @@ import (
 	"testing"
 )
 
-func TestNamedParameters_EncodeValues(t *testing.T) {
+func TestNamedParameters_SetURLValues(t *testing.T) {
 	type testType struct {
-		Description string          `url:"description,omitempty"`
-		Action      NamedParameters `url:"actions"`
+		Description string          `values:"description,omitempty"`
+		Action      NamedParameters `values:"actions"`
 	}
 
 	tests := queryValuesTestCases{
 		{
 			name:      "empty",
 			input:     testType{},
-			want:      map[string][]string{},
 			wantError: true,
 		},
 		{
 			name: "description only",
 			input: testType{
 				Description: "testDescription",
-			},
-			want: map[string][]string{
-				"description": {"testDescription"},
 			},
 			wantError: true,
 		},
@@ -67,7 +63,7 @@ func TestNamedParameters_EncodeValues(t *testing.T) {
 				Description: "testDescription",
 				Action: NamedParameters{
 					Name:   "email",
-					Status: NewString("true"),
+					Status: NewExplicit("true"),
 					Parameters: Parameters{
 						"to":      "whocares@example.com",
 						"subject": "10 tricks your Splunk admin doesn't want you to know!",
@@ -110,15 +106,15 @@ func TestNamedParametersCollection_EnabledNames(t *testing.T) {
 				},
 				{
 					Name:   "explicitlyDisabledField",
-					Status: NewString("false"),
+					Status: NewExplicit("false"),
 				},
 				{
 					Name:   "explicitlyEnabledBoolField",
-					Status: NewString("true"),
+					Status: NewExplicit("true"),
 				},
 				{
 					Name:   "explicitlyEnabledNumberField",
-					Status: NewString("1"),
+					Status: NewExplicit("1"),
 				},
 			},
 			[]string{
@@ -195,7 +191,7 @@ func TestNamedParametersCollection_UnmarshalJSON(t *testing.T) {
 					},
 					{
 						Name:   "enabledOption",
-						Status: NewString("true"),
+						Status: NewExplicit("true"),
 						Parameters: Parameters{
 							"description": "this option is enabled",
 						},
@@ -209,10 +205,10 @@ func TestNamedParametersCollection_UnmarshalJSON(t *testing.T) {
 	tests.test(t)
 }
 
-func TestNamedParametersCollect_EncodeValues(t *testing.T) {
+func TestNamedParametersCollection_SetURLValues(t *testing.T) {
 	type testType struct {
-		Description string                    `url:"description,omitempty"`
-		Actions     NamedParametersCollection `named_parameters_collection:"actions" url:"actions"`
+		Description string                    `values:"description,omitempty"`
+		Actions     NamedParametersCollection `named_parameters_collection:"actions" values:"actions,omitempty"`
 	}
 
 	tests := queryValuesTestCases{
@@ -237,7 +233,7 @@ func TestNamedParametersCollect_EncodeValues(t *testing.T) {
 				Actions: NamedParametersCollection{
 					{
 						Name:   "email",
-						Status: NewString("false"),
+						Status: NewExplicit("false"),
 					},
 				},
 			},
@@ -253,7 +249,7 @@ func TestNamedParametersCollect_EncodeValues(t *testing.T) {
 				Actions: NamedParametersCollection{
 					{
 						Name:   "email",
-						Status: NewString("true"),
+						Status: NewExplicit("true"),
 						Parameters: Parameters{
 							"to": "whocares@example.com",
 						},

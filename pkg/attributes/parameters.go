@@ -80,7 +80,7 @@ func (p Parameters) namedParametersWithDottedName(name string) NamedParameters {
 
 	// Status only set explicitly if there was a <name> key is present in Parameters
 	if statusValue, ok := p[name]; ok {
-		newParams.Status = NewString(statusValue)
+		newParams.Status = NewExplicit(statusValue)
 	}
 
 	return newParams
@@ -145,8 +145,8 @@ func (p *Parameters) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-// EncodeValues implements custom encoding into url.Values.
-func (p Parameters) EncodeValues(key string, v *url.Values) error {
+// SetURLValues implements custom encoding into url.Values.
+func (p Parameters) SetURLValues(key string, v *url.Values) error {
 	for paramKey, paramValue := range p {
 		valueKey := strings.Join([]string{key, paramKey}, ".")
 

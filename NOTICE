@@ -14,11 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 
-======================== go-querystring ========================
-This product bundles go-querystring, which is available under a
-"3-clause BSD" license, hosted at https://github.com/google/go-querystring.
+======================== Go Language Library ==========================
+This product bundles the Go Language library, which is available under
+a "3-clause BSD" license, hosted at https://cs.opensource.google/go/x/text.
 
-Copyright (c) 2013 Google. All rights reserved.
+Copyright (c) 2009 The Go Authors. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are

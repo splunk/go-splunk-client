@@ -38,10 +38,10 @@ func main() {
 		ID: client.ID{
 			Title: "newuser",
 		},
-		UserContent: entry.UserContent{
-			Password: attributes.NewString("changedit"),
-			RealName: attributes.NewString("New User"),
-			Roles:    attributes.NewStrings("user"),
+		Content: entry.UserContent{
+			Password: attributes.NewExplicit("changedit"),
+			RealName: attributes.NewExplicit("New User"),
+			Roles:    attributes.NewExplicit([]string{"user"}),
 		},
 	}); err != nil {
 		log.Fatalf("unable to create user: %s", err)
@@ -57,10 +57,10 @@ func main() {
 		log.Fatalf("unable to read user: %s", err)
 	}
 	fmt.Printf("read user: %s\n", createdUser.ID)
-	fmt.Printf("  real name: %s\n", createdUser.RealName)
-	fmt.Printf("  roles: %s\n", createdUser.Roles)
+	fmt.Printf("  real name: %s\n", createdUser.Content.RealName)
+	fmt.Printf("  roles: %s\n", createdUser.Content.Roles)
 
-	createdUser.RealName = attributes.NewString("Updated User")
+	createdUser.Content.RealName = attributes.NewExplicit("Updated User")
 	if err := client.Update(c, createdUser); err != nil {
 		log.Fatalf("unable to update user: %s", err)
 	}
@@ -76,7 +76,7 @@ func main() {
 	}
 	for _, listedUser := range listedUsers {
 		fmt.Printf("listed user: %s\n", listedUser.ID)
-		fmt.Printf("  real name: %s\n", listedUser.RealName)
-		fmt.Printf("  roles: %s\n", listedUser.Roles)
+		fmt.Printf("  real name: %s\n", listedUser.Content.RealName)
+		fmt.Printf("  roles: %s\n", listedUser.Content.Roles)
 	}
 }

@@ -22,22 +22,22 @@ import (
 // UserContent defines the content of a User object.
 type UserContent struct {
 	// Read/Write
-	DefaultApp            attributes.String  `url:"defaultApp"`
-	Email                 attributes.String  `url:"email"`
-	Password              attributes.String  `url:"password,omitempty"`
-	RealName              attributes.String  `url:"realname"`
-	RestartBackgroundJobs attributes.Bool    `url:"restart_background_jobs"`
-	Roles                 attributes.Strings `url:"roles"`
-	TZ                    attributes.String  `url:"tz"`
+	DefaultApp            attributes.Explicit[string]   `values:"defaultApp,omitempty"`
+	Email                 attributes.Explicit[string]   `values:"email,omitempty"`
+	Password              attributes.Explicit[string]   `values:"password,omitempty"`
+	RealName              attributes.Explicit[string]   `values:"realname,omitempty"`
+	RestartBackgroundJobs attributes.Explicit[bool]     `values:"restart_background_jobs,omitempty"`
+	Roles                 attributes.Explicit[[]string] `values:"roles,omitempty"`
+	TZ                    attributes.Explicit[string]   `values:"tz,omitempty"`
 
 	// Read-only fields are populated by results returned by the Splunk API, but
 	// are not settable by Create or Update operations.
-	Capabilities attributes.Strings `url:"-"`
-	Type         string             `url:"-"`
+	Capabilities attributes.Explicit[[]string] `values:"-"`
+	Type         attributes.Explicit[string]   `values:"-"`
 }
 
 // User defines a Splunk user.
 type User struct {
-	ID          client.ID `selective:"create" service:"authentication/users"`
-	UserContent `json:"content"`
+	ID      client.ID   `selective:"create" service:"authentication/users"`
+	Content UserContent `json:"content" values:",anonymize"`
 }

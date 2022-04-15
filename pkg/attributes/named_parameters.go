@@ -17,42 +17,30 @@ package attributes
 import (
 	"encoding/json"
 	"fmt"
-	"net/url"
 	"reflect"
-	"strings"
 )
 
 // NamedParameters represent a set of Parameters that are associated with an overall Name.
 type NamedParameters struct {
 	// Name is the overall name of this set of Parameters. It is likely the leftmost segment
 	// of a dotted parameter name, such as "actions" for "actions.email".
-	Name string
+	Name string `values:"-"`
 
 	// Status is the string representation of a NamedParameters' status. This is typically
 	// true/false or 0/1, and is the value associated directly with the name segment, such as
 	// email=true.
-	Status String
+	Status Explicit[string] `values:",omitempty,anonymize"`
 
-	Parameters Parameters
+	Parameters Parameters `values:",omitempty,anonymize"`
 }
 
-// EncodeValues implements custom encoding into url.Values.
-func (params NamedParameters) EncodeValues(key string, v *url.Values) error {
+// GetURLKey implements custom key encoding for url.Values.
+func (params NamedParameters) GetURLKey(parentKey string, childKey string) (string, error) {
 	if params.Name == "" {
-		return fmt.Errorf("attempted to encode NamedParameters with empty Name")
+		return "", fmt.Errorf("attributes: unable to determine url.Values key for empty NamedParameters.Name")
 	}
 
-	paramKey := strings.Join([]string{key, params.Name}, ".")
-
-	if err := params.Status.EncodeValues(paramKey, v); err != nil {
-		return err
-	}
-
-	if err := params.Parameters.EncodeValues(paramKey, v); err != nil {
-		return err
-	}
-
-	return nil
+	return fmt.Sprintf("%s.%s", parentKey, params.Name), nil
 }
 
 // NamedParametersCollection is a collection of NamedParameters.
@@ -69,17 +57,6 @@ func (collection NamedParametersCollection) EnabledNames() []string {
 	}
 
 	return enabled
-}
-
-// EncodeValues implements custom encoding to url.Values.
-func (collection NamedParametersCollection) EncodeValues(key string, v *url.Values) error {
-	for _, namedParameters := range collection {
-		if err := namedParameters.EncodeValues(key, v); err != nil {
-			return err
-		}
-	}
-
-	return nil
 }
 
 // UnmarshalJSONForNamedParametersCollections unmarshals JSON data into the given dest interface. dest must be

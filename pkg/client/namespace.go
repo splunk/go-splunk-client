@@ -98,7 +98,7 @@ func parseNamespace(id string) (Namespace, []string, error) {
 		}
 	}
 
-	return Namespace{}, nil, wrapError(ErrorID, nil, "client: unable to parse ID, missing services or servicesNS: %s", id)
+	return Namespace{}, nil, wrapError(ErrorID, nil, "client: unable to parse Namespace, missing services or servicesNS: %s", id)
 }
 
 // validate returns an error if the Namespace is invalid.

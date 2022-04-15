@@ -89,12 +89,12 @@ func (id *ID) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-// EncodeValues implements custom url.Query encoding of ID. It adds a field "name" for the ID's
+// SetURLValues implements custom url.Query encoding of ID. It adds a field "name" for the ID's
 // Title. If the Title value is empty, it returns an error, as there are no scenarios where an ID
 // object is expected to be POSTed with an empty Title.
-func (id ID) EncodeValues(key string, v *url.Values) error {
+func (id ID) SetURLValues(key string, v *url.Values) error {
 	if id.Title == "" {
-		return wrapError(ErrorID, nil, "client: attempted EncodeValues on ID with empty Title")
+		return wrapError(ErrorID, nil, "client: attempted SetURLValues on ID with empty Title")
 	}
 
 	v.Add("name", id.Title)

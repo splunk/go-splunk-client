@@ -143,7 +143,7 @@ func TestParameters_namedParametersWithDottedName(t *testing.T) {
 			"testname",
 			NamedParameters{
 				Name:   "testname",
-				Status: NewString("testname value"),
+				Status: NewExplicit("testname value"),
 				Parameters: Parameters{
 					"field": "testname field value",
 				},
@@ -238,14 +238,14 @@ func TestParameters_namedParametersCollection(t *testing.T) {
 				},
 				{
 					Name:   "fieldA",
-					Status: NewString("fieldValueA"),
+					Status: NewExplicit("fieldValueA"),
 					Parameters: Parameters{
 						"paramA": "paramValueA",
 					},
 				},
 				{
 					Name:   "fieldB",
-					Status: NewString("fieldValueB"),
+					Status: NewExplicit("fieldValueB"),
 					Parameters: Parameters{
 						"paramB": "paramValueB",
 					},
@@ -361,10 +361,10 @@ func TestHasParameters_UnmarshalJSON(t *testing.T) {
 	tests.test(t)
 }
 
-func TestParameters_EncodeValues(t *testing.T) {
+func TestParameters_SetURLValues(t *testing.T) {
 	type testType struct {
-		Name   string     `url:"name,omitempty"`
-		Params Parameters `url:"params"`
+		Name   string     `values:"name,omitempty"`
+		Params Parameters `values:"params"`
 	}
 
 	tests := queryValuesTestCases{
