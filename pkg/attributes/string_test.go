@@ -17,6 +17,8 @@ package attributes
 import (
 	"net/url"
 	"testing"
+
+	"github.com/splunk/go-splunk-client/pkg/internal/checks"
 )
 
 type testString struct {
@@ -91,45 +93,45 @@ func TestString_Bool(t *testing.T) {
 }
 
 func TestString_UnmarshalJSON(t *testing.T) {
-	tests := jsonUnmarshalTestCases{
+	tests := checks.JSONUnmarshalTestCases{
 		{
-			name:        "empty",
-			inputString: `{}`,
-			want:        testString{},
+			Name:        "empty",
+			InputString: `{}`,
+			Want:        testString{},
 		},
 		{
-			name:        "empty",
-			inputString: `{"value":""}`,
-			want:        testString{Value: NewExplicit("")},
+			Name:        "empty",
+			InputString: `{"value":""}`,
+			Want:        testString{Value: NewExplicit("")},
 		},
 		{
-			name:        "non-empty",
-			inputString: `{"value":"this string is not empty"}`,
-			want:        testString{Value: NewExplicit("this string is not empty")},
+			Name:        "non-empty",
+			InputString: `{"value":"this string is not empty"}`,
+			Want:        testString{Value: NewExplicit("this string is not empty")},
 		},
 	}
 
-	tests.test(t)
+	tests.Test(t)
 }
 
 func TestString_SetURLValues(t *testing.T) {
-	tests := queryValuesTestCases{
+	tests := checks.QueryValuesTestCases{
 		{
-			name:  "implicit empty",
-			input: testString{},
-			want:  url.Values{},
+			Name:  "implicit empty",
+			Input: testString{},
+			Want:  url.Values{},
 		},
 		{
-			name:  "explicit empty",
-			input: testString{Value: NewExplicit("")},
-			want:  url.Values{"Value": []string{""}},
+			Name:  "explicit empty",
+			Input: testString{Value: NewExplicit("")},
+			Want:  url.Values{"Value": []string{""}},
 		},
 		{
-			name:  "non-empty",
-			input: testString{Value: NewExplicit("this string is not empty")},
-			want:  url.Values{"Value": []string{"this string is not empty"}},
+			Name:  "non-empty",
+			Input: testString{Value: NewExplicit("this string is not empty")},
+			Want:  url.Values{"Value": []string{"this string is not empty"}},
 		},
 	}
 
-	tests.test(t)
+	tests.Test(t)
 }

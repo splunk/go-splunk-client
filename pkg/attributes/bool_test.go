@@ -17,6 +17,8 @@ package attributes
 import (
 	"net/url"
 	"testing"
+
+	"github.com/splunk/go-splunk-client/pkg/internal/checks"
 )
 
 type testBool struct {
@@ -24,49 +26,49 @@ type testBool struct {
 }
 
 func TestBool_UnmarshalJSON(t *testing.T) {
-	tests := jsonUnmarshalTestCases{
+	tests := checks.JSONUnmarshalTestCases{
 		{
-			name:        "empty",
-			inputString: `{}`,
-			want:        testBool{},
+			Name:        "empty",
+			InputString: `{}`,
+			Want:        testBool{},
 		},
 		{
-			name:        "zero",
-			inputString: `{"value":false}`,
-			want:        testBool{Value: NewExplicit(false)},
+			Name:        "zero",
+			InputString: `{"value":false}`,
+			Want:        testBool{Value: NewExplicit(false)},
 		},
 		{
-			name:        "non-zero",
-			inputString: `{"value":true}`,
-			want:        testBool{Value: NewExplicit(true)},
+			Name:        "non-zero",
+			InputString: `{"value":true}`,
+			Want:        testBool{Value: NewExplicit(true)},
 		},
 	}
 
-	tests.test(t)
+	tests.Test(t)
 }
 
 func TestBool_SetURLValues(t *testing.T) {
-	tests := queryValuesTestCases{
+	tests := checks.QueryValuesTestCases{
 		{
-			name:  "implicit zero",
-			input: testBool{},
-			want:  url.Values{},
+			Name:  "implicit zero",
+			Input: testBool{},
+			Want:  url.Values{},
 		},
 		{
-			name: "explicit zero",
-			input: testBool{
+			Name: "explicit zero",
+			Input: testBool{
 				Value: NewExplicit(false),
 			},
-			want: url.Values{"Value": []string{"false"}},
+			Want: url.Values{"Value": []string{"false"}},
 		},
 		{
-			name: "non-zero",
-			input: testBool{
+			Name: "non-zero",
+			Input: testBool{
 				Value: NewExplicit(true),
 			},
-			want: url.Values{"Value": []string{"true"}},
+			Want: url.Values{"Value": []string{"true"}},
 		},
 	}
 
-	tests.test(t)
+	tests.Test(t)
 }

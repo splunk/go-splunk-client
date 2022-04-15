@@ -18,6 +18,8 @@ import (
 	"encoding/json"
 	"reflect"
 	"testing"
+
+	"github.com/splunk/go-splunk-client/pkg/internal/checks"
 )
 
 func Test_dottedParameterNameParts(t *testing.T) {
@@ -264,33 +266,33 @@ func TestParameters_namedParametersCollection(t *testing.T) {
 }
 
 func TestParameters_UnmarshalJSON(t *testing.T) {
-	tests := jsonUnmarshalTestCases{
+	tests := checks.JSONUnmarshalTestCases{
 		{
-			name:        "empty",
-			inputString: `{}`,
-			want:        Parameters(nil),
+			Name:        "empty",
+			InputString: `{}`,
+			Want:        Parameters(nil),
 		},
 		{
-			name:        "invalid type (list)",
-			inputString: `{"param":[]}`,
-			want:        Parameters(nil),
-			wantError:   true,
+			Name:        "invalid type (list)",
+			InputString: `{"param":[]}`,
+			Want:        Parameters(nil),
+			WantError:   true,
 		},
 		{
-			name:        "invalid type (dict)",
-			inputString: `{"param":{}}`,
-			want:        Parameters(nil),
-			wantError:   true,
+			Name:        "invalid type (dict)",
+			InputString: `{"param":{}}`,
+			Want:        Parameters(nil),
+			WantError:   true,
 		},
 		{
-			name: "valid",
-			inputString: `{
+			Name: "valid",
+			InputString: `{
 				"stringField": "string value",
 				"boolField":   true,
 				"intField":    1,
 				"floatField":  1.234
 			}`,
-			want: Parameters{
+			Want: Parameters{
 				"stringField": "string value",
 				"boolField":   "true",
 				"intField":    "1",
@@ -299,7 +301,7 @@ func TestParameters_UnmarshalJSON(t *testing.T) {
 		},
 	}
 
-	tests.test(t)
+	tests.Test(t)
 }
 
 // testTypeWithParameters is a type used to test custom unmarshaling of Parameters fields.
@@ -337,20 +339,20 @@ func (valueWithParameters *testTypeWithParameters) UnmarshalJSON(data []byte) er
 }
 
 func TestHasParameters_UnmarshalJSON(t *testing.T) {
-	tests := jsonUnmarshalTestCases{
+	tests := checks.JSONUnmarshalTestCases{
 		{
-			name:        "empty",
-			inputString: `{}`,
-			want:        testTypeWithParameters{},
+			Name:        "empty",
+			InputString: `{}`,
+			Want:        testTypeWithParameters{},
 		},
 		{
-			name: "valid",
-			inputString: `{
+			Name: "valid",
+			InputString: `{
 				"name": "Test Name",
 				"args.argA": "argValueA",
 				"dispatch.dispatchA": "dispatchValueA"
 			}`,
-			want: testTypeWithParameters{
+			Want: testTypeWithParameters{
 				Name:     "Test Name",
 				Args:     Parameters{"argA": "argValueA"},
 				Dispatch: Parameters{"dispatchA": "dispatchValueA"},
@@ -358,7 +360,7 @@ func TestHasParameters_UnmarshalJSON(t *testing.T) {
 		},
 	}
 
-	tests.test(t)
+	tests.Test(t)
 }
 
 func TestParameters_SetURLValues(t *testing.T) {
@@ -367,31 +369,31 @@ func TestParameters_SetURLValues(t *testing.T) {
 		Params Parameters `values:"params"`
 	}
 
-	tests := queryValuesTestCases{
+	tests := checks.QueryValuesTestCases{
 		{
-			name:  "empty",
-			input: testType{},
-			want:  map[string][]string{},
+			Name:  "empty",
+			Input: testType{},
+			Want:  map[string][]string{},
 		},
 		{
-			name: "no param values",
-			input: testType{
+			Name: "no param values",
+			Input: testType{
 				Name: "testName",
 			},
-			want: map[string][]string{
+			Want: map[string][]string{
 				"name": {"testName"},
 			},
 		},
 		{
-			name: "param values",
-			input: testType{
+			Name: "param values",
+			Input: testType{
 				Name: "testName",
 				Params: Parameters{
 					"fieldA":        "valueA",
 					"fieldA.fieldB": "valueB",
 				},
 			},
-			want: map[string][]string{
+			Want: map[string][]string{
 				"name":                 {"testName"},
 				"params.fieldA":        {"valueA"},
 				"params.fieldA.fieldB": {"valueB"},
@@ -399,5 +401,5 @@ func TestParameters_SetURLValues(t *testing.T) {
 		},
 	}
 
-	tests.test(t)
+	tests.Test(t)
 }
