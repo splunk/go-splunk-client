@@ -34,7 +34,7 @@ func main() {
 		TLSInsecureSkipVerify: true,
 	}
 
-	if err := client.Create(c, entry.Role{
+	if err := c.Create(entry.Role{
 		ID: client.ID{
 			Title: "new_role",
 		},
@@ -51,7 +51,7 @@ func main() {
 		log.Fatalf("unable to set ID from URL: %s", err)
 	}
 
-	if err := client.Read(c, &createdRole); err != nil {
+	if err := c.Read(&createdRole); err != nil {
 		log.Fatalf("unable to read role: %s", err)
 	}
 	fmt.Printf("created role: %#v\n", createdRole)
@@ -61,11 +61,11 @@ func main() {
 		ID: client.ID{Title: "new_role"},
 	}
 	updateRole.Content.SrchDiskQuota.Set(0)
-	if err := client.Update(c, updateRole); err != nil {
+	if err := c.Update(updateRole); err != nil {
 		log.Fatalf("unable to update role: %s", err)
 	}
 
-	if err := client.Delete(c, createdRole); err != nil {
+	if err := c.Delete(createdRole); err != nil {
 		log.Fatalf("unable to delete role: %s", err)
 	}
 }

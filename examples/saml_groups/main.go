@@ -34,7 +34,7 @@ func main() {
 		TLSInsecureSkipVerify: true,
 	}
 
-	err := client.Create(c, entry.SAMLGroup{
+	err := c.Create(entry.SAMLGroup{
 		ID: client.ID{
 			Title: "new_saml_group",
 		},
@@ -51,7 +51,7 @@ func main() {
 			Title: "new_saml_group",
 		},
 	}
-	if err := client.Read(c, &readSAMLGroup); err != nil {
+	if err := c.Read(&readSAMLGroup); err != nil {
 		if clientErr, ok := err.(client.Error); ok {
 			if clientErr.Code == client.ErrorNotFound {
 				log.Fatalf("SAML group not found: %s", clientErr)
@@ -61,7 +61,7 @@ func main() {
 	}
 	fmt.Printf("read SAML group: %#v\n", readSAMLGroup)
 
-	if err := client.Delete(c, entry.SAMLGroup{
+	if err := c.Delete(entry.SAMLGroup{
 		ID: client.ID{
 			Title: "new_saml_group",
 		},

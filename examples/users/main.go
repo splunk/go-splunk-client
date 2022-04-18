@@ -34,7 +34,7 @@ func main() {
 		TLSInsecureSkipVerify: true,
 	}
 
-	if err := client.Create(c, entry.User{
+	if err := c.Create(entry.User{
 		ID: client.ID{
 			Title: "newuser",
 		},
@@ -53,7 +53,7 @@ func main() {
 		},
 	}
 
-	if err := client.Read(c, &createdUser); err != nil {
+	if err := c.Read(&createdUser); err != nil {
 		log.Fatalf("unable to read user: %s", err)
 	}
 	fmt.Printf("read user: %s\n", createdUser.ID)
@@ -61,16 +61,16 @@ func main() {
 	fmt.Printf("  roles: %s\n", createdUser.Content.Roles)
 
 	createdUser.Content.RealName = attributes.NewExplicit("Updated User")
-	if err := client.Update(c, createdUser); err != nil {
+	if err := c.Update(createdUser); err != nil {
 		log.Fatalf("unable to update user: %s", err)
 	}
 
-	if err := client.Delete(c, createdUser); err != nil {
+	if err := c.Delete(createdUser); err != nil {
 		log.Fatalf("unable to delete user: %s", err)
 	}
 
 	listedUsers := []entry.User{}
-	err := client.List(c, &listedUsers)
+	err := c.List(&listedUsers)
 	if err != nil {
 		log.Fatalf("unable to list users: %s", err)
 	}

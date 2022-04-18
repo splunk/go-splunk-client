@@ -41,26 +41,26 @@ func main() {
 	}
 
 	// create index
-	if err := client.Create(&c, newIndex); err != nil {
+	if err := c.Create(newIndex); err != nil {
 		log.Fatalf("unable to create index: %s", err)
 	}
-	if err := client.Read(&c, &newIndex); err != nil {
+	if err := c.Read(&newIndex); err != nil {
 		log.Fatalf("unable to read index: %s", err)
 	}
 	fmt.Printf("created index: %#v\n", newIndex)
 
 	// update index
 	newIndex.Content.FrozenTimePeriodInSecs = attributes.NewExplicit(86400)
-	if err := client.Update(&c, newIndex); err != nil {
+	if err := c.Update(newIndex); err != nil {
 		log.Fatalf("unable to update index: %s", err)
 	}
-	if err := client.Read(&c, &newIndex); err != nil {
+	if err := c.Read(&newIndex); err != nil {
 		log.Fatalf("unable to read index: %s", err)
 	}
 	fmt.Printf("updated index: %#v\n", newIndex)
 
 	// delete index
-	if err := client.Delete(&c, newIndex); err != nil {
+	if err := c.Delete(newIndex); err != nil {
 		log.Fatalf("unable to delete index: %s", err)
 	}
 }

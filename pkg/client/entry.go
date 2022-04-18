@@ -23,7 +23,7 @@ import (
 )
 
 // Create performs a Create action for the given Entry.
-func Create(client *Client, entry interface{}) error {
+func (client *Client) Create(entry interface{}) error {
 	var codes service.StatusCodes
 
 	return client.RequestAndHandle(
@@ -43,7 +43,7 @@ func Create(client *Client, entry interface{}) error {
 
 // Read performs a Read action for the given Entry. It modifies entry in-place,
 // so entry must be a pointer.
-func Read(client *Client, entry interface{}) error {
+func (client *Client) Read(entry interface{}) error {
 	var codes service.StatusCodes
 
 	return client.RequestAndHandle(
@@ -63,7 +63,7 @@ func Read(client *Client, entry interface{}) error {
 }
 
 // Update performs an Update action for the given Entry.
-func Update(client *Client, entry interface{}) error {
+func (client *Client) Update(entry interface{}) error {
 	var codes service.StatusCodes
 
 	return client.RequestAndHandle(
@@ -82,7 +82,7 @@ func Update(client *Client, entry interface{}) error {
 }
 
 // Delete performs a Delete action for the given Entry.
-func Delete(client *Client, entry interface{}) error {
+func (client *Client) Delete(entry interface{}) error {
 	var codes service.StatusCodes
 
 	return client.RequestAndHandle(
@@ -99,7 +99,7 @@ func Delete(client *Client, entry interface{}) error {
 	)
 }
 
-func listModified(client *Client, entries interface{}, modifier interface{}) error {
+func (client *Client) listModified(entries interface{}, modifier interface{}) error {
 	entriesPtrV := reflect.ValueOf(entries)
 	if entriesPtrV.Kind() != reflect.Ptr {
 		return wrapError(ErrorPtr, nil, "client: List attempted on on-pointer value")
@@ -133,16 +133,16 @@ func listModified(client *Client, entries interface{}, modifier interface{}) err
 }
 
 // ListNamespace populates entries in place for a Namespace.
-func ListNamespace(client *Client, entries interface{}, ns Namespace) error {
-	return listModified(client, entries, ns)
+func (client *Client) ListNamespace(entries interface{}, ns Namespace) error {
+	return client.listModified(entries, ns)
 }
 
 // ListNamespace populates entries in place for an ID.
-func ListID(client *Client, entries interface{}, id ID) error {
-	return listModified(client, entries, id)
+func (client *Client) ListID(entries interface{}, id ID) error {
+	return client.listModified(entries, id)
 }
 
 // ListNamespace populates entries in place without any ID or Namespace context.
-func List(client *Client, entries interface{}) error {
-	return listModified(client, entries, nil)
+func (client *Client) List(entries interface{}) error {
+	return client.listModified(entries, nil)
 }
