@@ -17,6 +17,8 @@ package attributes
 import (
 	"net/url"
 	"testing"
+
+	"github.com/splunk/go-splunk-client/pkg/internal/checks"
 )
 
 type testStrings struct {
@@ -24,53 +26,53 @@ type testStrings struct {
 }
 
 func TestStrings_UnmarshalJSON(t *testing.T) {
-	tests := jsonUnmarshalTestCases{
+	tests := checks.JSONUnmarshalTestCases{
 		{
-			name:        "absent",
-			inputString: "{}",
-			want:        testStrings{},
+			Name:        "absent",
+			InputString: "{}",
+			Want:        testStrings{},
 		},
 		{
-			name:        "empty list",
-			inputString: `{"values":[]}`,
-			want: testStrings{
+			Name:        "empty list",
+			InputString: `{"values":[]}`,
+			Want: testStrings{
 				Values: NewExplicit([]string{}),
 			},
 		},
 		{
-			name:        "populated list",
-			inputString: `{"values":["one","two"]}`,
-			want: testStrings{
+			Name:        "populated list",
+			InputString: `{"values":["one","two"]}`,
+			Want: testStrings{
 				Values: NewExplicit([]string{"one", "two"}),
 			},
 		},
 	}
 
-	tests.test(t)
+	tests.Test(t)
 }
 
 func TestStrings_SetURLValues(t *testing.T) {
-	tests := queryValuesTestCases{
+	tests := checks.QueryValuesTestCases{
 		{
-			name:  "zero value",
-			input: testStrings{},
-			want:  url.Values{},
+			Name:  "zero value",
+			Input: testStrings{},
+			Want:  url.Values{},
 		},
 		{
-			name: "explicitly empty",
-			input: testStrings{
+			Name: "explicitly empty",
+			Input: testStrings{
 				Values: NewExplicit([]string{}),
 			},
-			want: url.Values{"Values": []string{""}},
+			Want: url.Values{"Values": []string{""}},
 		},
 		{
-			name: "implicit values",
-			input: testStrings{
+			Name: "implicit values",
+			Input: testStrings{
 				Values: NewExplicit([]string{"one", "two"}),
 			},
-			want: url.Values{"Values": []string{"one", "two"}},
+			Want: url.Values{"Values": []string{"one", "two"}},
 		},
 	}
 
-	tests.test(t)
+	tests.Test(t)
 }

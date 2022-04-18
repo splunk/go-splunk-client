@@ -17,6 +17,8 @@ package attributes
 import (
 	"net/url"
 	"testing"
+
+	"github.com/splunk/go-splunk-client/pkg/internal/checks"
 )
 
 type testInt struct {
@@ -24,45 +26,45 @@ type testInt struct {
 }
 
 func TestInt_UnmarshalJSON(t *testing.T) {
-	tests := jsonUnmarshalTestCases{
+	tests := checks.JSONUnmarshalTestCases{
 		{
-			name:        "empty",
-			inputString: `{}`,
-			want:        testInt{},
+			Name:        "empty",
+			InputString: `{}`,
+			Want:        testInt{},
 		},
 		{
-			name:        "zero",
-			inputString: `{"value":0}`,
-			want:        testInt{Value: NewExplicit(0)},
+			Name:        "zero",
+			InputString: `{"value":0}`,
+			Want:        testInt{Value: NewExplicit(0)},
 		},
 		{
-			name:        "non-zero",
-			inputString: `{"value":1}`,
-			want:        testInt{Value: NewExplicit(1)},
+			Name:        "non-zero",
+			InputString: `{"value":1}`,
+			Want:        testInt{Value: NewExplicit(1)},
 		},
 	}
 
-	tests.test(t)
+	tests.Test(t)
 }
 
 func TestInt_SetURLValues(t *testing.T) {
-	tests := queryValuesTestCases{
+	tests := checks.QueryValuesTestCases{
 		{
-			name:  "implicit zero",
-			input: testInt{},
-			want:  url.Values{},
+			Name:  "implicit zero",
+			Input: testInt{},
+			Want:  url.Values{},
 		},
 		{
-			name:  "explicit zero",
-			input: testInt{Value: NewExplicit(0)},
-			want:  url.Values{"Value": []string{"0"}},
+			Name:  "explicit zero",
+			Input: testInt{Value: NewExplicit(0)},
+			Want:  url.Values{"Value": []string{"0"}},
 		},
 		{
-			name:  "non-zero",
-			input: testInt{Value: NewExplicit(1)},
-			want:  url.Values{"Value": []string{"1"}},
+			Name:  "non-zero",
+			Input: testInt{Value: NewExplicit(1)},
+			Want:  url.Values{"Value": []string{"1"}},
 		},
 	}
 
-	tests.test(t)
+	tests.Test(t)
 }

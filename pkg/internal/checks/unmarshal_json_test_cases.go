@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package attributes
+package checks
 
 import (
 	"encoding/json"
@@ -20,48 +20,48 @@ import (
 	"testing"
 )
 
-// jsonUnmarshalTestCase defines a test case for json.Unmarshal.
-type jsonUnmarshalTestCase struct {
-	name        string
-	inputString string
-	want        interface{}
-	wantError   bool
+// JSONUnmarshalTestCase defines a test case for json.Unmarshal.
+type JSONUnmarshalTestCase struct {
+	Name        string
+	InputString string
+	Want        interface{}
+	WantError   bool
 }
 
-// test runs the test case.
-func (test jsonUnmarshalTestCase) test(t *testing.T) {
+// Test runs the Test case.
+func (test JSONUnmarshalTestCase) Test(t *testing.T) {
 	// create a new pointer to a zero value of test.want
-	gotT := reflect.TypeOf(test.want)
+	gotT := reflect.TypeOf(test.Want)
 	if gotT == nil {
-		t.Fatalf("%s attempted with nil want type", test.name)
+		t.Fatalf("%s attempted with nil want type", test.Name)
 	}
 	gotV := reflect.New(gotT)
 	gotP := gotV.Interface()
 
 	// create a new pointer to a the same type as test.want,
 	// and set its data to match test.want
-	wantT := reflect.TypeOf(test.want)
+	wantT := reflect.TypeOf(test.Want)
 	wantV := reflect.New(wantT)
-	wantV.Elem().Set(reflect.ValueOf(test.want))
+	wantV.Elem().Set(reflect.ValueOf(test.Want))
 	wantP := wantV.Interface()
 
-	err := json.Unmarshal([]byte(test.inputString), gotP)
+	err := json.Unmarshal([]byte(test.InputString), gotP)
 	gotError := err != nil
-	if gotError != test.wantError {
-		t.Fatalf("%s json.Unmarshal returned error? %v (%s)", test.name, gotError, err)
+	if gotError != test.WantError {
+		t.Fatalf("%s json.Unmarshal returned error? %v (%s)", test.Name, gotError, err)
 	}
 
 	if !reflect.DeepEqual(gotP, wantP) {
-		t.Errorf("%s json.Unmarshal got\n%#v, want\n%#v", test.name, gotP, wantP)
+		t.Errorf("%s json.Unmarshal got\n%#v, want\n%#v", test.Name, gotP, wantP)
 	}
 }
 
-// jsonUnmarshalTestCases is a collection of jsonUnmarshalTestCases tests.
-type jsonUnmarshalTestCases []jsonUnmarshalTestCase
+// JSONUnmarshalTestCases is a collection of JSONUnmarshalTestCases tests.
+type JSONUnmarshalTestCases []JSONUnmarshalTestCase
 
-// test runs the test defined for each item in the collection.
-func (tests jsonUnmarshalTestCases) test(t *testing.T) {
+// Test runs the Test defined for each item in the collection.
+func (tests JSONUnmarshalTestCases) Test(t *testing.T) {
 	for _, test := range tests {
-		test.test(t)
+		test.Test(t)
 	}
 }

@@ -18,6 +18,8 @@ import (
 	"encoding/json"
 	"reflect"
 	"testing"
+
+	"github.com/splunk/go-splunk-client/pkg/internal/checks"
 )
 
 func TestNamedParameters_SetURLValues(t *testing.T) {
@@ -26,22 +28,22 @@ func TestNamedParameters_SetURLValues(t *testing.T) {
 		Action      NamedParameters `values:"actions"`
 	}
 
-	tests := queryValuesTestCases{
+	tests := checks.QueryValuesTestCases{
 		{
-			name:      "empty",
-			input:     testType{},
-			wantError: true,
+			Name:      "empty",
+			Input:     testType{},
+			WantError: true,
 		},
 		{
-			name: "description only",
-			input: testType{
+			Name: "description only",
+			Input: testType{
 				Description: "testDescription",
 			},
-			wantError: true,
+			WantError: true,
 		},
 		{
-			name: "no status",
-			input: testType{
+			Name: "no status",
+			Input: testType{
 				Description: "testDescription",
 				Action: NamedParameters{
 					Name: "email",
@@ -51,15 +53,15 @@ func TestNamedParameters_SetURLValues(t *testing.T) {
 					},
 				},
 			},
-			want: map[string][]string{
+			Want: map[string][]string{
 				"description":           {"testDescription"},
 				"actions.email.to":      {"whocares@example.com"},
 				"actions.email.subject": {"10 tricks your Splunk admin doesn't want you to know!"},
 			},
 		},
 		{
-			name: "email action",
-			input: testType{
+			Name: "email action",
+			Input: testType{
 				Description: "testDescription",
 				Action: NamedParameters{
 					Name:   "email",
@@ -70,7 +72,7 @@ func TestNamedParameters_SetURLValues(t *testing.T) {
 					},
 				},
 			},
-			want: map[string][]string{
+			Want: map[string][]string{
 				"description":           {"testDescription"},
 				"actions.email":         {"true"},
 				"actions.email.to":      {"whocares@example.com"},
@@ -79,7 +81,7 @@ func TestNamedParameters_SetURLValues(t *testing.T) {
 		},
 	}
 
-	tests.test(t)
+	tests.Test(t)
 }
 
 func TestNamedParametersCollection_EnabledNames(t *testing.T) {
@@ -165,22 +167,22 @@ func (valueWithCollections *testTypeWithNamedParametersCollection) UnmarshalJSON
 }
 
 func TestNamedParametersCollection_UnmarshalJSON(t *testing.T) {
-	tests := jsonUnmarshalTestCases{
+	tests := checks.JSONUnmarshalTestCases{
 		{
-			name:        "empty",
-			inputString: `{}`,
-			want:        testTypeWithNamedParametersCollection{},
-			wantError:   false,
+			Name:        "empty",
+			InputString: `{}`,
+			Want:        testTypeWithNamedParametersCollection{},
+			WantError:   false,
 		},
 		{
-			name: "working",
-			inputString: `{
+			Name: "working",
+			InputString: `{
 				"name":"working",
 				"options.disabledOption.description":"this option is not enabled",
 				"options.enabledOption":"true",
 				"options.enabledOption.description":"this option is enabled"
 			}`,
-			want: testTypeWithNamedParametersCollection{
+			Want: testTypeWithNamedParametersCollection{
 				Name: "working",
 				Options: NamedParametersCollection{
 					{
@@ -198,11 +200,11 @@ func TestNamedParametersCollection_UnmarshalJSON(t *testing.T) {
 					},
 				},
 			},
-			wantError: false,
+			WantError: false,
 		},
 	}
 
-	tests.test(t)
+	tests.Test(t)
 }
 
 func TestNamedParametersCollection_SetURLValues(t *testing.T) {
@@ -211,24 +213,24 @@ func TestNamedParametersCollection_SetURLValues(t *testing.T) {
 		Actions     NamedParametersCollection `named_parameters_collection:"actions" values:"actions,omitempty"`
 	}
 
-	tests := queryValuesTestCases{
+	tests := checks.QueryValuesTestCases{
 		{
-			name:  "empty",
-			input: testType{},
-			want:  map[string][]string{},
+			Name:  "empty",
+			Input: testType{},
+			Want:  map[string][]string{},
 		},
 		{
-			name: "description only",
-			input: testType{
+			Name: "description only",
+			Input: testType{
 				Description: "testDescription",
 			},
-			want: map[string][]string{
+			Want: map[string][]string{
 				"description": {"testDescription"},
 			},
 		},
 		{
-			name: "with status",
-			input: testType{
+			Name: "with status",
+			Input: testType{
 				Description: "testDescription",
 				Actions: NamedParametersCollection{
 					{
@@ -237,14 +239,14 @@ func TestNamedParametersCollection_SetURLValues(t *testing.T) {
 					},
 				},
 			},
-			want: map[string][]string{
+			Want: map[string][]string{
 				"description":   {"testDescription"},
 				"actions.email": {"false"},
 			},
 		},
 		{
-			name: "with fields",
-			input: testType{
+			Name: "with fields",
+			Input: testType{
 				Description: "testDescription",
 				Actions: NamedParametersCollection{
 					{
@@ -256,15 +258,15 @@ func TestNamedParametersCollection_SetURLValues(t *testing.T) {
 					},
 				},
 			},
-			want: map[string][]string{
+			Want: map[string][]string{
 				"description":      {"testDescription"},
 				"actions.email":    {"true"},
 				"actions.email.to": {"whocares@example.com"},
 			},
 		},
 		{
-			name: "with empty fields",
-			input: testType{
+			Name: "with empty fields",
+			Input: testType{
 				Description: "testDescription",
 				Actions: NamedParametersCollection{
 					{
@@ -277,7 +279,7 @@ func TestNamedParametersCollection_SetURLValues(t *testing.T) {
 					},
 				},
 			},
-			want: map[string][]string{
+			Want: map[string][]string{
 				"description":           {"testDescription"},
 				"actions.email.to":      {"whocares@example.com"},
 				"actions.email.subject": {""},
@@ -285,5 +287,5 @@ func TestNamedParametersCollection_SetURLValues(t *testing.T) {
 		},
 	}
 
-	tests.test(t)
+	tests.Test(t)
 }
