@@ -54,6 +54,24 @@ func (s testCustomValuesSlice) SetURLValues(key string, values *url.Values) erro
 	return nil
 }
 
+type testAddValuesStruct struct {
+	Name    string            `values:"-"`
+	Enabled bool              `values:"-"`
+	Values  map[string]string `values:",anonymize"`
+}
+
+func (a testAddValuesStruct) GetURLKey(parentKey, childKey string) (string, error) {
+	return a.Name, nil
+}
+
+func (a testAddValuesStruct) AddURLValues(key string, v *url.Values) error {
+	if a.Enabled {
+		v.Add("enabled", a.Name)
+	}
+
+	return nil
+}
+
 func Test_Encode(t *testing.T) {
 	type StructSliceField []struct {
 		StringField string
@@ -252,6 +270,20 @@ func Test_Encode(t *testing.T) {
 					"value1",
 					"value2",
 				},
+			},
+		},
+		{
+			name: "custom values adder",
+			input: testAddValuesStruct{
+				Name:    "testName",
+				Enabled: true,
+				Values: map[string]string{
+					"testFieldA": "testValueA",
+				},
+			},
+			wantValues: url.Values{
+				"enabled":             []string{"testName"},
+				"testName.testFieldA": []string{"testValueA"},
 			},
 		},
 	}
