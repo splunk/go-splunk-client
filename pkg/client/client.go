@@ -22,11 +22,16 @@ import (
 	"net/url"
 	"reflect"
 	"sync"
+	"time"
 
 	"github.com/splunk/go-splunk-client/pkg/deepset"
 	"github.com/splunk/go-splunk-client/pkg/internal/paths"
 	"github.com/splunk/go-splunk-client/pkg/service"
 	"golang.org/x/net/publicsuffix"
+)
+
+const (
+	defaultTimeout = time.Minute * 5
 )
 
 // Client defines connectivity and authentication to a Splunk REST API.
@@ -45,6 +50,9 @@ type Client struct {
 
 	// Set TLSInsecureSkipVerify to true to skip TLS verification.
 	TLSInsecureSkipVerify bool
+
+	// Timeout configures the timeout of requests. If unspecified, defaults to 5 minutes.
+	Timeout time.Duration
 
 	httpClient *http.Client
 	mu         sync.Mutex
@@ -94,7 +102,13 @@ func (c *Client) httpClientPrep() error {
 			return wrapError(ErrorHTTPClient, err, "unable to create new cookiejar: %s", err)
 		}
 
+		timeout := c.Timeout
+		if timeout == 0 {
+			timeout = defaultTimeout
+		}
+
 		c.httpClient = &http.Client{
+			Timeout: timeout,
 			Transport: &http.Transport{
 				TLSClientConfig: &tls.Config{
 					InsecureSkipVerify: c.TLSInsecureSkipVerify,
