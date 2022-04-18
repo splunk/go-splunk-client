@@ -48,6 +48,11 @@ func Test_parseConfID(t *testing.T) {
 			},
 			wantError: false,
 		},
+		{
+			name:      "malformed, junk before conf-",
+			input:     "/services/junk_conf-server/general",
+			wantError: true,
+		},
 	}
 
 	for _, test := range tests {
