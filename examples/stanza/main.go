@@ -50,12 +50,12 @@ func main() {
 	}
 
 	// create new stanza
-	if err := client.Create(c, newStanza); err != nil {
+	if err := c.Create(newStanza); err != nil {
 		log.Fatalf("unable to create stanza: %s", err)
 	}
 
 	// read created stanza
-	if err := client.Read(c, &newStanza); err != nil {
+	if err := c.Read(&newStanza); err != nil {
 		log.Fatalf("unable to read stanza: %s", err)
 	}
 	fmt.Printf("created Stanza:\n%#v\n", newStanza)
@@ -69,16 +69,16 @@ func main() {
 		// customKeyB will be added
 		"customKeyB": "customValueB",
 	}
-	if err := client.Update(c, newStanza); err != nil {
+	if err := c.Update(newStanza); err != nil {
 		log.Fatalf("unable to update stanza: %s", err)
 	}
-	if err := client.Read(c, &newStanza); err != nil {
+	if err := c.Read(&newStanza); err != nil {
 		log.Fatalf("unable to read stanza: %s", err)
 	}
 	fmt.Printf("updated Stanza:\n%#v\n", newStanza)
 
 	// delete stanza
-	if err := client.Delete(c, &newStanza); err != nil {
+	if err := c.Delete(&newStanza); err != nil {
 		log.Fatalf("unable to delete stanza: %s", err)
 	}
 }
