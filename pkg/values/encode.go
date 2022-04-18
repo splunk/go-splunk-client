@@ -187,8 +187,15 @@ func encodeValue(key string, values *url.Values, value reflect.Value) error {
 		}
 
 	case reflect.Struct:
-		return encodeStructValue(key, value, values)
+		if err := encodeStructValue(key, value, values); err != nil {
+			return err
+		}
 
+	}
+
+	// use additional custom encoding if implemented
+	if valuesAdder, ok := value.Interface().(URLValuesAdder); ok {
+		return valuesAdder.AddURLValues(key, values)
 	}
 
 	return nil

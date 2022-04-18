@@ -22,6 +22,14 @@ type URLValuesSetter interface {
 	SetURLValues(string, *url.Values) error
 }
 
+// URLValuesAdder is the interface for types that implement custom encoding to url.Values
+// for a given key in addition to default encoding. AddURLValues will be called in addition
+// to the default encoding methods. It is not called if the encoded type is a URLValuesSetter
+// or URLValueGetter.
+type URLValuesAdder interface {
+	AddURLValues(string, *url.Values) error
+}
+
 // URLKeyGetter is the interface for types that implement custom key calculation prior
 // to encoding to url.Values.
 type URLKeyGetter interface {
