@@ -126,18 +126,24 @@ func (p *Parameters) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	if len(interfaceMap) == 0 {
-		return nil
-	}
-
 	newP := Parameters{}
 	for key, value := range interfaceMap {
-		switch reflect.TypeOf(value).Kind() {
+		valueV := reflect.ValueOf(value)
+		if !valueV.IsValid() {
+			// invalid reflect.Value indicates a nil value, which we can safely ignore
+			continue
+		}
+
+		switch valueV.Kind() {
 		default:
 			return fmt.Errorf("unable to unmarshal unhandled type %T into Parameters for key %s", value, key)
 		case reflect.String, reflect.Bool, reflect.Float32, reflect.Float64, reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 			newP[key] = fmt.Sprintf("%v", value)
 		}
+	}
+
+	if len(newP) == 0 {
+		return nil
 	}
 
 	*p = newP

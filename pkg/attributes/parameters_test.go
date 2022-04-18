@@ -273,6 +273,11 @@ func TestParameters_UnmarshalJSON(t *testing.T) {
 			Want:        Parameters(nil),
 		},
 		{
+			Name:        "ignored type (null)",
+			InputString: `{"param":null}`,
+			Want:        Parameters(nil),
+		},
+		{
 			Name:        "invalid type (list)",
 			InputString: `{"param":[]}`,
 			Want:        Parameters(nil),
