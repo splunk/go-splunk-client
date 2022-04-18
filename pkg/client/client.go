@@ -110,6 +110,7 @@ func (c *Client) httpClientPrep() error {
 		c.httpClient = &http.Client{
 			Timeout: timeout,
 			Transport: &http.Transport{
+				Proxy: http.ProxyFromEnvironment,
 				TLSClientConfig: &tls.Config{
 					InsecureSkipVerify: c.TLSInsecureSkipVerify,
 				},
