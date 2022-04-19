@@ -42,8 +42,13 @@ import (
 // Option flags can be included as comma-separated values after <key>. Supported
 // options are:
 //
-// • omitempty - Omit the field if it is the zero value for its type. Note that
+// • omitzero - Omit the field if it is the zero value for its type. Note that
 // the zero value for a slice is nil. An empty slice is not treated as a nil slice.
+//
+// • fillempty - Populate empty slices (including nil) with a single value. The assigned
+// value will be the zero type for the slice element. If both fillempty and omitzero flags
+// are given, omitzero has precedence. This permits empty and nil slices to behave differently,
+// as configured.
 //
 // • anonymize - Treat the field as if it were anonymous. This gives it an empty
 // parent key.
@@ -106,8 +111,21 @@ func encodeStructValue(key string, inputV reflect.Value, values *url.Values) err
 		}
 
 		// skip empty values if configured to do so
-		if fieldOptions.Omitempty && fieldV.IsZero() {
+		if fieldOptions.Omitzero && fieldV.IsZero() {
 			continue
+		}
+
+		// fill empty slices with a single zero value if configured to do so
+		if fieldV.Kind() == reflect.Slice && fieldV.Len() == 0 && fieldOptions.Fillempty {
+			nestedKey, err := computedKey(fieldV, fieldName, 0)
+			if err != nil {
+				return err
+			}
+
+			iV := reflect.New(fieldV.Type().Elem()).Elem()
+			if err := encodeValue(nestedKey, values, iV); err != nil {
+				return err
+			}
 		}
 
 		if err := encodeValue(fieldName, values, fieldV); err != nil {
@@ -141,26 +159,12 @@ func encodeValue(key string, values *url.Values, value reflect.Value) error {
 		// note this is done only where this function adds to url.Values, as custom encoding should be
 		// trusted to choose the proper key, even if it was empty here.
 		if key == "" {
-			return fmt.Errorf("values: attmpted to encode empty key for value %#v", value.Interface())
+			return fmt.Errorf("values: attempted to encode empty key for value %#v", value.Interface())
 		}
 
 		values.Add(key, fmt.Sprint(value.Interface()))
 
 	case reflect.Slice, reflect.Array:
-		// empty lists are encoded as a single value of their zero type
-		// omitempty prevents this from occurring for nil slices
-		if value.Len() == 0 {
-			nestedKey, err := computedKey(value, key, 0)
-			if err != nil {
-				return err
-			}
-
-			iV := reflect.New(value.Type().Elem()).Elem()
-			if err := encodeValue(nestedKey, values, iV); err != nil {
-				return err
-			}
-		}
-
 		for i := 0; i < value.Len(); i++ {
 			nestedKey, err := computedKey(value, key, i)
 			if err != nil {
