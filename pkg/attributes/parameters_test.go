@@ -370,7 +370,7 @@ func TestHasParameters_UnmarshalJSON(t *testing.T) {
 
 func TestParameters_SetURLValues(t *testing.T) {
 	type testType struct {
-		Name   string     `values:"name,omitempty"`
+		Name   string     `values:"name,omitzero"`
 		Params Parameters `values:"params"`
 	}
 

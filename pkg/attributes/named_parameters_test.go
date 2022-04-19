@@ -24,7 +24,7 @@ import (
 
 func TestNamedParameters_SetURLValues(t *testing.T) {
 	type testType struct {
-		Description string          `values:"description,omitempty"`
+		Description string          `values:"description,omitzero"`
 		Action      NamedParameters `values:"actions"`
 	}
 
@@ -209,8 +209,8 @@ func TestNamedParametersCollection_UnmarshalJSON(t *testing.T) {
 
 func TestNamedParametersCollection_SetURLValues(t *testing.T) {
 	type testType struct {
-		Description string                    `values:"description,omitempty"`
-		Actions     NamedParametersCollection `named_parameters_collection:"actions" values:"actions,omitempty"`
+		Description string                    `values:"description,omitzero"`
+		Actions     NamedParametersCollection `named_parameters_collection:"actions" values:"actions,omitzero"`
 	}
 
 	tests := checks.QueryValuesTestCases{

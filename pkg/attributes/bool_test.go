@@ -22,7 +22,7 @@ import (
 )
 
 type testBool struct {
-	Value Explicit[bool] `values:",omitempty"`
+	Value Explicit[bool] `values:",omitzero"`
 }
 
 func TestBool_UnmarshalJSON(t *testing.T) {

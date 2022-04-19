@@ -24,7 +24,7 @@ import (
 func ExampleExplicit_bool() {
 	type knowledgeObject struct {
 		Name     string                    `values:"name"`
-		Disabled attributes.Explicit[bool] `values:"disabled,omitempty"`
+		Disabled attributes.Explicit[bool] `values:"disabled,omitzero"`
 	}
 
 	myObject := knowledgeObject{

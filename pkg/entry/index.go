@@ -21,21 +21,21 @@ import (
 
 // IndexContent is the content for an Index.
 type IndexContent struct {
-	ColdToFrozenDir        attributes.Explicit[string] `json:"coldToFrozenDir"        values:"coldToFrozenDir,omitempty"`
-	ColdToFrozenScript     attributes.Explicit[string] `json:"coldToFrozenScript"     values:"coldToFrozenScript,omitempty"`
-	DataType               attributes.Explicit[string] `json:"datatype"               values:"datatype,omitempty"               selective:"create"`
-	Disabled               attributes.Explicit[bool]   `json:"disabled"               values:"disabled,omitempty"               selective:"read"`
-	FrozenTimePeriodInSecs attributes.Explicit[int]    `json:"frozenTimePeriodInSecs" values:"frozenTimePeriodInSecs,omitempty"`
-	HomePath               attributes.Explicit[string] `json:"homePath"               values:"homePath,omitempty"               selective:"create"`
-	MaxDataSize            attributes.Explicit[string] `json:"maxDataSize"            values:"maxDataSize,omitempty"`
-	MaxHotBuckets          attributes.Explicit[string] `json:"maxHotBuckets"          values:"maxHotBuckets,omitempty"`
-	MaxHotIdleSecs         attributes.Explicit[int]    `json:"maxHotIdleSecs"         values:"maxHotIdleSecs,omitempty"`
-	MaxHotSpanSecs         attributes.Explicit[int]    `json:"maxHotSpanSecs"         values:"maxHotSpanSecs,omitempty"`
-	MaxTotalDataSizeMB     attributes.Explicit[int]    `json:"maxTotalDataSizeMB"     values:"maxTotalDataSizeMB,omitempty"`
-	MaxWarmDBCount         attributes.Explicit[int]    `json:"maxWarmDBCount"         values:"maxWarmDBCount,omitempty"`
-	QuarantineFutureSecs   attributes.Explicit[int]    `json:"quarantineFutureSecs"   values:"quarantineFutureSecs,omitempty"`
-	QuarantinePastSecs     attributes.Explicit[int]    `json:"quarantinePastSecs"     values:"quarantinePastSecs,omitempty"`
-	ThawedPath             attributes.Explicit[string] `json:"thawedPath"             values:"thawedPath,omitempty"            selective:"create"`
+	ColdToFrozenDir        attributes.Explicit[string] `json:"coldToFrozenDir"        values:"coldToFrozenDir,omitzero"`
+	ColdToFrozenScript     attributes.Explicit[string] `json:"coldToFrozenScript"     values:"coldToFrozenScript,omitzero"`
+	DataType               attributes.Explicit[string] `json:"datatype"               values:"datatype,omitzero"               selective:"create"`
+	Disabled               attributes.Explicit[bool]   `json:"disabled"               values:"disabled,omitzero"               selective:"read"`
+	FrozenTimePeriodInSecs attributes.Explicit[int]    `json:"frozenTimePeriodInSecs" values:"frozenTimePeriodInSecs,omitzero"`
+	HomePath               attributes.Explicit[string] `json:"homePath"               values:"homePath,omitzero"               selective:"create"`
+	MaxDataSize            attributes.Explicit[string] `json:"maxDataSize"            values:"maxDataSize,omitzero"`
+	MaxHotBuckets          attributes.Explicit[string] `json:"maxHotBuckets"          values:"maxHotBuckets,omitzero"`
+	MaxHotIdleSecs         attributes.Explicit[int]    `json:"maxHotIdleSecs"         values:"maxHotIdleSecs,omitzero"`
+	MaxHotSpanSecs         attributes.Explicit[int]    `json:"maxHotSpanSecs"         values:"maxHotSpanSecs,omitzero"`
+	MaxTotalDataSizeMB     attributes.Explicit[int]    `json:"maxTotalDataSizeMB"     values:"maxTotalDataSizeMB,omitzero"`
+	MaxWarmDBCount         attributes.Explicit[int]    `json:"maxWarmDBCount"         values:"maxWarmDBCount,omitzero"`
+	QuarantineFutureSecs   attributes.Explicit[int]    `json:"quarantineFutureSecs"   values:"quarantineFutureSecs,omitzero"`
+	QuarantinePastSecs     attributes.Explicit[int]    `json:"quarantinePastSecs"     values:"quarantinePastSecs,omitzero"`
+	ThawedPath             attributes.Explicit[string] `json:"thawedPath"             values:"thawedPath,omitzero"            selective:"create"`
 }
 
 // Index is a Splunk Index.

@@ -22,7 +22,7 @@ import (
 )
 
 type testString struct {
-	Value Explicit[string] `values:",omitempty"`
+	Value Explicit[string] `values:",omitzero"`
 }
 
 func TestString_Bool(t *testing.T) {

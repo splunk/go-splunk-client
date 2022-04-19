@@ -22,18 +22,18 @@ import (
 // UserContent defines the content of a User object.
 type UserContent struct {
 	// Read/Write
-	DefaultApp            attributes.Explicit[string]   `values:"defaultApp,omitempty"`
-	Email                 attributes.Explicit[string]   `values:"email,omitempty"`
-	Password              attributes.Explicit[string]   `values:"password,omitempty"`
-	RealName              attributes.Explicit[string]   `values:"realname,omitempty"`
-	RestartBackgroundJobs attributes.Explicit[bool]     `values:"restart_background_jobs,omitempty"`
-	Roles                 attributes.Explicit[[]string] `values:"roles,omitempty"`
-	TZ                    attributes.Explicit[string]   `values:"tz,omitempty"`
+	DefaultApp            attributes.Explicit[string] `values:"defaultApp,omitzero"`
+	Email                 attributes.Explicit[string] `values:"email,omitzero"`
+	Password              attributes.Explicit[string] `values:"password,omitzero"`
+	RealName              attributes.Explicit[string] `values:"realname,omitzero"`
+	RestartBackgroundJobs attributes.Explicit[bool]   `values:"restart_background_jobs,omitzero"`
+	Roles                 []string                    `values:"roles,omitzero,fillempty"`
+	TZ                    attributes.Explicit[string] `values:"tz,omitzero"`
 
 	// Read-only fields are populated by results returned by the Splunk API, but
 	// are not settable by Create or Update operations.
-	Capabilities attributes.Explicit[[]string] `values:"-"`
-	Type         attributes.Explicit[string]   `values:"-"`
+	Capabilities []string                    `values:"-"`
+	Type         attributes.Explicit[string] `values:"-"`
 }
 
 // User defines a Splunk user.

@@ -29,9 +29,9 @@ type NamedParameters struct {
 	// Status is the string representation of a NamedParameters' status. This is typically
 	// true/false or 0/1, and is the value associated directly with the name segment, such as
 	// email=true.
-	Status Explicit[string] `values:",omitempty,anonymize"`
+	Status Explicit[string] `values:",omitzero,anonymize"`
 
-	Parameters Parameters `values:",omitempty,anonymize"`
+	Parameters Parameters `values:",omitzero,anonymize"`
 }
 
 // GetURLKey implements custom key encoding for url.Values.

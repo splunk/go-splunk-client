@@ -25,7 +25,7 @@ import (
 
 // StanzaContent defines the content for a Stanza.
 type StanzaContent struct {
-	Disabled attributes.Explicit[bool] `json:"disabled" values:"disabled,omitempty"`
+	Disabled attributes.Explicit[bool] `json:"disabled" values:"disabled,omitzero"`
 	Values   map[string]string         `json:"-"        values:",anonymize"`
 }
 
