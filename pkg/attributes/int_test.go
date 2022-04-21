@@ -22,7 +22,7 @@ import (
 )
 
 type testInt struct {
-	Value Explicit[int] `values:",omitempty"`
+	Value Explicit[int] `values:",omitzero"`
 }
 
 func TestInt_UnmarshalJSON(t *testing.T) {

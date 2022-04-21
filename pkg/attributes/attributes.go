@@ -25,7 +25,7 @@ import (
 
 // explicitlyStorableValue defines the types storable by ExplicitValue.
 type explicitlyStorableValue interface {
-	bool | int | string | []string
+	bool | int | string
 }
 
 // Explicit is permits storing a value such that it can be explicitly empty/zero.

@@ -40,7 +40,7 @@ func main() {
 		},
 		Content: entry.RoleContent{
 			SrchDiskQuota: attributes.NewExplicit(1),
-			Capabilities:  attributes.NewExplicit([]string{"search"}),
+			Capabilities:  []string{"search"},
 		},
 	}); err != nil {
 		log.Fatalf("unable to create role: %s", err)

@@ -34,10 +34,10 @@ func Test_newOptions(t *testing.T) {
 			},
 		},
 		{
-			name:  "empty name, omitempty",
-			input: ",omitempty",
+			name:  "empty name, omitzero",
+			input: ",omitzero",
 			wantOptions: tagConfig{
-				Omitempty: true,
+				Omitzero: true,
 			},
 		},
 		{

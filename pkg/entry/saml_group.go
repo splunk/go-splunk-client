@@ -14,14 +14,13 @@
 package entry
 
 import (
-	"github.com/splunk/go-splunk-client/pkg/attributes"
 	"github.com/splunk/go-splunk-client/pkg/client"
 	"github.com/splunk/go-splunk-client/pkg/service"
 )
 
 // SAMLGroupContent defines the content for a SAMLGroup.
 type SAMLGroupContent struct {
-	Roles attributes.Explicit[[]string] `json:"roles" values:"roles,omitempty"`
+	Roles []string `json:"roles" values:"roles,omitzero,fillempty"`
 }
 
 // SAMLGroup defines a SAML group mapping.

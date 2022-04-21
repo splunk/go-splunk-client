@@ -27,7 +27,8 @@ import (
 type tagConfig struct {
 	// fields are exported (though type is not) so they can be set via reflection
 	Name      string
-	Omitempty bool
+	Omitzero  bool
+	Fillempty bool
 	Anonymize bool
 }
 

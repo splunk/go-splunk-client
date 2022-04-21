@@ -54,6 +54,24 @@ func (s testCustomValuesSlice) SetURLValues(key string, values *url.Values) erro
 	return nil
 }
 
+type testAddValuesStruct struct {
+	Name    string            `values:"-"`
+	Enabled bool              `values:"-"`
+	Values  map[string]string `values:",anonymize"`
+}
+
+func (a testAddValuesStruct) GetURLKey(parentKey, childKey string) (string, error) {
+	return a.Name, nil
+}
+
+func (a testAddValuesStruct) AddURLValues(key string, v *url.Values) error {
+	if a.Enabled {
+		v.Add("enabled", a.Name)
+	}
+
+	return nil
+}
+
 func Test_Encode(t *testing.T) {
 	type StructSliceField []struct {
 		StringField string
@@ -61,12 +79,13 @@ func Test_Encode(t *testing.T) {
 	}
 
 	type TestStructField struct {
-		StringField      string
-		IntField         int
-		StringSliceField []string
-		StructSliceField StructSliceField
-		MapField         map[string]string
-		MapFieldCustom   testMapCustomKey
+		StringField           string
+		IntField              int
+		StringSliceField      []string         `values:",fillempty"`
+		StructSliceField      StructSliceField `values:",fillempty"`
+		FilledAndOmittedField []string         `values:",omitzero,fillempty"`
+		MapField              map[string]string
+		MapFieldCustom        testMapCustomKey
 	}
 
 	tests := []struct {
@@ -89,19 +108,35 @@ func Test_Encode(t *testing.T) {
 			name:  "struct with zero values",
 			input: TestStructField{},
 			wantValues: url.Values{
-				"StringField":                  []string{""},
-				"IntField":                     []string{"0"},
-				"StringSliceField":             []string{""},
+				"StringField":      []string{""},
+				"IntField":         []string{"0"},
+				"StringSliceField": []string{""},
+				// FilledAndOmittedField was the zero value (not empty), so it's not present
 				"StructSliceField.StringField": []string{""},
 				"StructSliceField.IntField":    []string{"0"},
 			},
 		},
 		{
-			name: "struct with zero values, omitempty",
+			name: "struct with empty slice",
+			input: TestStructField{
+				FilledAndOmittedField: []string{},
+			},
+			wantValues: url.Values{
+				"StringField":      []string{""},
+				"IntField":         []string{"0"},
+				"StringSliceField": []string{""},
+				// FilledAndOmittedField was empty, so it is filled with an empty value
+				"FilledAndOmittedField":        []string{""},
+				"StructSliceField.StringField": []string{""},
+				"StructSliceField.IntField":    []string{"0"},
+			},
+		},
+		{
+			name: "struct with zero values, omitzero",
 			input: struct {
-				StringField string   `values:",omitempty"`
-				IntField    int      `values:",omitempty"`
-				SliceField  []string `values:",omitempty"`
+				StringField string   `values:",omitzero"`
+				IntField    int      `values:",omitzero"`
+				SliceField  []string `values:",omitzero"`
 			}{},
 			wantValues: url.Values{},
 		},
@@ -252,6 +287,20 @@ func Test_Encode(t *testing.T) {
 					"value1",
 					"value2",
 				},
+			},
+		},
+		{
+			name: "custom values adder",
+			input: testAddValuesStruct{
+				Name:    "testName",
+				Enabled: true,
+				Values: map[string]string{
+					"testFieldA": "testValueA",
+				},
+			},
+			wantValues: url.Values{
+				"enabled":             []string{"testName"},
+				"testName.testFieldA": []string{"testValueA"},
 			},
 		},
 	}

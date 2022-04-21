@@ -41,7 +41,7 @@ func main() {
 		Content: entry.UserContent{
 			Password: attributes.NewExplicit("changedit"),
 			RealName: attributes.NewExplicit("New User"),
-			Roles:    attributes.NewExplicit([]string{"user"}),
+			Roles:    []string{"user"},
 		},
 	}); err != nil {
 		log.Fatalf("unable to create user: %s", err)

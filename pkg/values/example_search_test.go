@@ -16,32 +16,48 @@ package values_test
 
 import (
 	"fmt"
+	"net/url"
 
 	"github.com/splunk/go-splunk-client/pkg/values"
 )
 
 type Action struct {
-	Name       string `values:"-"`
-	Enabled    bool
+	// Name and Enabled are not added to url.Values by "normal" encoding.
+	Name    string `values:"-"`
+	Enabled bool   `values:"-"`
+
+	// Parameters are added to url.Values by "normal" encoding (but with custom key calculation).
 	Parameters map[string]string
 }
 
 func (a Action) GetURLKey(parentKey, childKey string) (string, error) {
 	// the key for Action is <parentKey>.<a.Name>
-	// this makes Enabled a value at this path,
-	// and Parameters at <parentKey>.<a.Name>.<Parameter.key>
+	// this sets Parameters at <parentKey>.<a.Name>.<Parameter.key>
 	return fmt.Sprint(parentKey, ".", a.Name), nil
 }
 
+type Actions []Action
+
+// AddURLValues adds the list of enabled actions to the "actions" key.
+func (actions Actions) AddURLValues(key string, v *url.Values) error {
+	for _, action := range actions {
+		if action.Enabled {
+			v.Add("actions", action.Name)
+		}
+	}
+
+	return nil
+}
+
 type Search struct {
-	Name    string   `values:"name"`
-	Actions []Action `values:"action"`
+	Name    string  `values:"name"`
+	Actions Actions `values:"action"`
 }
 
 func Example_encodeSearch() {
 	search := Search{
 		Name: "my_search",
-		Actions: []Action{
+		Actions: Actions{
 			{
 				Name:    "email",
 				Enabled: true,
@@ -55,5 +71,5 @@ func Example_encodeSearch() {
 
 	v, _ := values.Encode(search)
 	fmt.Println(v.Encode())
-	// Output: action.email=true&action.email.recipient=joeuser%40example.com&action.email.subject=Something+happened%21&name=my_search
+	// Output: action.email.recipient=joeuser%40example.com&action.email.subject=Something+happened%21&actions=email&name=my_search
 }
