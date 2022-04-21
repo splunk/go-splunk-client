@@ -91,6 +91,15 @@ func (c *Client) EntryURL(e interface{}) (*url.URL, error) {
 	return c.urlForPath(entryPath)
 }
 
+func (c *Client) EntryACLURL(e interface{}) (*url.URL, error) {
+	entryPath, err := service.EntryPath(e)
+	if err != nil {
+		return nil, err
+	}
+
+	return c.urlForPath(entryPath, "acl")
+}
+
 // httpClientPrep prepares the Client's http.Client.
 func (c *Client) httpClientPrep() error {
 	c.mu.Lock()
@@ -276,4 +285,48 @@ func (client *Client) ListID(entries interface{}, id ID) error {
 // ListNamespace populates entries in place without any ID or Namespace context.
 func (client *Client) List(entries interface{}) error {
 	return client.listModified(entries, nil)
+}
+
+// ReadACL performs a ReadACL action for the given Entry. It modifies acl in-place,
+// so acl must be a pointer.
+func (client *Client) ReadACL(entry interface{}, acl *ACL) error {
+	var aclResponse struct {
+		ACL ACL `json:"acl"`
+	}
+
+	if err := client.RequestAndHandle(
+		ComposeRequestBuilder(
+			BuildRequestMethod(http.MethodGet),
+			BuildRequestEntryACLURL(client, entry, *acl),
+			BuildRequestOutputModeJSON(),
+			BuildRequestAuthenticate(client),
+		),
+		ComposeResponseHandler(
+			HandleResponseCode(http.StatusNotFound, HandleResponseJSONMessagesCustomError(ErrorNotFound)),
+			HandleResponseRequireCode(http.StatusOK, HandleResponseJSONMessagesError()),
+			HandleResponseEntry(&aclResponse),
+		),
+	); err != nil {
+		return err
+	}
+
+	*acl = aclResponse.ACL
+
+	return nil
+}
+
+// UpdateACL performs an UpdateACL action for the given Entry.
+func (client *Client) UpdateACL(entry interface{}, acl ACL) error {
+	return client.RequestAndHandle(
+		ComposeRequestBuilder(
+			BuildRequestMethod(http.MethodPost),
+			BuildRequestEntryACLURL(client, entry, acl),
+			BuildRequestBodyValues(acl),
+			BuildRequestOutputModeJSON(),
+			BuildRequestAuthenticate(client),
+		),
+		ComposeResponseHandler(
+			HandleResponseRequireCode(http.StatusOK, HandleResponseJSONMessagesError()),
+		),
+	)
 }

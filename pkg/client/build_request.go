@@ -152,6 +152,21 @@ func BuildRequestEntryURL(c *Client, entry interface{}) RequestBuilder {
 	}
 }
 
+// BuildRequestEntryACLURL returns a RequestBuilder that sets the URL to the ACL URL
+// for a given Entry.
+func BuildRequestEntryACLURL(c *Client, entry interface{}, acl ACL) RequestBuilder {
+	return func(r *http.Request) error {
+		u, err := c.EntryACLURL(entry)
+		if err != nil {
+			return err
+		}
+
+		r.URL = u
+
+		return nil
+	}
+}
+
 // BuildRequestAuthenticate returns a RequestBuilder that authenticates a request for a given Client.
 func BuildRequestAuthenticate(c *Client) RequestBuilder {
 	return func(r *http.Request) error {
