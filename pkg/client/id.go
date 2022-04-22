@@ -33,8 +33,8 @@ type ID struct {
 	url string
 }
 
-// parseID returns a new ID by parsing the ID URL string.
-func parseID(idURL string) (ID, error) {
+// ParseID returns a new ID by parsing the ID URL string.
+func ParseID(idURL string) (ID, error) {
 	newNS, remnants, err := parseNamespace(idURL)
 	if err != nil {
 		return ID{}, err
@@ -53,7 +53,7 @@ func parseID(idURL string) (ID, error) {
 
 // Parse sets the ID's value to match what is parsed from the given ID URL.
 func (id *ID) Parse(idURL string) error {
-	newID, err := parseID(idURL)
+	newID, err := ParseID(idURL)
 	if err != nil {
 		return err
 	}
@@ -70,7 +70,7 @@ func (id ID) URL() (string, error) {
 		return "", wrapError(ErrorID, nil, "client: ID has unset URL")
 	}
 
-	idFromURL, err := parseID(id.url)
+	idFromURL, err := ParseID(id.url)
 	if err != nil {
 		return "", wrapError(ErrorID, err, "client: unable to re-parse ID's stored URL: %s", err)
 	}

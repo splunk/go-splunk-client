@@ -96,7 +96,7 @@ func Test_ParseID(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		gotID, err := parseID(test.inputID)
+		gotID, err := ParseID(test.inputID)
 		gotError := err != nil
 
 		if gotError != test.wantError {
