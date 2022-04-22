@@ -21,28 +21,23 @@ import (
 	"github.com/splunk/go-splunk-client/pkg/client"
 )
 
-// SessionKey provides authentication to Splunk via a session key.
-type SessionKey struct {
-	// SessionKey is the session key that will be used to authenticate to Splunk.
-	SessionKey string `xml:"sessionKey"`
+// Token provides authentication to Splunk via a bearer token.
+type Token struct {
+	// Token is the token that will be used to authenticate to Splunk.
+	Token string
 }
 
-// authenticated returns true if SessionKey is not empty.
-func (s SessionKey) authenticated() bool {
-	return s.SessionKey != ""
-}
-
-// AuthenticateRequest adds the SessionKey to the http.Request's Header.
-func (s SessionKey) AuthenticateRequest(c *client.Client, r *http.Request) error {
-	if !s.authenticated() {
-		return fmt.Errorf("attempted to authenticate request with empty SessionKey")
+// AuthenticateRequest adds the Token to the http.Request's Header.
+func (t Token) AuthenticateRequest(c *client.Client, r *http.Request) error {
+	if t.Token == "" {
+		return fmt.Errorf("attempted to authenticate request with empty Token")
 	}
 
 	if r.Header == nil {
 		r.Header = http.Header{}
 	}
 
-	r.Header.Add("Authorization", fmt.Sprintf("Splunk %s", s.SessionKey))
+	r.Header.Add("Authorization", fmt.Sprintf("Bearer %s", t.Token))
 
 	return nil
 }
