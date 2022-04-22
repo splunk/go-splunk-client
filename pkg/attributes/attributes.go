@@ -23,13 +23,13 @@ import (
 	"strconv"
 )
 
-// explicitlyStorableValue defines the types storable by ExplicitValue.
-type explicitlyStorableValue interface {
+// Storable defines the types storable by ExplicitValue.
+type Storable interface {
 	bool | int | string
 }
 
 // Explicit is permits storing a value such that it can be explicitly empty/zero.
-type Explicit[T explicitlyStorableValue] struct {
+type Explicit[T Storable] struct {
 	set   bool
 	value T
 }
@@ -46,7 +46,7 @@ func (e *Explicit[T]) Set(value T) {
 }
 
 // NewExplicit returns a new Explicit with its value explicitly set.
-func NewExplicit[T explicitlyStorableValue](value T) (newExplicitValue Explicit[T]) {
+func NewExplicit[T Storable](value T) (newExplicitValue Explicit[T]) {
 	newExplicitValue.Set(value)
 
 	return
