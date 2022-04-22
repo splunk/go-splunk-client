@@ -33,8 +33,8 @@ func (s SessionKey) authenticated() bool {
 }
 
 // AuthenticateRequest adds the SessionKey to the http.Request's Header.
-func (s *SessionKey) AuthenticateRequest(c *client.Client, r *http.Request) error {
-	if s.SessionKey == "" {
+func (s SessionKey) AuthenticateRequest(c *client.Client, r *http.Request) error {
+	if !s.authenticated() {
 		return fmt.Errorf("attempted to authenticate request with empty SessionKey")
 	}
 
