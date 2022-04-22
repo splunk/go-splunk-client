@@ -34,6 +34,7 @@ func Test_ParseID(t *testing.T) {
 			inputID: "https://localhost:8089/services/authorization/roles/testrole",
 			wantID: ID{
 				Title: "testrole",
+				url:   "https://localhost:8089/services/authorization/roles/testrole",
 			},
 		},
 		{
@@ -45,6 +46,7 @@ func Test_ParseID(t *testing.T) {
 					App:  "search",
 				},
 				Title: "testsearch",
+				url:   "https://localhost:8089/servicesNS/nobody/search/saved/searches/testsearch",
 			},
 		},
 		{
@@ -58,6 +60,7 @@ func Test_ParseID(t *testing.T) {
 			wantID: ID{
 				// there is an empty segment, so Title is an empty string
 				Title: "",
+				url:   "services/",
 			},
 		},
 		{
@@ -70,6 +73,7 @@ func Test_ParseID(t *testing.T) {
 				},
 				// there is an empty segment, so Title is an empty string
 				Title: "",
+				url:   "servicesNS/nobody/search/",
 			},
 		},
 		{
@@ -81,6 +85,7 @@ func Test_ParseID(t *testing.T) {
 					App:  "-",
 				},
 				Title: "testsearch",
+				url:   "servicesNS/-/-/testsearch",
 			},
 		},
 		{
