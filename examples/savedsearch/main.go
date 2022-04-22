@@ -64,17 +64,32 @@ func main() {
 	if err := c.Read(&newSearch); err != nil {
 		log.Fatalf("unable to read search: %s", err)
 	}
+	var newSearchACL client.ACL
+	if err := c.ReadACL(newSearch, &newSearchACL); err != nil {
+		log.Fatalf("unable to read search acl: %s", err)
+	}
 	fmt.Printf("created search:\n%#v\n", newSearch)
+	fmt.Printf("created search acl:\n%#v\n", newSearchACL)
 
 	// update search
 	newSearch.Content.Actions = attributes.NamedParametersCollection{} // explicitly clear Actions, disabling all
 	if err := c.Update(newSearch); err != nil {
 		log.Fatalf("unable to update search: %s", err)
 	}
+	newSearchACL.Permissions.Write = []string{"admin"}
+	newSearchACL.Owner = attributes.NewExplicit("nobody")
+	newSearchACL.Sharing = client.SharingGlobal
+	if err := c.UpdateACL(newSearch, newSearchACL); err != nil {
+		log.Fatalf("unable to update search acl: %s", err)
+	}
 	if err := c.Read(&newSearch); err != nil {
 		log.Fatalf("unable to read search: %s", err)
 	}
+	if err := c.ReadACL(newSearch, &newSearchACL); err != nil {
+		log.Fatalf("unable to read search acl: %s", err)
+	}
 	fmt.Printf("updated search:\n%#v\n", newSearch)
+	fmt.Printf("updated search acl:\n%#v\n", newSearchACL)
 
 	// delete search
 	if err := c.Delete(newSearch); err != nil {

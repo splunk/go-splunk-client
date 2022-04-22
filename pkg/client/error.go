@@ -77,6 +77,9 @@ const (
 
 	// ErrorID indicates an error was encountered related to an object's ID.
 	ErrorID
+
+	// ErrorSharing indicates an error was encountered related to a Sharing value.
+	ErrorSharing
 )
 
 // Error represents an encountered error. It adheres to the "error" interface,
