@@ -34,6 +34,7 @@ func Test_ParseID(t *testing.T) {
 			inputID: "https://localhost:8089/services/authorization/roles/testrole",
 			wantID: ID{
 				Title: "testrole",
+				url:   "https://localhost:8089/services/authorization/roles/testrole",
 			},
 		},
 		{
@@ -45,6 +46,7 @@ func Test_ParseID(t *testing.T) {
 					App:  "search",
 				},
 				Title: "testsearch",
+				url:   "https://localhost:8089/servicesNS/nobody/search/saved/searches/testsearch",
 			},
 		},
 		{
@@ -58,6 +60,7 @@ func Test_ParseID(t *testing.T) {
 			wantID: ID{
 				// there is an empty segment, so Title is an empty string
 				Title: "",
+				url:   "services/",
 			},
 		},
 		{
@@ -70,6 +73,7 @@ func Test_ParseID(t *testing.T) {
 				},
 				// there is an empty segment, so Title is an empty string
 				Title: "",
+				url:   "servicesNS/nobody/search/",
 			},
 		},
 		{
@@ -81,6 +85,7 @@ func Test_ParseID(t *testing.T) {
 					App:  "-",
 				},
 				Title: "testsearch",
+				url:   "servicesNS/-/-/testsearch",
 			},
 		},
 		{
@@ -91,7 +96,7 @@ func Test_ParseID(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		gotID, err := parseID(test.inputID)
+		gotID, err := ParseID(test.inputID)
 		gotError := err != nil
 
 		if gotError != test.wantError {
@@ -104,6 +109,68 @@ func Test_ParseID(t *testing.T) {
 				gotID,
 				test.wantID,
 			)
+		}
+	}
+}
+
+func TestID_URL(t *testing.T) {
+	tests := []struct {
+		name      string
+		input     ID
+		wantURL   string
+		wantError bool
+	}{
+		{
+			name:      "empty",
+			wantError: true,
+		},
+		{
+			name: "unset url",
+			input: ID{
+				Title: "testtitle",
+				Namespace: Namespace{
+					User: "testuser",
+					App:  "testapp",
+				},
+			},
+			wantError: true,
+		},
+		{
+			name: "url mismatch",
+			input: ID{
+				Namespace: Namespace{
+					User: "testuser",
+					App:  "changedapp",
+				},
+				Title: "testtitle",
+				url:   "https://localhost:8089/servicesNS/testuser/testapp/service/path/testtitle",
+			},
+			wantError: true,
+		},
+		{
+			name: "url matches",
+			input: ID{
+				Namespace: Namespace{
+					User: "testuser",
+					App:  "testapp",
+				},
+				Title: "testtitle",
+				url:   "https://localhost:8089/servicesNS/testuser/testapp/service/path/testtitle",
+			},
+			wantURL: "https://localhost:8089/servicesNS/testuser/testapp/service/path/testtitle",
+		},
+	}
+
+	for _, test := range tests {
+		gotURL, err := test.input.URL()
+		gotError := err != nil
+
+		if gotError != test.wantError {
+			t.Errorf("%s: URL() returned error? %v (%s)", test.name, gotError, err)
+		}
+
+		if gotURL != test.wantURL {
+			t.Errorf("%s: URL() got\n%s, want\n%s", test.name, gotURL, test.wantURL)
 		}
 	}
 }

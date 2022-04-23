@@ -27,10 +27,14 @@ type ID struct {
 
 	// Title is the ID's title component. It is the name of the Splunk object.
 	Title string
+
+	// url is the ID in URL format. It is set by parseID (which is used by Parse and UnmarshalJSON)
+	// to give confidence that it is correct and reliable.
+	url string
 }
 
-// parseID returns a new ID by parsing the ID URL string.
-func parseID(idURL string) (ID, error) {
+// ParseID returns a new ID by parsing the ID URL string.
+func ParseID(idURL string) (ID, error) {
 	newNS, remnants, err := parseNamespace(idURL)
 	if err != nil {
 		return ID{}, err
@@ -43,12 +47,13 @@ func parseID(idURL string) (ID, error) {
 	return ID{
 		Namespace: newNS,
 		Title:     remnants[len(remnants)-1],
+		url:       idURL,
 	}, nil
 }
 
 // Parse sets the ID's value to match what is parsed from the given ID URL.
 func (id *ID) Parse(idURL string) error {
-	newID, err := parseID(idURL)
+	newID, err := ParseID(idURL)
 	if err != nil {
 		return err
 	}
@@ -56,6 +61,25 @@ func (id *ID) Parse(idURL string) error {
 	*id = newID
 
 	return nil
+}
+
+// URL returns the URL for ID. An error is returned if URL() is run on ID that has no set URL, or if the
+// stored URL doesn't match the ID's fields.
+func (id ID) URL() (string, error) {
+	if id.url == "" {
+		return "", wrapError(ErrorID, nil, "client: ID has unset URL")
+	}
+
+	idFromURL, err := ParseID(id.url)
+	if err != nil {
+		return "", wrapError(ErrorID, err, "client: unable to re-parse ID's stored URL: %s", err)
+	}
+
+	if idFromURL != id {
+		return "", wrapError(ErrorID, nil, "client: ID doesn't match stored URL")
+	}
+
+	return id.url, nil
 }
 
 // GetServicePath implements custom GetServicePath encoding. It returns its Namespace's
