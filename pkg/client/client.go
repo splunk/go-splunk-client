@@ -202,6 +202,32 @@ func (client *Client) Read(entry interface{}) error {
 	)
 }
 
+func RepeatedlyTry(entryFunc func() error, delay time.Duration, count int, retryErrorCodes ...ErrorCode) error {
+	retryForErrorCode := map[ErrorCode]bool{}
+	for _, retryErrorCode := range retryErrorCodes {
+		retryForErrorCode[retryErrorCode] = true
+	}
+
+	var err error
+
+	for i := 0; i < count; i++ {
+		err = entryFunc()
+		if err == nil {
+			return nil
+		}
+
+		if clientErr, ok := err.(Error); ok {
+			if !retryForErrorCode[clientErr.Code] {
+				return clientErr
+			}
+
+			time.Sleep(delay)
+		}
+	}
+
+	return err
+}
+
 // Update performs an Update action for the given Entry.
 func (client *Client) Update(entry interface{}) error {
 	var codes service.StatusCodes
