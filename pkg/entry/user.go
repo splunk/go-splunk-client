@@ -24,6 +24,7 @@ type UserContent struct {
 	// Read/Write
 	DefaultApp            attributes.Explicit[string] `values:"defaultApp,omitzero"`
 	Email                 attributes.Explicit[string] `values:"email,omitzero"`
+	ForceChangePass       attributes.Explicit[bool]   `values:"force-change-pass,omitzero"`
 	Password              attributes.Explicit[string] `values:"password,omitzero"`
 	RealName              attributes.Explicit[string] `values:"realname,omitzero"`
 	RestartBackgroundJobs attributes.Explicit[bool]   `values:"restart_background_jobs,omitzero"`
