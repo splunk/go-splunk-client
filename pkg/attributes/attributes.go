@@ -85,6 +85,11 @@ func (e Explicit[T]) Value() T {
 	return e.value
 }
 
+// ValueOk returns the stored value and a boolean indicating if it was explicitly set.
+func (e Explicit[T]) ValueOk() (T, bool) {
+	return e.value, e.set
+}
+
 // String returns the defualt string representation of the stored value.
 func (e Explicit[T]) String() string {
 	return fmt.Sprint(e.value)
